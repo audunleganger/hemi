@@ -1,0 +1,136 @@
+import kotlin.Boolean;
+
+-- Active ingredients (IN-1 … IN-5), per user.
+CREATE TABLE ingredient (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL REFERENCES app_user(id) ON DELETE CASCADE,
+    name TEXT NOT NULL,
+    name_norm TEXT NOT NULL,
+    measure_unit TEXT NOT NULL,
+    archived INTEGER AS Boolean NOT NULL DEFAULT 0,
+    created_at INTEGER NOT NULL,
+    UNIQUE (user_id, name_norm)
+);
+
+-- Medications and remedies (ME-1 … ME-6); a remedy has no ingredients (ME-2).
+CREATE TABLE medication (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL REFERENCES app_user(id) ON DELETE CASCADE,
+    name TEXT NOT NULL,
+    name_norm TEXT NOT NULL,
+    -- acute | preventive (ME-4); v1 only offers acute.
+    kind TEXT NOT NULL DEFAULT 'acute',
+    dose_unit TEXT NOT NULL,
+    dose_unit_plural TEXT NOT NULL DEFAULT '',
+    default_quantity REAL NOT NULL DEFAULT 1,
+    -- Null: the user's default (S-2).
+    follow_up_minutes INTEGER,
+    archived INTEGER AS Boolean NOT NULL DEFAULT 0,
+    created_at INTEGER NOT NULL,
+    UNIQUE (user_id, name_norm)
+);
+
+CREATE TABLE medication_ingredient (
+    medication_id INTEGER NOT NULL REFERENCES medication(id) ON DELETE CASCADE,
+    ingredient_id INTEGER NOT NULL REFERENCES ingredient(id) ON DELETE RESTRICT,
+    -- In the ingredient's unit per dose unit; null: not known (ME-2).
+    amount_per_unit REAL,
+    PRIMARY KEY (medication_id, ingredient_id)
+);
+
+CREATE INDEX medication_ingredient_ingredient ON medication_ingredient(ingredient_id);
+
+-- One photo per medication (ME-8). updated_at is also the image version clients cache by.
+CREATE TABLE medication_image (
+    medication_id INTEGER PRIMARY KEY NOT NULL REFERENCES medication(id) ON DELETE CASCADE,
+    content_type TEXT NOT NULL,
+    image BLOB NOT NULL,
+    thumbnail BLOB NOT NULL,
+    updated_at INTEGER NOT NULL
+);
+
+-- Limits per ingredient (LI-1). group_id is for ingredient groups later (IN-6).
+CREATE TABLE intake_limit (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL REFERENCES app_user(id) ON DELETE CASCADE,
+    ingredient_id INTEGER REFERENCES ingredient(id) ON DELETE CASCADE,
+    group_id INTEGER,
+    -- amount | doses | days | min_interval
+    kind TEXT NOT NULL,
+    max_value REAL NOT NULL,
+    -- The window, or the interval for min_interval; "month" = 30 days (LI-2).
+    window_minutes INTEGER NOT NULL
+);
+
+CREATE INDEX intake_limit_ingredient ON intake_limit(ingredient_id);
+
+selectIngredients:
+SELECT * FROM ingredient WHERE user_id = ? ORDER BY name_norm;
+
+insertIngredient:
+INSERT INTO ingredient(user_id, name, name_norm, measure_unit, archived, created_at) VALUES (?, ?, ?, ?, ?, ?);
+
+updateIngredient:
+UPDATE ingredient SET name = ?, name_norm = ?, measure_unit = ? WHERE id = ? AND user_id = ?;
+
+setIngredientArchived:
+UPDATE ingredient SET archived = ? WHERE id = ? AND user_id = ?;
+
+deleteIngredient:
+DELETE FROM ingredient WHERE id = ? AND user_id = ?;
+
+selectMedications:
+SELECT m.*, i.updated_at AS image_version FROM medication m LEFT JOIN medication_image i ON i.medication_id = m.id
+WHERE m.user_id = ? ORDER BY m.name_norm;
+
+insertMedication:
+INSERT INTO medication(user_id, name, name_norm, kind, dose_unit, dose_unit_plural, default_quantity, follow_up_minutes, archived, created_at)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+
+updateMedication:
+UPDATE medication SET name = ?, name_norm = ?, kind = ?, dose_unit = ?, dose_unit_plural = ?, default_quantity = ?, follow_up_minutes = ?
+WHERE id = ? AND user_id = ?;
+
+setMedicationArchived:
+UPDATE medication SET archived = ? WHERE id = ? AND user_id = ?;
+
+deleteMedication:
+DELETE FROM medication WHERE id = ? AND user_id = ?;
+
+selectMedicationIngredients:
+SELECT mi.* FROM medication_ingredient mi JOIN medication m ON m.id = mi.medication_id WHERE m.user_id = ?;
+
+insertMedicationIngredient:
+INSERT INTO medication_ingredient(medication_id, ingredient_id, amount_per_unit) VALUES (?, ?, ?);
+
+deleteMedicationIngredients:
+DELETE FROM medication_ingredient WHERE medication_id = ?;
+
+upsertMedicationImage:
+INSERT OR REPLACE INTO medication_image(medication_id, content_type, image, thumbnail, updated_at) VALUES (?, ?, ?, ?, ?);
+
+deleteMedicationImage:
+DELETE FROM medication_image WHERE medication_id = ?;
+
+selectMedicationImage:
+SELECT i.content_type, i.image, i.updated_at FROM medication_image i JOIN medication m ON m.id = i.medication_id
+WHERE i.medication_id = ? AND m.user_id = ?;
+
+selectMedicationThumbnail:
+SELECT i.content_type, i.thumbnail, i.updated_at FROM medication_image i JOIN medication m ON m.id = i.medication_id
+WHERE i.medication_id = ? AND m.user_id = ?;
+
+selectMedicationImageFull:
+SELECT i.* FROM medication_image i JOIN medication m ON m.id = i.medication_id WHERE i.medication_id = ? AND m.user_id = ?;
+
+selectLimits:
+SELECT * FROM intake_limit WHERE user_id = ? ORDER BY ingredient_id, kind, window_minutes;
+
+insertLimit:
+INSERT INTO intake_limit(user_id, ingredient_id, kind, max_value, window_minutes) VALUES (?, ?, ?, ?, ?);
+
+updateLimit:
+UPDATE intake_limit SET kind = ?, max_value = ?, window_minutes = ? WHERE id = ? AND user_id = ?;
+
+deleteLimit:
+DELETE FROM intake_limit WHERE id = ? AND user_id = ?;

@@ -8,7 +8,22 @@ CREATE TABLE app_user (
     is_admin INTEGER AS Boolean NOT NULL DEFAULT 0,
     is_disabled INTEGER AS Boolean NOT NULL DEFAULT 0,
     locale TEXT,
-    created_at INTEGER NOT NULL
+    created_at INTEGER NOT NULL,
+    -- Settings (S-1 … S-5). Times of day are minutes since midnight.
+    time_zone TEXT,
+    theme TEXT NOT NULL DEFAULT 'dark',
+    dim_during_attacks INTEGER AS Boolean NOT NULL DEFAULT 1,
+    day_cutoff INTEGER NOT NULL DEFAULT 240,
+    follow_up_minutes INTEGER NOT NULL DEFAULT 120,
+    -- Null: the most used medication (S-3).
+    usual_medication_id INTEGER REFERENCES medication(id) ON DELETE SET NULL,
+    -- ISO days of week, comma-separated (1 = Monday).
+    workdays TEXT NOT NULL DEFAULT '1,2,3,4,5',
+    work_start INTEGER NOT NULL DEFAULT 480,
+    work_end INTEGER NOT NULL DEFAULT 840,
+    -- The calendar feed's secret (X-3); null: the feed is off. Kept as is, so the feed URL can be shown again;
+    -- it only gives read access to that feed.
+    ics_token TEXT UNIQUE
 );
 
 countUsers:
@@ -47,3 +62,14 @@ UPDATE app_user SET is_admin = ? WHERE id = ?;
 
 updateDisabled:
 UPDATE app_user SET is_disabled = ? WHERE id = ?;
+
+updateSettings:
+UPDATE app_user SET time_zone = ?, theme = ?, dim_during_attacks = ?, day_cutoff = ?, follow_up_minutes = ?,
+    usual_medication_id = ?, workdays = ?, work_start = ?, work_end = ?
+WHERE id = ?;
+
+updateIcsToken:
+UPDATE app_user SET ics_token = ? WHERE id = ?;
+
+selectByIcsToken:
+SELECT * FROM app_user WHERE ics_token = ? AND is_disabled = 0;
