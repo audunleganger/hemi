@@ -56,6 +56,8 @@ data class AttackSummary(
     val status: AttackStatus,
     val loggedAfterwards: Boolean,
     val start: Moment,
+    /** Woke up with it: the real start is unknown (AT-2). */
+    val wokeUp: Boolean,
     val end: Moment?,
     val ongoing: Boolean,
     /** Null: no readings (AT-15). */
@@ -277,6 +279,8 @@ data class CalendarDay(
     /** A dose that day. */
     val medication: Boolean,
     val ongoing: Boolean,
+    /** The effective work impact on migraine days (WI-1); null otherwise or when nothing is known. */
+    val workImpact: WorkImpact?,
 )
 
 @Serializable

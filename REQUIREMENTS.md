@@ -1,6 +1,8 @@
 # Hemi — Requirement Specification
 
-Version 0.7 · 2026-10-19
+Version 0.8 · 2026-10-19
+
+*0.8: web app details decided while building the calendar home and attack mode (appendix, "Web app details").*
 
 *0.7: precise rules found while building the shared module (appendix, "Rules made precise").*
 
@@ -382,3 +384,13 @@ Decided while writing the `shared` module; the tests in `shared/src/test` pin th
 | Limits are never blocking (LI-4) | The server always saves the dose and marks `over_limit`; clients show the preview and ask to confirm |
 | Usual medication (S-3) | The one set; else the most used acute medication; else the first acute one by name |
 | Schema names | The trigger table is `trigger_def` (`TRIGGER` is an SQL keyword). The feed secret is stored as is (`ics_token`), so Settings can show the URL again; it only grants that read-only feed |
+
+### Web app details (0.8)
+
+| Topic | Decision |
+|---|---|
+| Navigation during an attack (DS-3) | Home (`/`) is the attack screen, labelled **Now**; the calendar moves to `/calendar` and gets its own nav item. On phones the bottom bar has five items while an attack is ongoing |
+| Dim look (V-7, DS-4) | Applies to the whole app while an attack is ongoing, not only the attack screen |
+| Usual medication button (DS-3) | One tap logs the dose in the attack without a new reading; the last reading stands. "Other medication" opens the full form, which asks the current severity (DO-2). If the dose would go over a limit, the button opens the full form instead, to confirm (LI-4) |
+| Dose time | Means "now" to the second until the user changes it, so a dose a moment ago is counted in the preview |
+| Attack mode on phones | Shows only the controls, as in mockup B; the chart and panels are for tablets and PCs |

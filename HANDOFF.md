@@ -1,32 +1,31 @@
 # Handoff (2026-10-19)
 
 ## State
-- No code yet. Docs committed on `main`, pushed to the private repo `audunleganger/hemi`. The requirements review is finished.
-- `REQUIREMENTS.md` (v0.5) is the source of truth: all decisions, numbered requirements, data model, and a decision log in the appendix. Read it before building anything.
-- `docs/design/directions.html` holds the three design mockups (A/B/C), also published at https://claude.ai/artifact/R8MPzA6awi9fsvhU8v8Wqg. **Chosen: C "Diary", with B "Dim" as attack mode; dark by default** (spec §3.12). A was rejected.
-- The app is named **Hemi**. Keep the visible name in one place.
-- Reference app: Larder, at `~/development/calorie-companion`, published as `ghcr.io/audunleganger/larder`. Hemi copies its structure: `shared/` (pure Kotlin, Java 17), `server/` (Ktor), `web/` (React + TS + Vite), `android/` (Compose), with SQLite via SQLDelight, generated TS types, Docker and backups. Its `REQUIREMENTS.md` is the format model.
+- Four stacked PRs on `audunleganger/hemi`, all green in CI except #4 (just opened), **none merged**: the permission system blocked `gh pr merge`, although the user said to merge green PRs. Merge them in order (#1 → #2 → #3 → #4); each later one is based on the branch before it, so after merging #1 retarget #2 to `main`, and so on (GitHub offers this when the base branch is deleted).
+  - #1 `scaffold`: Gradle, server infrastructure (setup, auth, admin, backups, health), web shell, Docker, CI. Copied from Larder, renamed to `com.hemi` / `HEMI_*`.
+  - #2 `domain`: schema (§6) and the domain rules and services in `shared`, with 62 tests.
+  - #3 `api`: REST API under `/api/v1` and the ICS feed (X-3).
+  - #4 `web-home`: calendar home (DS-2), attack mode (DS-3), + Record flows (start, start + usual medication, start with options, reading, dose with limit preview, log afterwards, rating, end), Medications page (medications, ingredients, limits), a basic attack list, diary settings. E2E walkthrough covers it.
+- `REQUIREMENTS.md` is at 0.8. The appendix tables "Rules made precise" (0.7) and "Web app details" (0.8) record the interpretations made this session. The user hasn't reviewed them yet.
+- **Checkpoint**: the user wanted to look at the web app once it first renders, before more is built. Ask them for feedback on #4's look (dark C, light C, dim B) first.
 
-## Next
-1. Scaffold by copying Larder's Gradle/Vite/Docker setup. Reuse its auth, admin, first-run setup, backups, i18n and photo upload (food photos → medication photos, ME-8).
-2. `shared`: schema (spec §6) plus the domain rules, with unit tests first (NF-4):
-   - limits (LI-1/2)
-   - day cutoff (S-1)
-   - recurrence merge/split (AT-7)
-   - rating prefill (DO-5)
-   - work impact (WI-2)
-   - acute medication days (ST-7)
-   - missing data (AT-15)
-3. `server`: REST API under `/api/v1`, and the ICS feed (X-3).
-4. `web`: calendar home (DS-2), attack mode (DS-3), Record flows, then lists, statistics, CSV export.
-5. Android only after the user is happy with the web app.
-
-## Open questions
-- None. Image `ghcr.io/audunleganger/hemi` and port 8080 mirror Larder unless the user says otherwise. The repo is private, so the ghcr image will be private too unless changed.
+## Next (after the user's feedback)
+1. Attack page (V-5): timeline chart, edit episodes and readings, status/nausea/pain side/triggers/note, split a recurrence; link the attack list and the day view to it.
+2. Dose list (V-6) with filters; edit and delete doses (DO-8).
+3. Triggers in Settings (TR-1 … TR-3): add, rename, reorder, archive, delete with the "used on N attacks" warning.
+4. Medication photos (ME-8): copy Larder's `web/src/lib/images.ts` and its photo component; the API is done.
+5. Statistics (ST-1 … ST-6) in `shared` with tests (NF-4), an endpoint, and a page (Recharts).
+6. CSV export (X-1, with `days.csv` for WI-4) and JSON export/import (X-2).
+7. Calendar feed in Settings (X-3): show the URL, new secret, turn off. The API is done.
+8. The "include Unsure" filter for the calendar (AT-4); the API takes `includeUnsure`.
+9. Android only after the user is happy with the web app.
 
 ## Traps
+- Bash heredocs here mangle `"\;"` into `"\;"` in Kotlin sources. Use the Edit tool for lines with backslashes.
+- `pkill -f hemi-server.jar` kills the calling shell too (its command line matches). Use `fuser -k <port>/tcp`.
+- `Field` wraps its child in a `<label>`; for button groups use `FieldGroup`, or the first button takes the label's whole text as its name.
+- Theme tokens: `:root[data-theme=…]` and `:root.attack-mode` have the same specificity; attack mode wins by coming later in `index.css`.
+- Times from `<input type=time>` are minute-rounded; send `at: null` ("now") unless the user changed the time.
+- The schema is still version 1 and changes in place (no `1.db`, `verifyMigrations` off) until the first release.
 - Larder's folder is `calorie-companion`, but the product and image are called `larder`.
-- The mockup page loads fonts from Google. The real app must **bundle** Schibsted Grotesk and Atkinson Hyperlegible (DS-5).
-- The dark C palette in DS-6 was never mocked up. Check it once the web app renders.
 - The Norwegian glossary terms are provisional.
-- Unlike Larder, nothing is shared between users (not even units), and admins can't see health data (A-3).

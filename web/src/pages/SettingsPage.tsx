@@ -2,11 +2,12 @@ import { useQuery } from '@tanstack/react-query'
 import { useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import * as endpoints from '../api/endpoints'
-import { useApiMutation } from '../api/queries'
+import { useApiMutation, useSettings } from '../api/queries'
 import { useAuth } from '../auth/useAuth'
 import { LanguageSwitch } from '../components/LanguageSwitch'
 import { ThemeSwitch } from '../components/ThemeToggle'
 import { Card, ErrorText, Field, PageHeader } from '../components/ui'
+import { DiarySettings } from './DiarySettings'
 
 function PasswordForm() {
   const { t } = useTranslation()
@@ -59,6 +60,7 @@ export function SettingsPage() {
   const { updateUser } = useAuth()
   const [languageError, setLanguageError] = useState<unknown>(null)
   const health = useQuery({ queryKey: ['health'], queryFn: endpoints.health })
+  const settings = useSettings()
 
   return (
     <div className="page">
@@ -81,6 +83,7 @@ export function SettingsPage() {
       <Card title={t('theme.label')}>
         <ThemeSwitch />
       </Card>
+      {settings.data && <DiarySettings key={settings.dataUpdatedAt} settings={settings.data} />}
       {health.data && (
         <p className="muted small">
           {t('settings.version', { version: health.data.version, api: health.data.apiVersion })}

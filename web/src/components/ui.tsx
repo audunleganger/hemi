@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from 'react'
+import { useId, useState, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { errorMessage } from '../lib/errors'
 
@@ -35,6 +35,22 @@ export function Field({ label, hint, children, className = '' }: { label: ReactN
         <span className="field-label">{label}</span>
         {children}
       </label>
+      {hint && <span className="field-hint">{hint}</span>}
+    </div>
+  )
+}
+
+/** Like [Field], for a group of buttons rather than one input: a <label> would name only the first button. */
+export function FieldGroup({ label, hint, children }: { label: ReactNode; hint?: ReactNode; children: ReactNode }) {
+  const id = useId()
+  return (
+    <div className="field">
+      <span className="field-label" id={id}>
+        {label}
+      </span>
+      <div role="group" aria-labelledby={id}>
+        {children}
+      </div>
       {hint && <span className="field-hint">{hint}</span>}
     </div>
   )

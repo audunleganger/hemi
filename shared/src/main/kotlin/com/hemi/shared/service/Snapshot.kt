@@ -131,6 +131,7 @@ internal class Snapshot(private val db: HemiDatabase, val userId: Long, val now:
             status = status(attack),
             loggedAfterwards = attack.logged_afterwards,
             start = start,
+            wokeUp = episodes[attack.id].orEmpty().firstOrNull()?.start_unknown == true,
             end = end,
             ongoing = timeline.ongoing,
             peak = timeline.peak,

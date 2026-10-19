@@ -8,7 +8,9 @@ import { Layout } from './components/Layout'
 import { Loading } from './components/ui'
 import { AdminPage } from './pages/AdminPage'
 import { HomePage } from './pages/HomePage'
+import { AttacksPage } from './pages/AttacksPage'
 import { LoginPage, SetupPage } from './pages/LoginPage'
+import { MedicationsPage } from './pages/MedicationsPage'
 import { MorePage } from './pages/MorePage'
 import { SettingsPage } from './pages/SettingsPage'
 
@@ -28,15 +30,6 @@ function NotFound() {
     <div className="card">
       <h1>{t('errors.pageNotFound')}</h1>
       <Link to="/">{t('nav.calendar')}</Link>
-    </div>
-  )
-}
-
-function ComingSoon() {
-  const { t } = useTranslation()
-  return (
-    <div className="card">
-      <p className="muted">{t('common.comingSoon')}</p>
     </div>
   )
 }
@@ -81,8 +74,9 @@ function Gate() {
         <Routes>
           <Route element={<Layout />}>
             <Route index element={<HomePage />} />
-            <Route path="attacks" element={<ComingSoon />} />
-            <Route path="medications" element={<ComingSoon />} />
+            <Route path="calendar" element={<HomePage calendar />} />
+            <Route path="attacks" element={<AttacksPage />} />
+            <Route path="medications" element={<MedicationsPage />} />
             <Route path="more" element={<MorePage />} />
             <Route path="settings" element={<SettingsPage />} />
             <Route path="admin" element={<AdminPage />} />

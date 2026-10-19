@@ -58,6 +58,7 @@ export interface AttackSummary {
   status: AttackStatus
   loggedAfterwards: boolean
   start: Moment
+  wokeUp: boolean
   end: Moment | null
   ongoing: boolean
   peak: number | null
@@ -89,6 +90,7 @@ export interface CalendarDay {
   unsure: boolean
   medication: boolean
   ongoing: boolean
+  workImpact: WorkImpact | null
 }
 
 export interface CalendarView {

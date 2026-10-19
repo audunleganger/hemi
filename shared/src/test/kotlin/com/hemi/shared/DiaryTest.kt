@@ -264,6 +264,7 @@ class DiaryTest {
         val overridden = s.t.home().setWorkImpact("2026-10-19", WorkImpact.NONE)
         assertEquals(WorkImpact.NONE, overridden.workImpact?.effective)
         assertEquals(WorkImpact.MISSED, overridden.workImpact?.proposed)
+        assertEquals(WorkImpact.NONE, s.t.home().calendar("2026-10-19", "2026-10-19").days.single().workImpact)
         // Days without a migraine attack have no work impact.
         assertNull(s.t.home().day("2026-10-20").workImpact)
     }

@@ -73,6 +73,7 @@ class HomeService(private val db: HemiDatabase, private val userId: Long, privat
                 unsure = onDay.isNotEmpty() && onDay.all { snapshot.status(it) == AttackStatus.UNSURE },
                 medication = day in doseDays,
                 ongoing = onDay.any { snapshot.timelines.getValue(it.id).ongoing } && day == snapshot.today,
+                workImpact = workImpact(snapshot, day)?.effective,
             )
         }.toList()
         return CalendarView(first.toString(), last.toString(), snapshot.today.toString(), days)
