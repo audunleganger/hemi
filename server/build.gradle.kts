@@ -50,3 +50,8 @@ dependencies {
 tasks.test {
     useJUnitPlatform()
 }
+
+// `./gradlew :server:run` keeps its data in ./data at the repository root, as the README says.
+tasks.named<JavaExec>("run") {
+    workingDir = rootDir
+}
