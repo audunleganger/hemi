@@ -148,6 +148,21 @@ await step('phone layout', async () => {
   }
 })
 
+await step('tablet layout (DS-1)', async () => {
+  // Between phone and PC the top bar has the phone's items, with Settings and Log out under More.
+  for (const width of [720, 900, 1099]) {
+    await page.setViewportSize({ width, height: 900 })
+    for (const path of ['/', '/attacks', '/medications']) {
+      await page.goto(BASE + path)
+      await page.locator('.topbar').getByRole('link', { name: 'More' }).waitFor()
+      if (await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth)) problems.push(`horizontal overflow at ${width} px on ${path}`)
+    }
+  }
+  await page.screenshot({ path: `${SHOTS}/11-tablet.png`, fullPage: true })
+  await page.setViewportSize({ width: 1280, height: 900 })
+  await page.goto(BASE)
+})
+
 await step('logout and login', async () => {
   await page.getByRole('button', { name: 'Log out' }).click()
   await page.getByRole('button', { name: 'Log in' }).waitFor()

@@ -4,7 +4,7 @@ import { useAuth, useUser } from '../auth/useAuth'
 import { ThemeSwitch } from '../components/ThemeToggle'
 import { Card, PageHeader } from '../components/ui'
 
-/** The phone's "More" tab (DS-1): everything that isn't in the bottom navigation. */
+/** "More" on phones and tablets (DS-1): everything that isn't in their navigation. */
 export function MorePage() {
   const { t } = useTranslation()
   const { logout } = useAuth()
