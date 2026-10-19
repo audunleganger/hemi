@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next'
 import { useAttacks, useCalendar, useDay } from '../../api/queries'
 import type { CalendarDay, HomeView, SettingsDto } from '../../api/types.gen'
-import { formatMonth, MonthCalendar, monthGrid, shiftMonth, YearStrip } from '../../components/Calendars'
+import { formatMonth, MonthCalendar, monthGrid, SeverityLegend, shiftMonth, YearStrip } from '../../components/Calendars'
 import { DayTimeline } from '../../components/DayTimeline'
 import { HeadIcon } from '../../components/HeadIcon'
 import { AcuteDaysRing, LimitRing } from '../../components/LimitRing'
@@ -100,6 +100,7 @@ export function CalendarHome({
             </div>
           </div>
           <MonthCalendar month={month} days={monthDays} today={today} selected={selected} onSelect={select} />
+          <SeverityLegend />
         </section>
         <section className="panel day-panel">
           <div className="panel-head">

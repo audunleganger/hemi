@@ -1,6 +1,8 @@
 # Hemi — Requirement Specification
 
-Version 0.10 · 2026-10-19
+Version 0.11 · 2026-10-19
+
+*0.11: severity colors set (DS-6, proposal A of three the user compared), with a legend under the month calendar.*
 
 *0.10: three layouts by width (appendix, "Layouts by width"): phones up to 719 px, tablets 720–1099 px, PCs from 1100 px.*
 
@@ -226,7 +228,8 @@ Chosen in the design review (2026-10-19) from three mockups in `docs/design/dire
   | text | #1b2420 | #e3e9e6 | #d9cdb5 |
   | secondary text | #5f6b65 | #93a19a | #857c6c |
   | accent | #1f6f68 (teal) | #4fb3a9 | #c99a4e (amber) |
-  | severity 1 / 2 / 3 | pink / red / dark red (values to be set) | pink / red / dark red, tuned for dark | pink / red / dark red, dimmed |
+  | severity 1 / 2 / 3 | #f4b3c5 / #cf3a3a / #8e1d26 | #e29aae / #cc3836 / #9a2530 | #805663 / #a5423b / #7b2a2e |
+  | text on severity 1 / 2 / 3 | #4a1325 / #ffffff / #ffffff | #2a0c15 / #ffffff / #fbe3e3 | #f6e6ea / #f8e1dc / #efd4d2 |
   | limit near / over | #c98a1c / #c0392b | #e0a63a / #e5645a | #d9a441 / #d9604f |
 
   Severity is **pink for 1, red for 2, dark red for 3** everywhere, attack mode included (changed in 0.9 from the plum scale and attack mode's amber scale, at the user's request); in attack mode the same hues are dimmed to fit its low-contrast look. The calendar legend shows the same three colors. Severity is always shown with its number too (NF-3). Unknown severity (AT-15) is a neutral gray.
@@ -427,3 +430,12 @@ Fixes the broken widths between phone and PC view (DS-1, 0.9). `web/e2e/flow.mjs
 | Calendar home | Calendar and day side by side from 720 px, with limits and recent attacks underneath; the year strip from 1100 px; three columns only from 1280 px |
 | Attack mode | Controls and chart side by side from 720 px (a narrower controls column on tablets, with limits and recent attacks under the chart); on phones only the controls (0.8) |
 | Limit form | "per ⟨length⟩ ⟨unit⟩" wraps as one piece |
+
+### Severity colors (0.11)
+
+| Topic | Decision |
+|---|---|
+| Values (DS-6) | Proposal A, "clear steps": a light pink, a clear red and a deep red, chosen over a softer rose set and the old plum/amber, so 2 and 3 are easy to tell apart in the calendar. Numbers on the fills have at least 4.5:1 contrast in all three looks |
+| Legend (DS-6) | Under the month calendar: 1 Mild, 2 Moderate, 3 Severe, Unknown |
+| Pills | The "peak 3" / "Ongoing" pill is neutral; its head icon carries the severity color. It used to be severity 1's color whatever the peak |
+| Limit "over" | Stays red (#c0392b light). It is close to severity 2 in light mode but only appears in rings and warnings, never in calendar cells |
