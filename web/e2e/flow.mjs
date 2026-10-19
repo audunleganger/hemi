@@ -148,7 +148,11 @@ await step('discard a recurrence started by mistake (AT-16)', async () => {
   await shot('07c-discard')
   await sheet.getByRole('button', { name: 'Discard recurrence' }).click()
   await page.getByText(/is back to how it was\.$/).waitFor()
-  if ((await page.locator('html').getAttribute('class'))?.includes('attack-mode')) throw new Error('still in attack mode after discarding')
+  // The message shows as soon as the server answers; attack mode ends once the front page has reloaded.
+  await page.locator('.month-panel').waitFor()
+  await page.waitForFunction(() => !document.documentElement.classList.contains('attack-mode'), null, { timeout: 3000 }).catch(() => {
+    throw new Error('still in attack mode after discarding')
+  })
 })
 
 await step('settings and admin', async () => {
