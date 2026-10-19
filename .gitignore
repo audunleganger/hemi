@@ -1,0 +1,28 @@
+# Gradle / IDE
+.gradle/
+build/
+.kotlin/
+.idea/
+*.iml
+local.properties
+
+# Android
+*.apk
+*.aab
+*.keystore
+*.jks
+keystore.properties
+
+# Node / web
+node_modules/
+web/dist/
+
+# Runtime data
+/data/
+*.db
+# ...except SQLDelight's schema snapshots, which are source.
+!shared/src/main/sqldelight/databases/*.db
+*.db-shm
+*.db-wal
+
+.DS_Store

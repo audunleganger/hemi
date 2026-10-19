@@ -1,0 +1,619 @@
+/*
+ * Hemi's look (REQUIREMENTS §3.12): direction C "Diary" for the app, direction B "Dim" for attack mode.
+ * Colors are tokens (DS-6); components only use the tokens, so the three palettes swap cleanly.
+ */
+
+:root {
+  --font: 'Schibsted Grotesk', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-attack: 'Atkinson Hyperlegible', system-ui, sans-serif;
+  --radius: 14px;
+  --radius-small: 10px;
+  --gutter: 16px;
+  --topbar-height: 60px;
+  --bottom-nav-height: 58px;
+
+  /* Light (C) */
+  --bg: #eef1ef;
+  --surface: #ffffff;
+  --surface-2: #f5f7f6;
+  --border: #d5dbd7;
+  --text: #1b2420;
+  --sub: #5f6b65;
+  --accent: #1f6f68;
+  --accent-text: #ffffff;
+  --accent-soft: #dcebe9;
+  --sev-0: #e3e8e5;
+  --sev-1: #ead3e7;
+  --sev-2: #c48bbb;
+  --sev-3: #7a3373;
+  --sev-1-text: #4a1f45;
+  --sev-2-text: #2a0f27;
+  --sev-3-text: #ffffff;
+  --sev-unknown: #b9c0bc;
+  --limit-near: #c98a1c;
+  --limit-over: #c0392b;
+  --danger: #c0392b;
+  --good: #1f7a4d;
+  --shadow: 0 6px 18px rgba(31, 111, 104, 0.3);
+  color-scheme: light;
+}
+
+/* Dark (C): the default theme (DS-4). */
+:root[data-theme='dark'] {
+  --bg: #121614;
+  --surface: #1a201d;
+  --surface-2: #151a18;
+  --border: #2a332f;
+  --text: #e3e9e6;
+  --sub: #93a19a;
+  --accent: #4fb3a9;
+  --accent-text: #0b1513;
+  --accent-soft: #1d3330;
+  --sev-0: #222a26;
+  --sev-1: #3d2a3b;
+  --sev-2: #7d4a75;
+  --sev-3: #c27bb8;
+  --sev-1-text: #f0dcec;
+  --sev-2-text: #fbeef8;
+  --sev-3-text: #1d0b1a;
+  --sev-unknown: #4a524e;
+  --limit-near: #e0a63a;
+  --limit-over: #e5645a;
+  --danger: #e5645a;
+  --good: #5cc28f;
+  --shadow: 0 6px 18px rgba(0, 0, 0, 0.45);
+  color-scheme: dark;
+}
+
+/* Dim attack mode (B), DS-3/DS-4: low contrast, no white areas, larger type. */
+.attack-mode {
+  --bg: #0e0f12;
+  --surface: #17181d;
+  --surface-2: #121317;
+  --border: #262830;
+  --text: #d9cdb5;
+  --sub: #857c6c;
+  --accent: #c99a4e;
+  --accent-text: #1a1408;
+  --accent-soft: #3a2d14;
+  --sev-0: #1d1e23;
+  --sev-1: #4a3d22;
+  --sev-2: #7a5a26;
+  --sev-3: #b9802f;
+  --sev-1-text: #f0d9a8;
+  --sev-2-text: #f7e6c4;
+  --sev-3-text: #1a1408;
+  --sev-unknown: #3a3a3f;
+  --limit-near: #d9a441;
+  --limit-over: #d9604f;
+  --danger: #d9604f;
+  --shadow: none;
+  --font: var(--font-attack);
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 15px;
+  line-height: 1.45;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Tabular figures for numbers that line up (DS-5). Not on running text: the feature also widens "." and ":". */
+.num,
+.tnum,
+time {
+  font-variant-numeric: tabular-nums;
+}
+
+h1,
+h2,
+h3 {
+  margin: 0;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+}
+
+h1 {
+  font-size: 1.5rem;
+}
+
+h2 {
+  font-size: 1.05rem;
+}
+
+a {
+  color: var(--accent);
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.muted {
+  color: var(--sub);
+}
+
+.small {
+  font-size: 0.85rem;
+}
+
+/* ---------- Frame (DS-1) ---------- */
+
+.app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+}
+
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  height: var(--topbar-height);
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding: 0 28px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+
+.brand {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--text);
+  text-decoration: none;
+  letter-spacing: -0.01em;
+}
+
+.nav {
+  display: flex;
+  gap: 4px;
+}
+
+.nav-link {
+  color: var(--sub);
+  text-decoration: none;
+  padding: 8px 10px;
+  border-radius: var(--radius-small);
+}
+
+.nav-link:hover {
+  color: var(--text);
+}
+
+.nav-link.active {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.user-menu {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.content {
+  flex: 1;
+  width: 100%;
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 20px 28px 40px;
+}
+
+.bottom-nav {
+  display: none;
+}
+
+@media (max-width: 719px) {
+  .topbar {
+    padding: 0 var(--gutter);
+    height: 52px;
+  }
+
+  .nav-wide,
+  .user-menu .muted,
+  .user-menu .btn:not(.btn-icon) {
+    display: none;
+  }
+
+  .content {
+    padding: 14px var(--gutter) calc(var(--bottom-nav-height) + 90px);
+  }
+
+  .bottom-nav {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 10;
+    height: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom));
+    padding-bottom: env(safe-area-inset-bottom);
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+  }
+
+  .bottom-nav .nav-link {
+    display: grid;
+    place-items: center;
+    font-size: 0.8rem;
+    border-radius: 0;
+  }
+
+  .bottom-nav .nav-link.active {
+    color: var(--accent);
+    font-weight: 700;
+  }
+}
+
+/* ---------- Building blocks ---------- */
+
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.page-header p {
+  margin: 4px 0 0;
+}
+
+.page-actions,
+.card-actions,
+.row-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
+.card.narrow {
+  width: 100%;
+  max-width: 420px;
+}
+
+.two-col {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 18px;
+  align-items: start;
+}
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.grow {
+  flex: 1;
+}
+
+.center-screen {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: var(--gutter);
+}
+
+.auth-card h1 {
+  font-size: 1.6rem;
+}
+
+.auth-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.link-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.link-list a {
+  padding: 12px 0;
+  border-top: 1px solid var(--border);
+  text-decoration: none;
+  color: var(--text);
+}
+
+.link-list a:first-child {
+  border-top: 0;
+}
+
+.empty {
+  color: var(--sub);
+  margin: 0;
+}
+
+.loading {
+  margin: 0;
+}
+
+/* ---------- Forms ---------- */
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.field-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.field-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.field-hint {
+  font-size: 0.82rem;
+  color: var(--sub);
+  margin: 0;
+}
+
+.input,
+select.input,
+textarea.input {
+  width: 100%;
+  min-height: 44px;
+  padding: 9px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-small);
+  background: var(--surface-2);
+}
+
+.input:focus {
+  border-color: var(--accent);
+  outline: none;
+}
+
+.input.invalid {
+  border-color: var(--danger);
+}
+
+.form-row,
+.inline-form {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: flex-end;
+}
+
+.form-row > *,
+.inline-form > * {
+  flex: 1 1 160px;
+}
+
+.checkbox {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.radio-group {
+  border: 0;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.error-text {
+  color: var(--danger);
+  margin: 0;
+}
+
+.saved {
+  color: var(--good);
+  margin: 0;
+}
+
+/* ---------- Buttons ---------- */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 40px;
+  padding: 8px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-small);
+  background: var(--surface);
+  color: var(--text);
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.btn:hover:not(:disabled) {
+  border-color: var(--sub);
+}
+
+.btn:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
+.btn-primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-text);
+}
+
+.btn-primary:hover:not(:disabled) {
+  border-color: var(--accent);
+  filter: brightness(1.08);
+}
+
+.btn-danger {
+  background: var(--danger);
+  border-color: var(--danger);
+  color: #fff;
+}
+
+.btn-ghost {
+  background: transparent;
+  border-color: transparent;
+}
+
+.btn-small {
+  min-height: 32px;
+  padding: 4px 10px;
+  font-size: 0.9rem;
+}
+
+.btn-block {
+  width: 100%;
+}
+
+.btn-icon {
+  min-width: 36px;
+  font-size: 1.1rem;
+}
+
+.confirm {
+  display: inline-flex;
+  gap: 6px;
+}
+
+.segmented {
+  display: inline-flex;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-small);
+  overflow: hidden;
+  flex-wrap: wrap;
+}
+
+.segmented button {
+  border: 0;
+  border-right: 1px solid var(--border);
+  background: var(--surface);
+  padding: 8px 12px;
+  min-height: 40px;
+  cursor: pointer;
+}
+
+.segmented button:last-child {
+  border-right: 0;
+}
+
+.segmented button.active {
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.badge {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 99px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  color: var(--sub);
+}
+
+.badge-warning {
+  color: var(--limit-near);
+  border-color: var(--limit-near);
+}
+
+.badge-good {
+  color: var(--good);
+  border-color: var(--good);
+}
+
+.badge-info {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+/* ---------- Tables ---------- */
+
+.table-scroll {
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table th,
+.table td {
+  text-align: left;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+}
+
+.table th {
+  font-size: 0.8rem;
+  color: var(--sub);
+  font-weight: 600;
+}
+
+.num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
