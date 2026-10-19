@@ -112,6 +112,31 @@ await step('log an attack afterwards (AT-14)', async () => {
   await shot('07-attacks')
 })
 
+await step('start an attack with a chosen medication (AT-1, LI-4)', async () => {
+  const startChoosing = async () => {
+    await page.getByRole('button', { name: '+ Record' }).first().click()
+    await page.getByRole('button', { name: 'Start attack + choose medication' }).click()
+    await page.locator('dialog.sheet').getByRole('button', { name: /^Imigran nasal spray 20 mg/ }).click()
+  }
+  // The second Imigran dose today reaches the limit of 2 in 24 hours, so it starts right away.
+  await startChoosing()
+  await page.getByRole('link', { name: 'Now', exact: true }).first().click()
+  await page.getByRole('heading', { name: 'How bad is it now?' }).waitFor()
+  await page.getByText('Sumatriptan: 2 of 2 doses in 24 hours').waitFor()
+  await page.getByRole('button', { name: 'It’s over' }).click()
+  await page.getByRole('button', { name: 'It’s over now' }).click()
+  await page.locator('.month-panel').waitFor()
+  // A third would go over it: the picker shows what it does and asks first.
+  await startChoosing()
+  const sheet = page.locator('dialog.sheet')
+  await sheet.getByText('Taking Imigran nasal spray 20 mg now goes over a limit:').waitFor()
+  await sheet.getByText('Sumatriptan: 2 → 3 of 2 doses in 24 hours').waitFor()
+  await shot('07b-start-over-limit')
+  await sheet.getByRole('button', { name: 'Choose another medication' }).click()
+  await sheet.getByRole('button', { name: 'Close' }).click()
+  if ((await page.locator('html').getAttribute('class'))?.includes('attack-mode')) throw new Error('started an attack over the limit without asking')
+})
+
 await step('settings and admin', async () => {
   await page.getByRole('link', { name: 'Settings' }).click()
   await page.getByRole('heading', { name: 'Settings' }).waitFor()
