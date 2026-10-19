@@ -34,3 +34,14 @@ data class SettingsInput(
     val workStart: String = "08:00",
     val workEnd: String = "14:00",
 )
+
+@Serializable
+data class TimeZoneInput(
+    val timeZone: String,
+)
+
+/** The calendar feed's secret (X-3); null: the feed is off. The feed is at /api/v1/feed/<token>.ics. */
+@Serializable
+data class FeedDto(
+    val token: String?,
+)
