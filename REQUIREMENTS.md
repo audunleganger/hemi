@@ -1,6 +1,12 @@
 # Hemi — Requirement Specification
 
-Version 0.6 · 2026-10-19
+Version 0.9 · 2026-10-19
+
+*0.9: feedback from the first look at the web app (appendix, "Feedback on the web app"): start with a chosen medication, discard an ongoing attack, everything editable from the attack page, pink–red severity colors, at least one status in the attack filter, layouts between phone and PC.*
+
+*0.8: web app details decided while building the calendar home and attack mode (appendix, "Web app details").*
+
+*0.7: precise rules found while building the shared module (appendix, "Rules made precise").*
 
 *0.6: code identifiers and license (appendix).*
 
@@ -87,7 +93,7 @@ The Norwegian terms are a first guess and live only in the localization files.
 
 ### 3.4 Attacks
 
-- **AT-1 (MUST)** **Start an attack in one tap** from the front page: start time now, severity 1, status *Migraine*. Everything else is optional and can be filled in later. A combined action **"Start attack + take ⟨usual medication⟩"** logs the dose too (the user's most used medication; changeable).
+- **AT-1 (MUST)** **Start an attack in one tap** from the front page: start time now, severity 1, status *Migraine*. Everything else is optional and can be filled in later. A combined action **"Start attack + take ⟨usual medication⟩"** logs the dose too (the user's most used medication; changeable). A second combined action **"Start attack + choose medication"** opens a picker of the user's medications and logs the chosen one.
 - **AT-2 (MUST)** Start options: a chosen time (for logging afterwards), a starting severity, and **"Woke up with it"**, which sets the start to a wake-up time and marks the real start as unknown.
 - **AT-3 (MUST)** **Severity readings** (0–3) can be added at any time, with time defaulting to now. Readings are also taken when logging a dose (DO-2) and when rating one (DO-5). The attack shows its readings as a step curve with doses marked on it. **Peak severity** is the highest reading.
 - **AT-4 (MUST)** **Status**: *Migraine* / *Unsure* / *Not migraine*, changeable at any time (for pain that fades on its own). *Unsure* and *Not migraine* attacks are kept and shown, but left out of migraine days and statistics by default, with a filter to include them. Their doses still count toward limits (LI-6).
@@ -101,7 +107,8 @@ The Norwegian terms are a first guess and live only in the localization files.
 - **AT-9 (MUST)** **Pain side**: left / right / both, picked on a small drawing of a head **seen from behind**, so the user's left is on the left. Optional.
 - **AT-10 (MUST)** **Triggers**: toggles for the user's own triggers (3.6), any number per attack.
 - **AT-11 (MUST)** **Note**: free text.
-- **AT-12 (MUST)** Attacks, episodes, readings can be edited and deleted. Deleting an attack keeps its doses (they become doses without an attack).
+- **AT-12 (MUST)** Attacks, episodes, readings can be edited and deleted. Deleting an attack keeps its doses (they become doses without an attack). **Every** part of an attack stays editable after it's logged: times, episodes, readings (estimated or not), doses, status, nausea, pain side, triggers, note. Nothing is locked.
+- **AT-16 (MUST)** **Discard the ongoing attack**: undoes the start, for an attack started by mistake. It removes the ongoing episode with its readings. If that episode was a recurrence (AT-7), the earlier attack goes back to how it was, ended; otherwise the attack is deleted. Doses logged in the episode are listed in the confirmation, with a choice to delete them too (default) or keep them as doses without an attack. A small text button next to **It's over**, always behind a confirmation.
 - **AT-14 (MUST)** **Log afterwards**: one form for an attack that is over, e.g. "yesterday 14:00–22:00". Only the **start** is required; everything else is optional and can be filled in now, later or never: end, peak severity, doses taken (medication, quantity, time), status, nausea, pain side, triggers, note. A peak severity given here is stored as one reading at the start time, marked **estimated**. Doses added here are never put in the pending ratings (DO-6); they can be rated on the form or later, or stay unrated.
 - **AT-15 (MUST)** **Missing data is normal**, not an error. An attack may have no readings, no end, no doses and no details, and everything derived must handle it:
   - no readings → peak severity unknown; shown as "?" and in a neutral color in calendars and the attack list
@@ -142,8 +149,8 @@ The Norwegian terms are a first guess and live only in the localization files.
   - the way to start an attack, start one with the usual medication, log a dose, or log afterwards (**+ Record**, DS-1)
 - **V-2 (MUST)** **Calendar, month view**: one cell per day (by cutoff), colored by the day's peak severity, with a marker on days with medication use. Tapping a day shows its attacks and doses. Prev/next month and "today".
 - **V-3 (MUST)** **Calendar, year view**: one small square per day, colored the same way. Tapping a day opens it in the month view.
-- **V-4 (MUST)** **Attack list**, newest first, with filters: status, peak severity, trigger, medication, date range. Each row's icon is the **head drawing from AT-9** with the attack's pain side filled in (left, right or both; outline only when not set), tinted by peak severity.
-- **V-5 (MUST)** **Attack page**: timeline of episodes and readings (step curve) with doses and their ratings marked, plus all attack fields.
+- **V-4 (MUST)** **Attack list**, newest first, with filters: status, peak severity, trigger, medication, date range. The status filter always keeps **at least one** status on: turning off the last one is not possible. Tapping an attack opens its page (V-5). Each row's icon is the **head drawing from AT-9** with the attack's pain side filled in (left, right or both; outline only when not set), tinted by peak severity.
+- **V-5 (MUST)** **Attack page**: timeline of episodes and readings (step curve) with doses and their ratings marked, plus all attack fields, all editable (AT-12). Opened by tapping an attack in the attack list, the calendar's day view, or the ongoing-attack header.
 - **V-6 (MUST)** **Dose list**, newest first, filterable by medication, ingredient, rated/unrated, attack/no attack.
 - **V-7 (MUST)** **Attack mode** with a dim, low-contrast look and no white areas while an attack is ongoing (DS-3, DS-4). It replaces the separate night theme from earlier versions.
 - **V-8 (MUST)** Logging during an attack is reachable from the front page in at most **two taps** (AT-1, DO-1), with large touch targets.
@@ -196,6 +203,7 @@ Chosen in the design review (2026-10-19) from three mockups in `docs/design/dire
   - **Phone** (< 720 px): one column; bottom navigation (Calendar · Attacks · Medications · More); a floating **+ Record** button above it (start attack, add reading, log dose, log afterwards).
   - **PC** (≥ 1100 px): top bar with the navigation and **+ Record**; under it a full-width strip with the **year view** (V-3) and four stat tiles (migraine days this month, acute medication days in 30 days, missed work and home early this month); under that three columns: month calendar · selected day · limits and recent attacks.
   - In between: two columns (calendar + selected day), limits below.
+  - Every width from 320 px up must look deliberate, including just around the breakpoints (about 650–1150 px): no squeezed columns, overflowing rows or half-switched navigation.
 - **DS-2 (MUST)** **Home is the calendar** (direction C). On the phone: the month grid at the top, the selected day (default today) below it as a **vertical timeline** of readings, doses, due ratings ("Rate Imigran: how is it now?") and the day's work impact, followed by the limit rings (DS-8). Tapping another day selects it.
 - **DS-3 (MUST)** **Attack mode** (direction B): while an attack is ongoing, home becomes the attack screen. Nothing else changes; the navigation still reaches the calendar and everything else.
   - "How bad is it now?" with four large round buttons **0 1 2 3** (Pain free · Mild · Moderate · Severe). One tap records a reading at the current time. The current severity is highlighted; "Last reading: 2 at 08:10" below.
@@ -216,10 +224,10 @@ Chosen in the design review (2026-10-19) from three mockups in `docs/design/dire
   | text | #1b2420 | #e3e9e6 | #d9cdb5 |
   | secondary text | #5f6b65 | #93a19a | #857c6c |
   | accent | #1f6f68 (teal) | #4fb3a9 | #c99a4e (amber) |
-  | severity 1 / 2 / 3 | #ead3e7 / #c48bbb / #7a3373 (plum) | #3d2a3b / #7d4a75 / #c27bb8 | #4a3d22 / #7a5a26 / #b9802f |
+  | severity 1 / 2 / 3 | pink / red / dark red (values to be set) | pink / red / dark red, tuned for dark | pink / red / dark red, dimmed |
   | limit near / over | #c98a1c / #c0392b | #e0a63a / #e5645a | #d9a441 / #d9604f |
 
-  Severity is **one calm sequential scale** (plum; amber in attack mode), not warning colors. Severity is always shown with its number too (NF-3). Unknown severity (AT-15) is a neutral gray.
+  Severity is **pink for 1, red for 2, dark red for 3** everywhere, attack mode included (changed in 0.9 from the plum scale and attack mode's amber scale, at the user's request); in attack mode the same hues are dimmed to fit its low-contrast look. The calendar legend shows the same three colors. Severity is always shown with its number too (NF-3). Unknown severity (AT-15) is a neutral gray.
 - **DS-7 (MUST)** **Pain-side icon**: a small head **seen from behind** (oval, ears, neck, dashed midline), so the user's left is on the left. The left, right or both halves are filled with the color of the attack's **peak severity**; outline only when no side is set, gray fill when severity is unknown. Used as the icon of every attack in lists (V-4), on the attack page, in the ongoing-attack header, and as the picker for AT-9.
 - **DS-8 (MUST)** **Limits as rings**: a small donut per limit with "4 / 6" and a short label ("Sumatriptan days"), colored accent when OK, near and over per DS-6. The PC limits column lists them vertically, the phone in a row.
 - **DS-9 (MUST)** **Calendar cells** (V-2, V-3): filled with the day's peak severity color, a small dot for days with medication use, today outlined, the ongoing attack's day ringed in the accent. Days after today are faded. *Unsure* attacks, when shown (AT-4), are outlined in the severity color instead of filled.
@@ -360,3 +368,48 @@ None at the moment.
 | Code identifiers | `hemi`: package `com.hemi`, env vars `HEMI_*`, image `ghcr.io/audunleganger/hemi`. The visible name is still only in the i18n `appName` |
 | License | AGPL-3.0, as Larder |
 | Schema before release | Schema version 1 changes in place until the first release; then `1.db` is snapshotted and migrations start |
+
+### Rules made precise (0.7)
+
+Decided while writing the `shared` module; the tests in `shared/src/test` pin them down.
+
+| Topic | Decision |
+|---|---|
+| Days-with-use windows (LI-1, ST-7) | Count whole days by cutoff: today and the days before it, as many as the window has days (rounded up). "6 days per 30 days" = today + the 29 days before; the oldest day frees up the day after it leaves |
+| Limit states (LI-5) | OK (< 80 %), near (≥ 80 %), reached (= max), over (> max). Reached and over look the same; "over" is for doses saved past the max |
+| Limit previews (LI-4) | Windows end at the new dose's time. A minimum interval also checks the next dose when logging in the past |
+| Ongoing attacks | At most one at a time; starting another while one is ongoing is refused |
+| Recurrence merging (AT-7) | Only when starting an attack. Logging afterwards (AT-14) always makes its own attack. Only attacks with an end can be joined. Splitting an episode moves it, the later episodes, and the readings and doses from its start |
+| "It's over" (AT-6) | Ends the episode without adding a reading; the step curve is 0 outside episodes |
+| Rating prefill (DO-5) | No prefill when any other acute dose, remedies included, was taken between the dose and the rating, or when the severity at the dose isn't known |
+| Sustained (DO-7) | A *Pain free* dose is not sustained when its attack has a recurrence episode starting after the dose |
+| Work impact (WI-2) | Uses the step curve with carry-over from the day before. Nothing is proposed only when no reading tells the severity that day (none that day and none carried in) |
+| Logged-afterwards doses (AT-14) | Stored with `rating_dismissed` set, which keeps them out of pending ratings while still allowing a rating |
+| Limits are never blocking (LI-4) | The server always saves the dose and marks `over_limit`; clients show the preview and ask to confirm |
+| Usual medication (S-3) | The one set; else the most used acute medication; else the first acute one by name |
+| Schema names | The trigger table is `trigger_def` (`TRIGGER` is an SQL keyword). The feed secret is stored as is (`ics_token`), so Settings can show the URL again; it only grants that read-only feed |
+
+### Web app details (0.8)
+
+| Topic | Decision |
+|---|---|
+| Navigation during an attack (DS-3) | Home (`/`) is the attack screen, labelled **Now**; the calendar moves to `/calendar` and gets its own nav item. On phones the bottom bar has five items while an attack is ongoing |
+| Dim look (V-7, DS-4) | Applies to the whole app while an attack is ongoing, not only the attack screen |
+| Usual medication button (DS-3) | One tap logs the dose in the attack without a new reading; the last reading stands. "Other medication" opens the full form, which asks the current severity (DO-2). If the dose would go over a limit, the button opens the full form instead, to confirm (LI-4) |
+| Dose time | Means "now" to the second until the user changes it, so a dose a moment ago is counted in the preview |
+| Attack mode on phones | Shows only the controls, as in mockup B; the chart and panels are for tablets and PCs |
+
+### Feedback on the web app (0.9)
+
+The user's first look at PR #4, running in Docker.
+
+| Topic | Decision |
+|---|---|
+| Layouts between phone and PC (DS-1) | Some widths around the breakpoints look broken. Every width must look deliberate |
+| Start with a chosen medication (AT-1) | Added "Start attack + choose medication" with a picker of the user's medications, next to "Start attack + take ⟨usual⟩" |
+| Attack page (V-5) | Tapping an attack in the calendar or attack list opens its page, where the status (Migraine / Unsure / Not migraine) and everything else is set |
+| Nothing locked (AT-12) | Times, episodes, readings, doses and all fields stay editable after logging |
+| Discard the ongoing attack (AT-16) | Agreed as "undo the start": removes the ongoing episode, restores the earlier attack if it was a recurrence, and asks whether its doses go too. Chosen over a full undo history, which would be more to build for little gain |
+| Severity colors (DS-6) | Pink / red / dark red for 1 / 2 / 3, replacing plum, in attack mode too (dimmed there) instead of amber. The accent stays amber |
+| Status filter (V-4) | Turning off all three statuses still showed attacks. Now at least one status must stay on |
+

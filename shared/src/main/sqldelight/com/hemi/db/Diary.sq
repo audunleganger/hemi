@@ -1,0 +1,229 @@
+import kotlin.Boolean;
+
+-- The user's triggers (TR-1 … TR-3).
+CREATE TABLE trigger_def (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL REFERENCES app_user(id) ON DELETE CASCADE,
+    name TEXT NOT NULL,
+    name_norm TEXT NOT NULL,
+    sort_order INTEGER NOT NULL,
+    archived INTEGER AS Boolean NOT NULL DEFAULT 0,
+    UNIQUE (user_id, name_norm)
+);
+
+-- Attacks (AT-1 … AT-15). Start, end and peak are derived from episodes and readings.
+CREATE TABLE attack (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL REFERENCES app_user(id) ON DELETE CASCADE,
+    -- Always migraine in v1 (AT-5).
+    type TEXT NOT NULL DEFAULT 'migraine',
+    logged_afterwards INTEGER AS Boolean NOT NULL DEFAULT 0,
+    -- migraine | unsure | not_migraine (AT-4)
+    status TEXT NOT NULL DEFAULT 'migraine',
+    -- none | nauseous | vomited; null: not recorded (AT-8, AT-15)
+    nausea TEXT,
+    -- left | right | both; null: not set (AT-9)
+    pain_side TEXT,
+    note TEXT,
+    created_at INTEGER NOT NULL,
+    updated_at INTEGER NOT NULL
+);
+
+CREATE INDEX attack_user ON attack(user_id);
+
+-- Times are instants (ms) plus the UTC offset in minutes where they happened (TI-1).
+CREATE TABLE episode (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    attack_id INTEGER NOT NULL REFERENCES attack(id) ON DELETE CASCADE,
+    started_at INTEGER NOT NULL,
+    started_offset INTEGER NOT NULL,
+    -- Woke up with it: the real start is unknown (AT-2).
+    start_unknown INTEGER AS Boolean NOT NULL DEFAULT 0,
+    -- Null: ongoing, or not recorded for an attack logged afterwards (AT-15).
+    ended_at INTEGER,
+    ended_offset INTEGER,
+    is_recurrence INTEGER AS Boolean NOT NULL DEFAULT 0
+);
+
+CREATE INDEX episode_attack ON episode(attack_id);
+
+CREATE TABLE reading (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    attack_id INTEGER NOT NULL REFERENCES attack(id) ON DELETE CASCADE,
+    at INTEGER NOT NULL,
+    at_offset INTEGER NOT NULL,
+    severity INTEGER NOT NULL CHECK (severity BETWEEN 0 AND 3),
+    -- A peak given when logging afterwards (AT-14).
+    estimated INTEGER AS Boolean NOT NULL DEFAULT 0
+);
+
+CREATE INDEX reading_attack ON reading(attack_id);
+
+CREATE TABLE attack_trigger (
+    attack_id INTEGER NOT NULL REFERENCES attack(id) ON DELETE CASCADE,
+    trigger_id INTEGER NOT NULL REFERENCES trigger_def(id) ON DELETE CASCADE,
+    PRIMARY KEY (attack_id, trigger_id)
+);
+
+CREATE INDEX attack_trigger_trigger ON attack_trigger(trigger_id);
+
+-- Doses (DO-1 … DO-9). They count toward limits with or without an attack (LI-6).
+CREATE TABLE dose (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL REFERENCES app_user(id) ON DELETE CASCADE,
+    medication_id INTEGER NOT NULL REFERENCES medication(id) ON DELETE RESTRICT,
+    -- Deleting an attack keeps its doses (AT-12).
+    attack_id INTEGER REFERENCES attack(id) ON DELETE SET NULL,
+    quantity REAL NOT NULL,
+    taken_at INTEGER NOT NULL,
+    taken_offset INTEGER NOT NULL,
+    note TEXT,
+    -- pain_free | relieved | no_effect | unsure (DO-5)
+    rating TEXT,
+    rated_at INTEGER,
+    -- Not asked for a rating any more: dismissed (DO-6), or logged afterwards (AT-14).
+    rating_dismissed INTEGER AS Boolean NOT NULL DEFAULT 0,
+    -- Saved over a limit (LI-4).
+    over_limit INTEGER AS Boolean NOT NULL DEFAULT 0,
+    created_at INTEGER NOT NULL,
+    updated_at INTEGER NOT NULL
+);
+
+CREATE INDEX dose_user_time ON dose(user_id, taken_at);
+CREATE INDEX dose_attack ON dose(attack_id);
+CREATE INDEX dose_medication ON dose(medication_id);
+
+-- The user's own work impact for a day, overriding the proposal (WI-3). day is YYYY-MM-DD.
+CREATE TABLE work_day_override (
+    user_id INTEGER NOT NULL REFERENCES app_user(id) ON DELETE CASCADE,
+    day TEXT NOT NULL,
+    -- missed | home_early | none | not_workday
+    impact TEXT NOT NULL,
+    PRIMARY KEY (user_id, day)
+);
+
+-- Triggers
+
+selectTriggers:
+SELECT * FROM trigger_def WHERE user_id = ? ORDER BY sort_order, name_norm;
+
+insertTrigger:
+INSERT INTO trigger_def(user_id, name, name_norm, sort_order, archived) VALUES (?, ?, ?, ?, ?);
+
+updateTrigger:
+UPDATE trigger_def SET name = ?, name_norm = ? WHERE id = ? AND user_id = ?;
+
+setTriggerOrder:
+UPDATE trigger_def SET sort_order = ? WHERE id = ? AND user_id = ?;
+
+setTriggerArchived:
+UPDATE trigger_def SET archived = ? WHERE id = ? AND user_id = ?;
+
+deleteTrigger:
+DELETE FROM trigger_def WHERE id = ? AND user_id = ?;
+
+-- Attacks
+
+selectAttacks:
+SELECT * FROM attack WHERE user_id = ?;
+
+selectAttack:
+SELECT * FROM attack WHERE id = ? AND user_id = ?;
+
+insertAttack:
+INSERT INTO attack(user_id, type, logged_afterwards, status, nausea, pain_side, note, created_at, updated_at)
+VALUES (?, 'migraine', ?, ?, ?, ?, ?, ?, ?);
+
+updateAttack:
+UPDATE attack SET status = ?, nausea = ?, pain_side = ?, note = ?, updated_at = ? WHERE id = ? AND user_id = ?;
+
+touchAttack:
+UPDATE attack SET updated_at = ? WHERE id = ? AND user_id = ?;
+
+deleteAttack:
+DELETE FROM attack WHERE id = ? AND user_id = ?;
+
+selectEpisodes:
+SELECT e.* FROM episode e JOIN attack a ON a.id = e.attack_id WHERE a.user_id = ? ORDER BY e.started_at;
+
+insertEpisode:
+INSERT INTO episode(attack_id, started_at, started_offset, start_unknown, ended_at, ended_offset, is_recurrence)
+VALUES (?, ?, ?, ?, ?, ?, ?);
+
+updateEpisode:
+UPDATE episode SET started_at = ?, started_offset = ?, start_unknown = ?, ended_at = ?, ended_offset = ? WHERE id = ?;
+
+endEpisode:
+UPDATE episode SET ended_at = ?, ended_offset = ? WHERE id = ?;
+
+moveEpisode:
+UPDATE episode SET attack_id = ?, is_recurrence = 0 WHERE id = ?;
+
+updateEpisodeAttack:
+UPDATE episode SET attack_id = ? WHERE id = ?;
+
+deleteEpisode:
+DELETE FROM episode WHERE id = ?;
+
+selectReadings:
+SELECT r.* FROM reading r JOIN attack a ON a.id = r.attack_id WHERE a.user_id = ? ORDER BY r.at, r.id;
+
+insertReading:
+INSERT INTO reading(attack_id, at, at_offset, severity, estimated) VALUES (?, ?, ?, ?, ?);
+
+updateReading:
+UPDATE reading SET at = ?, at_offset = ?, severity = ?, estimated = 0 WHERE id = ?;
+
+deleteReading:
+DELETE FROM reading WHERE id = ?;
+
+moveReadingsFrom:
+UPDATE reading SET attack_id = :to WHERE attack_id = :from AND at >= :since;
+
+selectAttackTriggers:
+SELECT t.* FROM attack_trigger t JOIN attack a ON a.id = t.attack_id WHERE a.user_id = ?;
+
+insertAttackTrigger:
+INSERT OR IGNORE INTO attack_trigger(attack_id, trigger_id) VALUES (?, ?);
+
+deleteAttackTriggers:
+DELETE FROM attack_trigger WHERE attack_id = ?;
+
+-- Doses
+
+selectDoses:
+SELECT * FROM dose WHERE user_id = ? ORDER BY taken_at, id;
+
+selectDose:
+SELECT * FROM dose WHERE id = ? AND user_id = ?;
+
+insertDose:
+INSERT INTO dose(user_id, medication_id, attack_id, quantity, taken_at, taken_offset, note, rating, rated_at, rating_dismissed, over_limit, created_at, updated_at)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+
+updateDose:
+UPDATE dose SET medication_id = ?, attack_id = ?, quantity = ?, taken_at = ?, taken_offset = ?, note = ?, over_limit = ?, updated_at = ?
+WHERE id = ? AND user_id = ?;
+
+rateDose:
+UPDATE dose SET rating = ?, rated_at = ?, updated_at = ? WHERE id = ? AND user_id = ?;
+
+dismissRating:
+UPDATE dose SET rating_dismissed = 1, updated_at = ? WHERE id = ? AND user_id = ?;
+
+deleteDose:
+DELETE FROM dose WHERE id = ? AND user_id = ?;
+
+moveDosesFrom:
+UPDATE dose SET attack_id = :to WHERE attack_id = :from AND taken_at >= :since;
+
+-- Work impact
+
+selectOverrides:
+SELECT * FROM work_day_override WHERE user_id = ?;
+
+upsertOverride:
+INSERT OR REPLACE INTO work_day_override(user_id, day, impact) VALUES (?, ?, ?);
+
+deleteOverride:
+DELETE FROM work_day_override WHERE user_id = ? AND day = ?;

@@ -7,6 +7,7 @@ import com.hemi.shared.api.ErrorCodes
 import com.hemi.shared.api.UserDto
 import com.hemi.shared.domain.AppException
 import com.hemi.shared.domain.Languages
+import com.hemi.shared.service.Seeder
 import java.security.MessageDigest
 import java.security.SecureRandom
 import java.util.Base64
@@ -35,7 +36,7 @@ class Auth(private val config: ServerConfig, private val now: () -> Long = Syste
     fun verifyPassword(password: String, hash: String?): Boolean =
         hash != null && password.toByteArray().size <= MAX_PASSWORD_BYTES && BCrypt.verifyer().verify(password.toCharArray(), hash).verified
 
-    /** Creates a user. */
+    /** Creates a user with the starter triggers (TR-2). */
     fun createUser(db: HemiDatabase, username: String, password: String, isAdmin: Boolean, locale: String?): App_user =
         db.transactionWithResult {
             val name = cleanUsername(username)
@@ -44,6 +45,7 @@ class Auth(private val config: ServerConfig, private val now: () -> Long = Syste
             }
             db.appUserQueries.insertUser(name, hashPassword(password), isAdmin, cleanLocale(locale), now())
             val id = db.appUserQueries.lastInsertRowId().executeAsOne()
+            Seeder.seed(db, id, cleanLocale(locale))
             db.appUserQueries.selectById(id).executeAsOne()
         }
 

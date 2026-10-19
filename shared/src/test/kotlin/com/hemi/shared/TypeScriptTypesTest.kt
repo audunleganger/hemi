@@ -1,28 +1,64 @@
 package com.hemi.shared
 
+import com.hemi.shared.api.AcuteMedicationDays
 import com.hemi.shared.api.AdminUserCreate
 import com.hemi.shared.api.AdminUserUpdate
+import com.hemi.shared.api.AttackDto
+import com.hemi.shared.api.AttackSummary
+import com.hemi.shared.api.AttackUpdate
 import com.hemi.shared.api.BackupResult
+import com.hemi.shared.api.CalendarView
+import com.hemi.shared.api.DayView
+import com.hemi.shared.api.DoseDto
+import com.hemi.shared.api.DoseInput
+import com.hemi.shared.api.DosePreview
+import com.hemi.shared.api.DosePreviewInput
+import com.hemi.shared.api.EndInput
+import com.hemi.shared.api.EpisodeInput
 import com.hemi.shared.api.ErrorCodes
 import com.hemi.shared.api.ErrorResponse
+import com.hemi.shared.api.FeedDto
 import com.hemi.shared.api.HealthResponse
+import com.hemi.shared.api.HomeView
+import com.hemi.shared.api.IngredientDto
+import com.hemi.shared.api.IngredientInput
+import com.hemi.shared.api.LimitDto
+import com.hemi.shared.api.LimitInput
+import com.hemi.shared.api.LimitStatusDto
 import com.hemi.shared.api.LocaleInput
+import com.hemi.shared.api.LogAfterwardsInput
 import com.hemi.shared.api.LoginInput
 import com.hemi.shared.api.LoginResult
+import com.hemi.shared.api.MedicationDto
+import com.hemi.shared.api.MedicationImageData
+import com.hemi.shared.api.MedicationInput
 import com.hemi.shared.api.PasswordChangeInput
+import com.hemi.shared.api.PendingRating
+import com.hemi.shared.api.RateInput
+import com.hemi.shared.api.RatingSuggestion
+import com.hemi.shared.api.ReadingInput
+import com.hemi.shared.api.SettingsDto
+import com.hemi.shared.api.SettingsInput
 import com.hemi.shared.api.SetupInput
 import com.hemi.shared.api.SetupStatus
+import com.hemi.shared.api.StartAttackInput
+import com.hemi.shared.api.StartAttackResult
+import com.hemi.shared.api.TimeZoneInput
+import com.hemi.shared.api.TriggerDto
+import com.hemi.shared.api.TriggerInput
+import com.hemi.shared.api.TriggerOrderInput
 import com.hemi.shared.api.UserDto
+import com.hemi.shared.api.WorkImpactInput
+import java.io.File
+import java.lang.reflect.Modifier
+import kotlin.test.Test
+import kotlin.test.assertEquals
 import kotlinx.serialization.descriptors.PolymorphicKind
 import kotlinx.serialization.descriptors.PrimitiveKind
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.descriptors.SerialKind
 import kotlinx.serialization.descriptors.StructureKind
 import kotlinx.serialization.serializer
-import java.io.File
-import java.lang.reflect.Modifier
-import kotlin.test.Test
-import kotlin.test.assertEquals
 
 /**
  * Generates web/src/api/types.gen.ts from the Kotlin API types, and fails when the checked-in file is stale.
@@ -34,6 +70,14 @@ class TypeScriptTypesTest {
         serializer<SetupStatus>(), serializer<SetupInput>(), serializer<LoginInput>(), serializer<LoginResult>(),
         serializer<UserDto>(), serializer<PasswordChangeInput>(), serializer<LocaleInput>(),
         serializer<AdminUserCreate>(), serializer<AdminUserUpdate>(), serializer<BackupResult>(),
+        serializer<SettingsDto>(), serializer<SettingsInput>(), serializer<TimeZoneInput>(), serializer<FeedDto>(),
+        serializer<IngredientInput>(), serializer<IngredientDto>(), serializer<LimitInput>(), serializer<LimitDto>(), serializer<LimitStatusDto>(),
+        serializer<MedicationInput>(), serializer<MedicationDto>(), serializer<MedicationImageData>(),
+        serializer<TriggerInput>(), serializer<TriggerDto>(), serializer<TriggerOrderInput>(),
+        serializer<AttackSummary>(), serializer<AttackDto>(), serializer<AttackUpdate>(), serializer<StartAttackInput>(), serializer<StartAttackResult>(),
+        serializer<ReadingInput>(), serializer<EndInput>(), serializer<EpisodeInput>(), serializer<LogAfterwardsInput>(),
+        serializer<DoseInput>(), serializer<DoseDto>(), serializer<DosePreviewInput>(), serializer<DosePreview>(), serializer<RateInput>(), serializer<RatingSuggestion>(),
+        serializer<HomeView>(), serializer<PendingRating>(), serializer<AcuteMedicationDays>(), serializer<CalendarView>(), serializer<DayView>(), serializer<WorkImpactInput>(),
     ).map { it.descriptor }
 
     @Test
