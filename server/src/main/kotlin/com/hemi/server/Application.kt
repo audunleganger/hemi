@@ -96,6 +96,9 @@ fun Application.module(config: ServerConfig) {
             route("/v1") {
                 accountRoutes(database, auth)
                 adminRoutes(database, auth)
+                catalogRoutes(database, auth)
+                diaryRoutes(database, auth)
+                feedRoutes(database)
             }
             // Unknown API paths must 404 rather than fall through to the web GUI's index.html.
             route("{...}") {
