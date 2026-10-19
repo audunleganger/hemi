@@ -224,10 +224,10 @@ Chosen in the design review (2026-10-19) from three mockups in `docs/design/dire
   | text | #1b2420 | #e3e9e6 | #d9cdb5 |
   | secondary text | #5f6b65 | #93a19a | #857c6c |
   | accent | #1f6f68 (teal) | #4fb3a9 | #c99a4e (amber) |
-  | severity 1 / 2 / 3 | pink / red / dark red (values to be set) | pink / red / dark red, tuned for dark | #4a3d22 / #7a5a26 / #b9802f |
+  | severity 1 / 2 / 3 | pink / red / dark red (values to be set) | pink / red / dark red, tuned for dark | pink / red / dark red, dimmed |
   | limit near / over | #c98a1c / #c0392b | #e0a63a / #e5645a | #d9a441 / #d9604f |
 
-  Severity is **pink for 1, red for 2, dark red for 3** in the calendar and everywhere else outside attack mode (changed in 0.9 from the calm plum scale, at the user's request); attack mode keeps its amber scale. The calendar legend shows the same three colors. Severity is always shown with its number too (NF-3). Unknown severity (AT-15) is a neutral gray.
+  Severity is **pink for 1, red for 2, dark red for 3** everywhere, attack mode included (changed in 0.9 from the plum scale and attack mode's amber scale, at the user's request); in attack mode the same hues are dimmed to fit its low-contrast look. The calendar legend shows the same three colors. Severity is always shown with its number too (NF-3). Unknown severity (AT-15) is a neutral gray.
 - **DS-7 (MUST)** **Pain-side icon**: a small head **seen from behind** (oval, ears, neck, dashed midline), so the user's left is on the left. The left, right or both halves are filled with the color of the attack's **peak severity**; outline only when no side is set, gray fill when severity is unknown. Used as the icon of every attack in lists (V-4), on the attack page, in the ongoing-attack header, and as the picker for AT-9.
 - **DS-8 (MUST)** **Limits as rings**: a small donut per limit with "4 / 6" and a short label ("Sumatriptan days"), colored accent when OK, near and over per DS-6. The PC limits column lists them vertically, the phone in a row.
 - **DS-9 (MUST)** **Calendar cells** (V-2, V-3): filled with the day's peak severity color, a small dot for days with medication use, today outlined, the ongoing attack's day ringed in the accent. Days after today are faded. *Unsure* attacks, when shown (AT-4), are outlined in the severity color instead of filled.
@@ -410,6 +410,6 @@ The user's first look at PR #4, running in Docker.
 | Attack page (V-5) | Tapping an attack in the calendar or attack list opens its page, where the status (Migraine / Unsure / Not migraine) and everything else is set |
 | Nothing locked (AT-12) | Times, episodes, readings, doses and all fields stay editable after logging |
 | Discard the ongoing attack (AT-16) | Agreed as "undo the start": removes the ongoing episode, restores the earlier attack if it was a recurrence, and asks whether its doses go too. Chosen over a full undo history, which would be more to build for little gain |
-| Severity colors (DS-6) | Pink / red / dark red for 1 / 2 / 3, replacing plum. Attack mode stays amber (to confirm) |
+| Severity colors (DS-6) | Pink / red / dark red for 1 / 2 / 3, replacing plum, in attack mode too (dimmed there) instead of amber. The accent stays amber |
 | Status filter (V-4) | Turning off all three statuses still showed attacks. Now at least one status must stay on |
 

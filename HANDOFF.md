@@ -15,7 +15,7 @@
 Feedback first (REQUIREMENTS 0.9):
 1. Fix the layouts around the breakpoints (DS-1): check every width from 320 to 1400 px, especially 650–1150.
 2. Status filter in the attack list must keep at least one status on (V-4). Also find out why attacks still showed with all three off.
-3. Severity colors pink / red / dark red for 1 / 2 / 3, in light and dark, plus the calendar legend (DS-6). Ask whether attack mode stays amber.
+3. Severity colors pink / red / dark red for 1 / 2 / 3, in light and dark, plus the calendar legend (DS-6). Attack mode too, dimmed; its accent stays amber.
 4. "Start attack + choose medication" with a medication picker (AT-1).
 5. Discard the ongoing attack (AT-16): server endpoint + confirmation listing the doses.
 6. Attack page (V-5), now with everything editable (AT-12), opened from the calendar, the attack list and the ongoing-attack header. This is the old item 1 below.
