@@ -5,6 +5,8 @@ import com.hemi.shared.api.AttackDto
 import com.hemi.shared.api.AttackSummary
 import com.hemi.shared.api.CalendarView
 import com.hemi.shared.api.DayView
+import com.hemi.shared.api.DiscardInput
+import com.hemi.shared.api.DiscardResult
 import com.hemi.shared.api.DoseDto
 import com.hemi.shared.api.DoseInput
 import com.hemi.shared.api.DosePreview
@@ -62,6 +64,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 /** The diary API end to end, as the web app uses it. */
@@ -150,6 +153,17 @@ class DiaryApiTest {
         val again = client.post("/api/v1/attacks/start") { bearerAuth(token); json(StartAttackInput()) }
         assertEquals(HttpStatusCode.Conflict, again.status)
         assertEquals(ErrorCodes.ATTACK_ONGOING, again.body<ErrorResponse>().error)
+    }
+
+    @Test
+    fun `discarding the ongoing attack undoes the start (AT-16)`() = testApplication {
+        val client = jsonClient()
+        val token = client.setup()
+        val started: StartAttackResult = client.post("/api/v1/attacks/start") { bearerAuth(token); json(StartAttackInput()) }.body()
+        val result: DiscardResult = client.post("/api/v1/attacks/${started.attack.summary.id}/discard") { bearerAuth(token); json(DiscardInput()) }.body()
+        assertNull(result.restored)
+        assertNull(client.get("/api/v1/home") { bearerAuth(token) }.body<HomeView>().ongoing)
+        assertEquals(HttpStatusCode.NotFound, client.post("/api/v1/attacks/${started.attack.summary.id}/discard") { bearerAuth(token); json(DiscardInput()) }.status)
     }
 
     @Test

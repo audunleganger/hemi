@@ -115,6 +115,19 @@ data class ReadingInput(
     val severity: Int,
 )
 
+/** Discarding the ongoing attack (AT-16). */
+@Serializable
+data class DiscardInput(
+    /** False: the episode's doses stay, without an attack. */
+    val deleteDoses: Boolean = true,
+)
+
+@Serializable
+data class DiscardResult(
+    /** Set when the episode was a recurrence: the earlier attack, back to how it was. Null: the attack is gone. */
+    val restored: AttackDto?,
+)
+
 /** "It's over" (AT-6). */
 @Serializable
 data class EndInput(

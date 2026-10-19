@@ -13,6 +13,8 @@ import com.hemi.shared.api.DoseDto
 import com.hemi.shared.api.DoseInput
 import com.hemi.shared.api.DosePreview
 import com.hemi.shared.api.DosePreviewInput
+import com.hemi.shared.api.DiscardInput
+import com.hemi.shared.api.DiscardResult
 import com.hemi.shared.api.EndInput
 import com.hemi.shared.api.EpisodeInput
 import com.hemi.shared.api.ErrorCodes
@@ -74,7 +76,7 @@ class TypeScriptTypesTest {
         serializer<IngredientInput>(), serializer<IngredientDto>(), serializer<LimitInput>(), serializer<LimitDto>(), serializer<LimitStatusDto>(),
         serializer<MedicationInput>(), serializer<MedicationDto>(), serializer<MedicationImageData>(),
         serializer<TriggerInput>(), serializer<TriggerDto>(), serializer<TriggerOrderInput>(),
-        serializer<AttackSummary>(), serializer<AttackDto>(), serializer<AttackUpdate>(), serializer<StartAttackInput>(), serializer<StartAttackResult>(),
+        serializer<AttackSummary>(), serializer<AttackDto>(), serializer<AttackUpdate>(), serializer<StartAttackInput>(), serializer<StartAttackResult>(), serializer<DiscardInput>(), serializer<DiscardResult>(),
         serializer<ReadingInput>(), serializer<EndInput>(), serializer<EpisodeInput>(), serializer<LogAfterwardsInput>(),
         serializer<DoseInput>(), serializer<DoseDto>(), serializer<DosePreviewInput>(), serializer<DosePreview>(), serializer<RateInput>(), serializer<RatingSuggestion>(),
         serializer<HomeView>(), serializer<PendingRating>(), serializer<AcuteMedicationDays>(), serializer<CalendarView>(), serializer<DayView>(), serializer<WorkImpactInput>(),

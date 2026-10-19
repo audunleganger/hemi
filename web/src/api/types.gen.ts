@@ -113,6 +113,14 @@ export interface DayView {
   workImpact: WorkImpactDto | null
 }
 
+export interface DiscardInput {
+  deleteDoses?: boolean
+}
+
+export interface DiscardResult {
+  restored: AttackDto | null
+}
+
 export interface DoseDto {
   id: number
   medicationId: number

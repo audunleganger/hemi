@@ -78,6 +78,9 @@ export function AttackMode({ home, now }: { home: HomeView; now: number }) {
         <button type="button" className="link-button" onClick={() => record.open({ kind: 'end', attackId: id })}>
           {t('attackMode.over')}
         </button>
+        <button type="button" className="link-button" onClick={() => record.open({ kind: 'discard', attack })}>
+          {t('discard.button')}
+        </button>
       </div>
     </div>
   )

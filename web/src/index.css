@@ -1247,7 +1247,19 @@ details.more-details[open] > summary {
 .attack-end {
   display: flex;
   justify-content: center;
+  gap: 12px;
   padding-top: 8px;
+}
+
+.discard-doses {
+  margin: 0;
+  padding: 10px 12px;
+  list-style: none;
+  border-radius: var(--radius-small);
+  background: var(--surface-2);
+  display: grid;
+  gap: 4px;
+  font-size: 0.9rem;
 }
 
 .attack-end .link-button {
