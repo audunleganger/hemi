@@ -12,11 +12,13 @@ import { DoseForm } from './DoseForm'
 import { EndForm } from './EndForm'
 import { RatingPrompt } from './RatingPrompt'
 import { StartForm } from './StartForm'
+import { StartWithForm } from './StartWithForm'
 import { useStartAttack } from './useStartAttack'
 
 type Open =
   | { kind: 'menu' }
   | { kind: 'start' }
+  | { kind: 'startWith'; medicationId?: number }
   | { kind: 'dose'; medicationId?: number }
   | { kind: 'afterwards' }
   | { kind: 'reading' }
@@ -39,6 +41,9 @@ function RecordMenu({ open, close }: { open: (what: Open) => void; close: () => 
   const start = useStartAttack()
   const ongoing = home.data?.ongoing ?? null
   const usual = home.data?.usualMedication ?? null
+  // Over a limit, the usual medication asks first (LI-4), like in attack mode.
+  const startWithUsual = () =>
+    home.data?.usualDosePreview?.over ? open({ kind: 'startWith', medicationId: usual!.id }) : start.mutate({ dose: { medicationId: usual!.id } }, { onSuccess: close })
   return (
     <div className="record-menu">
       {!ongoing && (
@@ -48,10 +53,13 @@ function RecordMenu({ open, close }: { open: (what: Open) => void; close: () => 
             <small>{t('record.startHint')}</small>
           </button>
           {usual && (
-            <button type="button" className="record-option" disabled={start.isPending} onClick={() => start.mutate({ dose: { medicationId: usual.id } }, { onSuccess: close })}>
+            <button type="button" className="record-option" disabled={start.isPending} onClick={startWithUsual}>
               {t('record.startWith', { medication: usual.name })}
             </button>
           )}
+          <button type="button" className="record-option" onClick={() => open({ kind: 'startWith' })}>
+            {t('record.startChoose')}
+          </button>
           <button type="button" className="record-option" onClick={() => open({ kind: 'start' })}>
             {t('record.startOptions')}
             <small>{t('record.startOptionsHint')}</small>
@@ -98,6 +106,7 @@ export function RecordProvider({ children }: { children: ReactNode }) {
   const titles: Record<Open['kind'], string> = {
     menu: t('record.title'),
     start: t('record.startOptions'),
+    startWith: t('record.startChoose'),
     dose: t('record.dose'),
     afterwards: t('record.afterwards'),
     reading: t('attackMode.question'),
@@ -112,6 +121,7 @@ export function RecordProvider({ children }: { children: ReactNode }) {
         <Sheet title={titles[current.kind]} onClose={close}>
           {current.kind === 'menu' && <RecordMenu open={setCurrent} close={close} />}
           {current.kind === 'start' && <StartForm onDone={close} />}
+          {current.kind === 'startWith' && <StartWithForm medicationId={current.medicationId} onDone={close} />}
           {current.kind === 'dose' && (
             <DoseForm
               initialMedicationId={current.medicationId}

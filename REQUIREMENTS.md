@@ -1,6 +1,8 @@
 # Hemi — Requirement Specification
 
-Version 0.11 · 2026-10-19
+Version 0.12 · 2026-10-19
+
+*0.12: "Start attack + choose medication" (appendix, "Starting with a medication").*
 
 *0.11: severity colors set (DS-6, proposal A of three the user compared), with a legend under the month calendar.*
 
@@ -439,3 +441,10 @@ Fixes the broken widths between phone and PC view (DS-1, 0.9). `web/e2e/flow.mjs
 | Legend (DS-6) | Under the month calendar: 1 Mild, 2 Moderate, 3 Severe, Unknown |
 | Pills | The "peak 3" / "Ongoing" pill is neutral; its head icon carries the severity color. It used to be severity 1's color whatever the peak |
 | Limit "over" | Stays red (#c0392b light). It is close to severity 2 in light mode but only appears in rings and warnings, never in calendar cells |
+
+### Starting with a medication (0.12)
+
+| Topic | Decision |
+|---|---|
+| The picker (AT-1) | "Start attack + choose medication" in + Record lists the active medications: acute first, then preventive ones, then remedies, each by name, with the usual quantity. One tap starts the attack and logs that quantity |
+| Over a limit (LI-4) | If the dose would go over a limit, the picker shows what it does and asks: "Start attack + take ⟨medication⟩ anyway" or "Choose another medication". "Start attack + take ⟨usual⟩" in + Record now asks the same way, as it already did in attack mode (0.8) |
