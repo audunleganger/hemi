@@ -2,6 +2,7 @@ package com.hemi.shared
 
 import com.hemi.shared.api.AttackStatus
 import com.hemi.shared.api.AttackUpdate
+import com.hemi.shared.api.DiscardInput
 import com.hemi.shared.api.DoseInput
 import com.hemi.shared.api.DosePreviewInput
 import com.hemi.shared.api.EndInput
@@ -282,6 +283,50 @@ class DiaryTest {
         assertEquals(2, stale.lastReading?.severity)
         s.t.attacks().end(attack, EndInput(stale.lastReading!!.at))
         assertNull(s.t.home().home().staleAttack)
+    }
+
+    @Test
+    fun `discarding a new attack deletes it, with its doses unless kept (AT-16)`() {
+        val s = Setup()
+        val first = s.t.attacks().start(StartAttackInput(dose = QuickDoseInput(s.imigran.id))).attack.summary.id
+        assertNull(s.t.attacks().discardOngoing(first, DiscardInput()).restored)
+        assertTrue(s.t.attacks().list().isEmpty())
+        assertTrue(s.t.doses().list().isEmpty())
+
+        val second = s.t.attacks().start(StartAttackInput(dose = QuickDoseInput(s.imigran.id))).attack.summary.id
+        s.t.attacks().discardOngoing(second, DiscardInput(deleteDoses = false))
+        assertTrue(s.t.attacks().list().isEmpty())
+        assertNull(s.t.doses().list().single().attackId)
+    }
+
+    @Test
+    fun `discarding a recurrence leaves the earlier attack as it was (AT-16)`() {
+        val s = Setup()
+        s.t.now("2026-10-19T08:00")
+        val first = s.t.attacks().start(StartAttackInput(severity = 2, dose = QuickDoseInput(s.imigran.id))).attack.summary.id
+        s.t.now("2026-10-19T12:00")
+        s.t.attacks().addReading(first, ReadingInput(severity = 0))
+        s.t.now("2026-10-20T20:00")
+        assertEquals(first, s.t.attacks().start(StartAttackInput(severity = 3)).recurrenceOf)
+        s.t.now("2026-10-20T20:05")
+        s.t.doses().create(DoseInput(s.coldPack.id))
+
+        val restored = assertNotNull(s.t.attacks().discardOngoing(first, DiscardInput()).restored)
+        assertEquals(1, restored.episodes.size)
+        assertEquals(listOf(2, 0), restored.readings.map { it.severity })
+        assertFalse(restored.summary.ongoing)
+        assertEquals(at("2026-10-19T12:00"), restored.summary.end)
+        // The first episode's dose stays; the recurrence's is gone.
+        assertEquals(listOf(s.imigran.id), s.t.doses().list().map { it.medicationId })
+        assertNull(s.t.home().home().ongoing)
+    }
+
+    @Test
+    fun `only an ongoing attack can be discarded (AT-16)`() {
+        val s = Setup()
+        val attack = s.t.attacks().start(StartAttackInput()).attack.summary.id
+        s.t.attacks().end(attack, EndInput())
+        assertFailsWith<AppException> { s.t.attacks().discardOngoing(attack, DiscardInput()) }
     }
 
     @Test

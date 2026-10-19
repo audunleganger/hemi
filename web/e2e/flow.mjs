@@ -137,6 +137,20 @@ await step('start an attack with a chosen medication (AT-1, LI-4)', async () => 
   if ((await page.locator('html').getAttribute('class'))?.includes('attack-mode')) throw new Error('started an attack over the limit without asking')
 })
 
+await step('discard a recurrence started by mistake (AT-16)', async () => {
+  await page.getByRole('button', { name: '+ Record' }).first().click()
+  await page.getByRole('button', { name: /^Start attack Now/ }).click()
+  await page.getByRole('link', { name: 'Now', exact: true }).first().click()
+  await page.getByRole('heading', { name: 'How bad is it now?' }).waitFor()
+  await page.getByRole('button', { name: 'Discard', exact: true }).click()
+  const sheet = page.locator('dialog.sheet')
+  await sheet.getByText(/^This undoes the recurrence that started at/).waitFor()
+  await shot('07c-discard')
+  await sheet.getByRole('button', { name: 'Discard recurrence' }).click()
+  await page.getByText(/is back to how it was\.$/).waitFor()
+  if ((await page.locator('html').getAttribute('class'))?.includes('attack-mode')) throw new Error('still in attack mode after discarding')
+})
+
 await step('settings and admin', async () => {
   await page.getByRole('link', { name: 'Settings' }).click()
   await page.getByRole('heading', { name: 'Settings' }).waitFor()

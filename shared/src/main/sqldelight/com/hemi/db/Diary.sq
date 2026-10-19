@@ -180,6 +180,9 @@ DELETE FROM reading WHERE id = ?;
 moveReadingsFrom:
 UPDATE reading SET attack_id = :to WHERE attack_id = :from AND at >= :since;
 
+deleteReadingsFrom:
+DELETE FROM reading WHERE attack_id = :attack AND at >= :since;
+
 selectAttackTriggers:
 SELECT t.* FROM attack_trigger t JOIN attack a ON a.id = t.attack_id WHERE a.user_id = ?;
 
@@ -216,6 +219,12 @@ DELETE FROM dose WHERE id = ? AND user_id = ?;
 
 moveDosesFrom:
 UPDATE dose SET attack_id = :to WHERE attack_id = :from AND taken_at >= :since;
+
+deleteDosesFrom:
+DELETE FROM dose WHERE attack_id = :attack AND taken_at >= :since;
+
+detachDosesFrom:
+UPDATE dose SET attack_id = NULL, updated_at = :now WHERE attack_id = :attack AND taken_at >= :since;
 
 -- Work impact
 

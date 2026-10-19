@@ -6,6 +6,8 @@ import com.hemi.shared.api.AttackDto
 import com.hemi.shared.api.AttackStatus
 import com.hemi.shared.api.AttackSummary
 import com.hemi.shared.api.AttackUpdate
+import com.hemi.shared.api.DiscardInput
+import com.hemi.shared.api.DiscardResult
 import com.hemi.shared.api.DoseInput
 import com.hemi.shared.api.EndInput
 import com.hemi.shared.api.EpisodeInput
@@ -131,6 +133,31 @@ class AttackService(private val db: HemiDatabase, private val userId: Long, priv
         queries.endEpisode(at.at, at.offset.toLong(), open.id)
         touch(attackId)
         get(attackId)
+    }
+
+    /**
+     * Undoes the start of the ongoing attack (AT-16): removes the ongoing episode with its readings, and its
+     * doses unless they're kept without an attack. A recurrence leaves the earlier attack as it was, ended;
+     * otherwise the attack is deleted.
+     */
+    fun discardOngoing(attackId: Long, input: DiscardInput): DiscardResult = db.transactionWithResult {
+        val snapshot = snapshot()
+        snapshot.attacks[attackId] ?: notFound("Attack")
+        if (!snapshot.timelines.getValue(attackId).ongoing) validation("Only an ongoing attack can be discarded")
+        val episodes = snapshot.episodes[attackId].orEmpty()
+        val open = episodes.last { it.ended_at == null }
+        // The first episode is the whole attack: everything in it goes, including anything logged before it.
+        val since = if (episodes.size == 1) Long.MIN_VALUE else open.started_at
+        if (input.deleteDoses) queries.deleteDosesFrom(attackId, since) else queries.detachDosesFrom(now(), attackId, since)
+        if (episodes.size == 1) {
+            queries.deleteAttack(attackId, userId)
+            DiscardResult(null)
+        } else {
+            queries.deleteReadingsFrom(attackId, since)
+            queries.deleteEpisode(open.id)
+            touch(attackId)
+            DiscardResult(get(attackId))
+        }
     }
 
     fun update(id: Long, input: AttackUpdate): AttackDto = db.transactionWithResult {

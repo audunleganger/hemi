@@ -4,6 +4,7 @@ import com.hemi.shared.api.AttackStatus
 import com.hemi.shared.api.AttackUpdate
 import com.hemi.shared.api.DoseInput
 import com.hemi.shared.api.DosePreviewInput
+import com.hemi.shared.api.DiscardInput
 import com.hemi.shared.api.EndInput
 import com.hemi.shared.api.EpisodeInput
 import com.hemi.shared.api.LogAfterwardsInput
@@ -79,6 +80,12 @@ fun Route.diaryRoutes(database: Database, auth: Auth) {
             val id = call.idParam()
             call.withUser(database, auth) { db, user -> AttackService(db, user).delete(id) }
             call.respond(HttpStatusCode.NoContent)
+        }
+        // Undo the start of the ongoing attack (AT-16).
+        post("/{id}/discard") {
+            val id = call.idParam()
+            val input = call.receive<DiscardInput>()
+            call.respond(call.withUser(database, auth) { db, user -> AttackService(db, user).discardOngoing(id, input) })
         }
         post("/{id}/end") {
             val id = call.idParam()

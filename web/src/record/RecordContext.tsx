@@ -2,12 +2,14 @@ import { createContext, useContext, useMemo, useState, type ReactNode } from 're
 import { useTranslation } from 'react-i18next'
 import * as endpoints from '../api/endpoints'
 import { useApiMutation, useHome } from '../api/queries'
-import type { Moment, PendingRating } from '../api/types.gen'
+import type { AttackDto, Moment, PendingRating } from '../api/types.gen'
 import { Sheet } from '../components/Sheet'
 import { SeverityButtons } from '../components/SeverityButtons'
 import { useToast } from '../components/Toast'
 import { ErrorText } from '../components/ui'
+import { formatMomentDay } from '../lib/time'
 import { AfterwardsForm } from './AfterwardsForm'
+import { DiscardForm } from './DiscardForm'
 import { DoseForm } from './DoseForm'
 import { EndForm } from './EndForm'
 import { RatingPrompt } from './RatingPrompt'
@@ -24,6 +26,7 @@ type Open =
   | { kind: 'reading' }
   | { kind: 'rating'; pending: PendingRating }
   | { kind: 'end'; attackId: number; lastReading?: Moment }
+  | { kind: 'discard'; attack: AttackDto }
 
 interface RecordApi {
   open(what: Open): void
@@ -112,6 +115,7 @@ export function RecordProvider({ children }: { children: ReactNode }) {
     reading: t('attackMode.question'),
     rating: t('rating.title'),
     end: t('end.title'),
+    discard: t('discard.title'),
   }
 
   return (
@@ -142,6 +146,15 @@ export function RecordProvider({ children }: { children: ReactNode }) {
           {current.kind === 'reading' && <ReadingForm onDone={close} />}
           {current.kind === 'rating' && <RatingPrompt pending={current.pending} onDone={close} />}
           {current.kind === 'end' && <EndForm attackId={current.attackId} lastReading={current.lastReading} onDone={close} />}
+          {current.kind === 'discard' && (
+            <DiscardForm
+              attack={current.attack}
+              onDone={({ restored }) => {
+                close()
+                toast.show(restored ? t('discard.restored', { day: formatMomentDay(restored.summary.start) }) : t('discard.discarded'))
+              }}
+            />
+          )}
         </Sheet>
       )}
     </RecordContext.Provider>

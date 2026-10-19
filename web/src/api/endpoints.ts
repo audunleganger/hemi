@@ -3,6 +3,8 @@ import type {
   AdminUserCreate,
   AdminUserUpdate,
   AttackDto,
+  DiscardInput,
+  DiscardResult,
   AttackStatus,
   AttackSummary,
   AttackUpdate,
@@ -124,6 +126,7 @@ export const startAttack = (input: StartAttackInput) => api<StartAttackResult>('
 export const logAfterwards = (input: LogAfterwardsInput) => api<AttackDto>('/attacks/afterwards', { method: 'POST', body: input })
 export const updateAttack = (id: number, input: AttackUpdate) => api<AttackDto>(`/attacks/${id}`, { method: 'PUT', body: input })
 export const deleteAttack = (id: number) => api<void>(`/attacks/${id}`, { method: 'DELETE' })
+export const discardAttack = (id: number, input: DiscardInput) => api<DiscardResult>(`/attacks/${id}/discard`, { method: 'POST', body: input })
 export const endAttack = (id: number, input: EndInput = {}) => api<AttackDto>(`/attacks/${id}/end`, { method: 'POST', body: input })
 export const addReading = (id: number, input: ReadingInput) => api<AttackDto>(`/attacks/${id}/readings`, { method: 'POST', body: input })
 export const splitEpisode = (id: number, episodeId: number) => api<AttackDto>(`/attacks/${id}/episodes/${episodeId}/split`, { method: 'POST' })
