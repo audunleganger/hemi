@@ -205,6 +205,7 @@ const nb: Translation<typeof en> = {
     recurrences_other: '{{count}} tilbakefall',
     peakFilter: 'Verste grad',
     anyPeak: 'Alle grader',
+    lastStatus: 'Minst én status må være på',
   },
   limits: {
     title: 'Grenser',

@@ -202,6 +202,7 @@ const en = {
     recurrences_other: '{{count}} recurrences',
     peakFilter: 'Peak severity',
     anyPeak: 'Any peak',
+    lastStatus: 'At least one status stays on',
   },
   limits: {
     title: 'Limits',

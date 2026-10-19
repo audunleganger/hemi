@@ -711,6 +711,10 @@ textarea.input {
   font-weight: 600;
 }
 
+.chip:disabled {
+  cursor: default;
+}
+
 .link-button {
   background: transparent;
   border: 0;
