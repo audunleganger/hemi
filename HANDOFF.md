@@ -9,6 +9,13 @@
 - `REQUIREMENTS.md` is at 0.8. The appendix tables "Rules made precise" (0.7) and "Web app details" (0.8) record the interpretations made this session. The user hasn't reviewed them yet.
 - **Checkpoint**: the user wanted to look at the web app once it first renders, before more is built. Ask them for feedback on #4's look (dark C, light C, dim B) first.
 
+## Running it
+- Everything is on branch `web-home` (it contains #1–#3 too).
+- Development: `./gradlew :server:run` (API on :8080, data in `./data`) and, in another terminal, `cd web && npm install && npm run dev`, then open http://localhost:5173. The first visit shows the setup screen.
+- One process: `./gradlew :server:buildFatJar && (cd web && npm ci && npm run build) && HEMI_WEB_DIR=web/dist java -jar server/build/libs/hemi-server.jar`, then http://localhost:8080.
+- Docker: `docker build -t hemi . && docker run -p 8080:8080 -v hemi-data:/data hemi`. `ghcr.io/audunleganger/hemi:main` only exists once something is merged to `main`.
+- A new account has no medications. Add one under Medications, with an active ingredient and a limit, before logging doses.
+
 ## Next (after the user's feedback)
 1. Attack page (V-5): timeline chart, edit episodes and readings, status/nausea/pain side/triggers/note, split a recurrence; link the attack list and the day view to it.
 2. Dose list (V-6) with filters; edit and delete doses (DO-8).
