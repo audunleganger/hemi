@@ -88,6 +88,25 @@ export function MonthCalendar({
   )
 }
 
+/** DS-6: what the calendar's fill colors mean. */
+export function SeverityLegend() {
+  const { t } = useTranslation()
+  return (
+    <ul className="cal-legend" aria-label={t('severity.label')}>
+      {([1, 2, 3] as const).map((s) => (
+        <li key={s}>
+          <i style={{ background: `var(--sev-${s})` }} />
+          {s} {t(`severity.s${s}`)}
+        </li>
+      ))}
+      <li>
+        <i style={{ background: 'var(--sev-unknown)' }} />
+        {t('severity.unknown')}
+      </li>
+    </ul>
+  )
+}
+
 /** V-3: the last year, one small square per day; tapping one opens it in the month view. */
 export function YearStrip({ days, today, onSelect }: { days: Map<string, CalendarDay>; today: string; onSelect: (date: string) => void }) {
   const { t } = useTranslation()

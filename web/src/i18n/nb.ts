@@ -45,6 +45,7 @@ const nb: Translation<typeof en> = {
     s1: 'Mild',
     s2: 'Moderat',
     s3: 'Kraftig',
+    unknown: 'Ukjent',
   },
   status: { migraine: 'Migrene', unsure: 'Usikker', not_migraine: 'Ikke migrene' },
   nausea: { none: 'Ingen kvalme', nauseous: 'Kvalm', vomited: 'Kastet opp' },

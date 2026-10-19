@@ -42,6 +42,7 @@ const en = {
     s1: 'Mild',
     s2: 'Moderate',
     s3: 'Severe',
+    unknown: 'Unknown',
   },
   status: { migraine: 'Migraine', unsure: 'Unsure', not_migraine: 'Not migraine' },
   nausea: { none: 'No nausea', nauseous: 'Nauseous', vomited: 'Vomited' },

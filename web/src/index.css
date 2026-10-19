@@ -23,11 +23,11 @@
   --accent-text: #ffffff;
   --accent-soft: #dcebe9;
   --sev-0: #e3e8e5;
-  --sev-1: #ead3e7;
-  --sev-2: #c48bbb;
-  --sev-3: #7a3373;
-  --sev-1-text: #4a1f45;
-  --sev-2-text: #2a0f27;
+  --sev-1: #f4b3c5;
+  --sev-2: #cf3a3a;
+  --sev-3: #8e1d26;
+  --sev-1-text: #4a1325;
+  --sev-2-text: #ffffff;
   --sev-3-text: #ffffff;
   --sev-unknown: #b9c0bc;
   --limit-near: #c98a1c;
@@ -50,12 +50,12 @@
   --accent-text: #0b1513;
   --accent-soft: #1d3330;
   --sev-0: #222a26;
-  --sev-1: #3d2a3b;
-  --sev-2: #7d4a75;
-  --sev-3: #c27bb8;
-  --sev-1-text: #f0dcec;
-  --sev-2-text: #fbeef8;
-  --sev-3-text: #1d0b1a;
+  --sev-1: #e29aae;
+  --sev-2: #cc3836;
+  --sev-3: #9a2530;
+  --sev-1-text: #2a0c15;
+  --sev-2-text: #ffffff;
+  --sev-3-text: #fbe3e3;
   --sev-unknown: #4a524e;
   --limit-near: #e0a63a;
   --limit-over: #e5645a;
@@ -77,12 +77,12 @@
   --accent-text: #1a1408;
   --accent-soft: #3a2d14;
   --sev-0: #1d1e23;
-  --sev-1: #4a3d22;
-  --sev-2: #7a5a26;
-  --sev-3: #b9802f;
-  --sev-1-text: #f0d9a8;
-  --sev-2-text: #f7e6c4;
-  --sev-3-text: #1a1408;
+  --sev-1: #805663;
+  --sev-2: #a5423b;
+  --sev-3: #7b2a2e;
+  --sev-1-text: #f6e6ea;
+  --sev-2-text: #f8e1dc;
+  --sev-3-text: #efd4d2;
   --sev-unknown: #3a3a3f;
   --limit-near: #d9a441;
   --limit-over: #d9604f;
@@ -684,8 +684,10 @@ textarea.input {
   font-weight: 600;
   padding: 3px 10px;
   border-radius: 99px;
-  background: var(--sev-1);
-  color: var(--sev-1-text);
+  /* Neutral: the head icon inside carries the severity color. */
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  color: var(--text);
   white-space: nowrap;
 }
 
@@ -876,6 +878,29 @@ details.more-details[open] > summary {
 .cal-d.sev-2 .med,
 .cal-d.sev-3 .med {
   background: currentColor;
+}
+
+.cal-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.78rem;
+  color: var(--sub);
+}
+
+.cal-legend li {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.cal-legend i {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
 }
 
 .year-strip {
