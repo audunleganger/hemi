@@ -1,6 +1,8 @@
 # Hemi — Requirement Specification
 
-Version 0.6 · 2026-10-19
+Version 0.7 · 2026-10-19
+
+*0.7: precise rules found while building the shared module (appendix, "Rules made precise").*
 
 *0.6: code identifiers and license (appendix).*
 
@@ -360,3 +362,23 @@ None at the moment.
 | Code identifiers | `hemi`: package `com.hemi`, env vars `HEMI_*`, image `ghcr.io/audunleganger/hemi`. The visible name is still only in the i18n `appName` |
 | License | AGPL-3.0, as Larder |
 | Schema before release | Schema version 1 changes in place until the first release; then `1.db` is snapshotted and migrations start |
+
+### Rules made precise (0.7)
+
+Decided while writing the `shared` module; the tests in `shared/src/test` pin them down.
+
+| Topic | Decision |
+|---|---|
+| Days-with-use windows (LI-1, ST-7) | Count whole days by cutoff: today and the days before it, as many as the window has days (rounded up). "6 days per 30 days" = today + the 29 days before; the oldest day frees up the day after it leaves |
+| Limit states (LI-5) | OK (< 80 %), near (≥ 80 %), reached (= max), over (> max). Reached and over look the same; "over" is for doses saved past the max |
+| Limit previews (LI-4) | Windows end at the new dose's time. A minimum interval also checks the next dose when logging in the past |
+| Ongoing attacks | At most one at a time; starting another while one is ongoing is refused |
+| Recurrence merging (AT-7) | Only when starting an attack. Logging afterwards (AT-14) always makes its own attack. Only attacks with an end can be joined. Splitting an episode moves it, the later episodes, and the readings and doses from its start |
+| "It's over" (AT-6) | Ends the episode without adding a reading; the step curve is 0 outside episodes |
+| Rating prefill (DO-5) | No prefill when any other acute dose, remedies included, was taken between the dose and the rating, or when the severity at the dose isn't known |
+| Sustained (DO-7) | A *Pain free* dose is not sustained when its attack has a recurrence episode starting after the dose |
+| Work impact (WI-2) | Uses the step curve with carry-over from the day before. Nothing is proposed only when no reading tells the severity that day (none that day and none carried in) |
+| Logged-afterwards doses (AT-14) | Stored with `rating_dismissed` set, which keeps them out of pending ratings while still allowing a rating |
+| Limits are never blocking (LI-4) | The server always saves the dose and marks `over_limit`; clients show the preview and ask to confirm |
+| Usual medication (S-3) | The one set; else the most used acute medication; else the first acute one by name |
+| Schema names | The trigger table is `trigger_def` (`TRIGGER` is an SQL keyword). The feed secret is stored as is (`ics_token`), so Settings can show the URL again; it only grants that read-only feed |
