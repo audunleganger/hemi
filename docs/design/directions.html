@@ -1,0 +1,549 @@
+<title>Hemi Design Directions</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Atkinson+Hyperlegible:wght@400;700&family=Schibsted+Grotesk:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: a reading column of three directions; each shows a phone frame beside its pitch, then a 16:10 desktop frame full width. */
+:root {
+  --bg: #f2f3f6; --fg: #16181d; --muted: #5a606c; --line: #d8dbe2; --card: #ffffff; --accent: #4f46b8;
+  --font: 'IBM Plex Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #111318; --fg: #e7e9ee; --muted: #9aa1ae; --line: #2a2e37; --card: #1a1d24; --accent: #a59cf2; color-scheme: dark } }
+:root[data-theme="dark"] { --bg: #111318; --fg: #e7e9ee; --muted: #9aa1ae; --line: #2a2e37; --card: #1a1d24; --accent: #a59cf2; color-scheme: dark }
+
+body { background: var(--bg); color: var(--fg); font-family: var(--font); font-size: 15px; line-height: 1.55; }
+.page { max-width: 1240px; margin: 0 auto; padding-block: 36px 72px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+h1 { font-size: 2rem; line-height: 1.15; margin: 0 0 10px; font-weight: 600; text-wrap: balance; }
+.lede { max-width: 66ch; color: var(--muted); margin: 0; }
+.lede b { color: var(--fg); font-weight: 600; }
+.dir { border-top: 1px solid var(--line); margin-top: 40px; padding-top: 36px; display: grid; gap: 28px; }
+.dir-top { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 40px; align-items: start; }
+@media (max-width: 860px) { .dir-top { grid-template-columns: minmax(0, 1fr); } }
+.letter { display: inline-grid; place-items: center; width: 34px; height: 34px; border-radius: 50%;
+  background: var(--accent); color: var(--bg); font-weight: 600; margin-bottom: 10px; }
+.dir h2 { font-size: 1.5rem; margin: 0 0 6px; font-weight: 600; }
+.pitch { margin: 0 0 18px; max-width: 60ch; }
+.pc { display: grid; gap: 14px; }
+.pc h3 { font-size: .75rem; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin: 0 0 4px; font-weight: 600; }
+.pc ul { margin: 0; padding-left: 1.1em; display: grid; gap: 4px; }
+.spec { font-size: .85rem; color: var(--muted); margin-top: 16px; display: grid; gap: 2px; }
+.spec span b { color: var(--fg); font-weight: 500; }
+.swatches { display: flex; gap: 6px; margin-top: 8px; align-items: center; font-size: .8rem; color: var(--muted); }
+.swatches i { width: 22px; height: 14px; border-radius: 3px; display: inline-block; }
+.cap { font-size: .8rem; color: var(--muted); margin: 0 0 8px; }
+
+.scaler { position: relative; width: 100%; overflow: hidden; border-radius: 14px; }
+.scaler > .m { position: absolute; top: 0; left: 0; transform-origin: 0 0; }
+.scaler.phone-s { max-width: 360px; aspect-ratio: 360 / 740; border-radius: 30px; box-shadow: 0 0 0 8px #23252b, 0 10px 30px rgba(0,0,0,.18); margin: 8px; width: calc(100% - 16px); }
+.scaler.desk-s { aspect-ratio: 1280 / 800; box-shadow: 0 0 0 1px var(--line), 0 12px 36px rgba(0,0,0,.12); }
+.m { overflow: hidden; }
+.m.phone { width: 360px; height: 740px; }
+.m.desk { width: 1280px; height: 800px; }
+.m button { font: inherit; cursor: default; }
+
+.pick { border-top: 1px solid var(--line); margin-top: 48px; padding-top: 32px; max-width: 70ch; }
+.pick h2 { font-size: 1.4rem; margin: 0 0 8px; font-weight: 600; }
+.pick p { margin: 0 0 10px; }
+
+/* ---------- A: Familiar (Larder sibling) ---------- */
+.a { --bg: #f4f4f1; --surface: #fcfcfb; --border: #dcdbd5; --text: #0b0b0b; --sub: #66655f; --acc: #4f46b8; --acc-t: #fff;
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.4;
+  --dot: #4f46b8; --today: #0b0b0b; color-scheme: light; }
+.a.phone { display: flex; flex-direction: column; }
+.a-top { height: 52px; display: flex; align-items: center; justify-content: space-between; padding: 0 16px; background: var(--surface); border-bottom: 1px solid var(--border); }
+.a-top b { font-size: 17px; }
+.a-top span { color: var(--sub); font-size: 13px; }
+.a-body { flex: 1; padding: 12px; display: flex; flex-direction: column; gap: 10px; overflow: hidden; }
+.a-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 12px; display: flex; flex-direction: column; gap: 8px; }
+.a-row { display: flex; align-items: center; gap: 10px; }
+.a-row > div { flex: 1; min-width: 0; }
+.a-k { font-weight: 600; }
+.a-s { color: var(--sub); font-size: 12.5px; }
+.a-sev { font-size: 12px; font-weight: 600; padding: 3px 8px; border-radius: 99px; white-space: nowrap; }
+.a-btns { display: flex; gap: 6px; }
+.a-btns button { flex: 1; padding: 9px 6px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface); font-size: 13px; color: var(--text); }
+.a-btns button.pri { background: var(--acc); color: var(--acc-t); border-color: var(--acc); }
+.a-seg { display: grid; grid-template-columns: repeat(4, 1fr); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+.a-seg button { border: 0; border-right: 1px solid var(--border); background: var(--surface); padding: 8px 2px; font-size: 12px; color: var(--text); }
+.a-seg button:last-child { border-right: 0; }
+.a-seg button.on { background: #e7e5f8; color: var(--acc); font-weight: 600; }
+.a-hint { font-size: 12px; color: var(--sub); }
+.a-lim { display: grid; grid-template-columns: 1fr auto; gap: 3px 8px; font-size: 13px; }
+.a-lim .bar { grid-column: 1 / -1; height: 6px; background: #ebeae5; border-radius: 3px; overflow: hidden; }
+.a-lim .bar i { display: block; height: 100%; border-radius: 3px; background: #0ca30c; }
+.a-lim .bar i.near { background: #fab219; }
+.a-lim .v { color: var(--sub); font-variant-numeric: tabular-nums; }
+.a-tabs { height: 58px; display: grid; grid-template-columns: repeat(5, 1fr); background: var(--surface); border-top: 1px solid var(--border); font-size: 11px; color: var(--sub); }
+.a-tabs span { display: grid; place-items: center; align-content: center; gap: 3px; }
+.a-tabs span::before { content: ""; width: 20px; height: 20px; border-radius: 6px; border: 1.6px solid currentColor; }
+.a-tabs span.on { color: var(--acc); font-weight: 600; }
+.a.desk { display: grid; grid-template-columns: 210px 1fr; }
+.a-side { background: var(--surface); border-right: 1px solid var(--border); padding: 20px 14px; display: flex; flex-direction: column; gap: 4px; }
+.a-side b { font-size: 20px; padding: 0 10px 16px; }
+.a-side span { padding: 9px 10px; border-radius: 8px; color: var(--sub); }
+.a-side span.on { background: #e7e5f8; color: var(--acc); font-weight: 600; }
+.a-main { padding: 22px 26px; display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+.a-head { display: flex; justify-content: space-between; align-items: center; }
+.a-head h4 { margin: 0; font-size: 22px; font-weight: 600; }
+.a-head .a-btns { flex: 0 0 auto; }
+.a-head .a-btns button { flex: 0 0 auto; padding: 8px 14px; }
+.a-grid { display: grid; grid-template-columns: 1.35fr 1fr 1.05fr; gap: 16px; align-items: start; }
+.a-col { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+.a .cal { --cg: 4px; }
+.a .cal-d { border-radius: 6px; font-size: 12px; }
+.a .cal-h { font-size: 11px; color: var(--sub); }
+.a-list { display: flex; flex-direction: column; }
+.a-list > div { display: flex; gap: 10px; align-items: center; padding: 8px 0; border-top: 1px solid var(--border); }
+.a-list > div:first-child { border-top: 0; }
+.a-list .t { flex: 1; min-width: 0; }
+.a-big { font-size: 30px; font-weight: 600; font-variant-numeric: tabular-nums; line-height: 1; }
+.a-big small { font-size: 14px; color: var(--sub); font-weight: 400; }
+.a-chip { font-size: 12px; padding: 3px 8px; border-radius: 99px; background: #fff4d9; color: #8a5a00; font-weight: 600; }
+
+/* ---------- B: Dim (attack first) ---------- */
+.b { --bg: #0e0f12; --surface: #17181d; --border: #262830; --text: #d9cdb5; --sub: #857c6c; --acc: #c99a4e; --acc-t: #1a1408;
+  --dot: #c99a4e; --today: #e2c88f;
+  font-family: 'Atkinson Hyperlegible', system-ui, sans-serif; background: var(--bg); color: var(--text); font-size: 15px; line-height: 1.4; color-scheme: dark; }
+.b.phone { display: flex; flex-direction: column; padding: 18px 18px 22px; gap: 14px; }
+.b-top { display: flex; align-items: center; justify-content: space-between; color: var(--sub); font-size: 14px; }
+.b-menu { width: 22px; height: 14px; border-top: 2px solid var(--sub); border-bottom: 2px solid var(--sub); position: relative; }
+.b-menu::after { content: ""; position: absolute; left: 0; right: 0; top: 4px; border-top: 2px solid var(--sub); }
+.b-q { font-size: 22px; font-weight: 700; margin-top: 10px; }
+.b-sev { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+.b-sev div { display: grid; justify-items: center; gap: 6px; font-size: 12px; color: var(--sub); }
+.b-sev button { width: 100%; aspect-ratio: 1; border-radius: 50%; border: 2px solid var(--border); background: var(--surface); color: var(--text); font-size: 26px; font-weight: 700; }
+.b-sev button.on { border-color: var(--acc); background: #3a2d14; color: #f0d9a8; }
+.b-last { font-size: 13px; color: var(--sub); text-align: center; }
+.b-bigbtn { border: 0; border-radius: 18px; background: var(--acc); color: var(--acc-t); padding: 18px; text-align: left; font-size: 19px; font-weight: 700; display: grid; gap: 2px; }
+.b-bigbtn span { font-size: 13px; font-weight: 400; opacity: .8; }
+.b-midbtn { border: 2px solid var(--border); border-radius: 18px; background: transparent; color: var(--text); padding: 15px; font-size: 16px; text-align: left; }
+.b-pend { border-radius: 14px; background: var(--surface); padding: 12px 14px; display: flex; justify-content: space-between; align-items: center; gap: 10px; font-size: 14px; }
+.b-pend b { color: #f0d9a8; }
+.b-pend em { font-style: normal; border: 1.5px solid var(--acc); color: var(--acc); padding: 5px 10px; border-radius: 99px; font-size: 13px; white-space: nowrap; }
+.b-lims { font-size: 13px; color: var(--sub); display: grid; gap: 3px; }
+.b-lims b { color: var(--text); font-weight: 400; }
+.b-end { margin-top: auto; display: flex; justify-content: center; }
+.b-end button { background: transparent; border: 0; color: var(--sub); font-size: 15px; text-decoration: underline; text-underline-offset: 4px; }
+.b.desk { display: grid; grid-template-columns: 430px 1fr; }
+.b-left { background: var(--surface); padding: 26px 30px; display: flex; flex-direction: column; gap: 16px; border-right: 1px solid var(--border); }
+.b-right { padding: 26px 32px; display: flex; flex-direction: column; gap: 20px; min-width: 0; }
+.b-nav { display: flex; gap: 24px; color: var(--sub); font-size: 15px; }
+.b-nav span.on { color: var(--text); border-bottom: 2px solid var(--acc); padding-bottom: 4px; }
+.b-panel { border: 1px solid var(--border); border-radius: 16px; padding: 16px 18px; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.b-panel h5 { margin: 0; font-size: 13px; color: var(--sub); font-weight: 400; letter-spacing: .04em; text-transform: uppercase; }
+.b-cols { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; align-items: start; }
+.b .cal { --cg: 4px; }
+.b .cal-d { border-radius: 50%; font-size: 12px; }
+.b .cal-h { font-size: 11px; color: var(--sub); }
+.b-row { display: flex; justify-content: space-between; font-size: 14px; gap: 10px; }
+.b-row span:last-child { color: var(--sub); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.b-att { display: flex; gap: 10px; align-items: center; font-size: 14px; }
+.b-att div { flex: 1; }
+.b-att small { display: block; color: var(--sub); font-size: 12px; }
+
+/* ---------- C: Diary (calendar first) ---------- */
+.c { --bg: #eef1ef; --surface: #ffffff; --border: #d5dbd7; --text: #1b2420; --sub: #5f6b65; --acc: #1f6f68; --acc-t: #fff;
+  --dot: #1f6f68; --today: #1b2420;
+  font-family: 'Schibsted Grotesk', system-ui, sans-serif; background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.4; color-scheme: light; }
+.c.phone { display: flex; flex-direction: column; position: relative; }
+.c-top { padding: 16px 16px 8px; display: flex; justify-content: space-between; align-items: baseline; }
+.c-top b { font-size: 22px; font-weight: 700; letter-spacing: -.01em; }
+.c-top span { color: var(--sub); font-size: 18px; letter-spacing: .3em; }
+.c-calwrap { padding: 0 12px 12px; }
+.c .cal { --cg: 3px; }
+.c .cal-d { border-radius: 4px; font-size: 13px; font-weight: 500; }
+.c .cal-h { font-size: 11px; color: var(--sub); font-weight: 600; }
+.c-day { flex: 1; background: var(--surface); border-radius: 18px 18px 0 0; padding: 16px; display: flex; flex-direction: column; gap: 12px; overflow: hidden; box-shadow: 0 -1px 0 var(--border); }
+.c-dayh { display: flex; justify-content: space-between; align-items: center; }
+.c-dayh b { font-size: 17px; }
+.c-pill { font-size: 12px; font-weight: 600; padding: 3px 9px; border-radius: 99px; background: #f3e4f1; color: #7a3373; }
+.c-tl { display: flex; flex-direction: column; position: relative; padding-left: 4px; }
+.c-tl > div { display: grid; grid-template-columns: 44px 18px 1fr; align-items: start; gap: 8px; padding: 5px 0; font-size: 13.5px; }
+.c-tl .tm { color: var(--sub); font-variant-numeric: tabular-nums; }
+.c-tl .mk { width: 12px; height: 12px; border-radius: 50%; margin-top: 3px; justify-self: center; }
+.c-tl .mk.dose { border-radius: 3px; background: var(--acc); }
+.c-tl .mk.due { border: 2px solid var(--acc); background: var(--surface); }
+.c-tl small { display: block; color: var(--sub); font-size: 12px; }
+.c-tl .act { color: var(--acc); font-weight: 600; }
+.c-rings { display: flex; gap: 14px; }
+.c-ring { display: flex; align-items: center; gap: 8px; font-size: 12px; line-height: 1.25; }
+.c-ring small { display: block; color: var(--sub); }
+.c-fab { position: absolute; right: 16px; bottom: 74px; background: var(--acc); color: var(--acc-t); border-radius: 18px; padding: 14px 18px; font-weight: 700; font-size: 15px; box-shadow: 0 6px 18px rgba(31,111,104,.35); }
+.c-nav { height: 58px; background: var(--surface); border-top: 1px solid var(--border); display: grid; grid-template-columns: repeat(4, 1fr); place-items: center; font-size: 12px; color: var(--sub); }
+.c-nav span.on { color: var(--acc); font-weight: 700; }
+.c.desk { display: flex; flex-direction: column; }
+.c-bar { height: 60px; display: flex; align-items: center; gap: 28px; padding: 0 28px; background: var(--surface); border-bottom: 1px solid var(--border); }
+.c-bar b { font-size: 22px; font-weight: 700; }
+.c-bar span { color: var(--sub); }
+.c-bar span.on { color: var(--text); font-weight: 600; }
+.c-bar .go { margin-left: auto; background: var(--acc); color: var(--acc-t); padding: 9px 16px; border-radius: 12px; font-weight: 600; }
+.c-dmain { padding: 20px 28px; display: flex; flex-direction: column; gap: 18px; min-width: 0; }
+.c-strip { display: grid; grid-template-columns: auto 1fr; gap: 28px; background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 16px 20px; align-items: center; }
+.c-stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px 26px; }
+.c-stat b { font-size: 26px; font-weight: 700; font-variant-numeric: tabular-nums; display: block; line-height: 1.1; }
+.c-stat span { font-size: 12px; color: var(--sub); }
+.c-3 { display: grid; grid-template-columns: 1.05fr 1fr .95fr; gap: 18px; align-items: start; }
+.c-box { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 16px 18px; display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.c-box h5 { margin: 0; font-size: 15px; font-weight: 700; display: flex; justify-content: space-between; }
+.c-box h5 span { color: var(--sub); font-weight: 400; }
+.year { display: grid; grid-auto-flow: column; grid-template-rows: repeat(7, 11px); gap: 2.5px; }
+.year i { width: 11px; height: 11px; border-radius: 2px; }
+.year-m { display: grid; grid-auto-flow: column; font-size: 11px; color: var(--sub); margin-bottom: 4px; position: relative; height: 14px; }
+.year-m span { position: absolute; }
+
+/* shared mock parts */
+.cal { display: grid; grid-template-columns: repeat(7, 1fr); gap: var(--cg, 4px); }
+.cal-h { text-align: center; padding-bottom: 2px; }
+.cal-d { aspect-ratio: 1; position: relative; display: grid; place-items: center; font-variant-numeric: tabular-nums; }
+.cal-d .med { position: absolute; bottom: 12%; left: 50%; width: 4px; height: 4px; margin-left: -2px; border-radius: 50%; background: var(--dot); }
+.cal-d.sev3 .med, .cal-d.sev2 .med { background: currentColor; }
+.cal-d.today { box-shadow: inset 0 0 0 2px var(--today); }
+.cal-d.fut { opacity: .4; }
+.hd { display: inline-flex; flex: none; }
+</style>
+
+<div class="page">
+  <h1>Three directions for Hemi</h1>
+  <p class="lede">Each direction shows the same moment on a phone and on a 16:10 PC screen: <b>Monday 19 October, 09:00</b>. You woke up with an attack at 06:40, took Imigran nasal spray at 06:45, and the two-hour rating is now due. All the numbers are example data. The pain-side icon is the head <b>seen from behind</b>, so the filled half is your own left.</p>
+
+  <section class="dir" id="a">
+    <div class="dir-top">
+      <div>
+        <span class="letter">A</span>
+        <h2>Familiar</h2>
+        <p class="pitch">Larder's sibling. It uses the same system font, cards, bottom tab bar and semantic colors, with the blue accent swapped for indigo. The front page stacks the ongoing attack, the pending rating and the limits. On a PC it becomes a sidebar with a three-column dashboard.</p>
+        <div class="pc">
+          <div><h3>Good</h3><ul><li>Feels like the same family as Larder, and can reuse its components and tokens.</li><li>Cheapest to build and to keep consistent.</li><li>Everything is visible on one screen.</li></ul></div>
+          <div><h3>Less good</h3><ul><li>Busy and bright in the middle of an attack. Only the night theme softens it.</li><li>Severity uses the warning colors (yellow, orange, red), which read as alarms.</li></ul></div>
+        </div>
+        <div class="spec"><span><b>Type:</b> system UI font</span><span><b>Mobile nav:</b> bottom tab bar</span><span><b>Severity:</b> <span class="swatches" data-sw="a"></span></span></div>
+      </div>
+      <div>
+        <p class="cap">Phone, light theme</p>
+        <div class="scaler phone-s"><div class="m phone a">
+          <div class="a-top"><b>Hemi</b><span>Mon 19 Oct · 09:00</span></div>
+          <div class="a-body">
+            <div class="a-card">
+              <div class="a-row"><span class="hd" data-side="left" data-sev="3" data-p="a" data-size="34"></span><div><div class="a-k">Ongoing attack</div><div class="a-s">Since 06:40 · woke up with it · 2 h 20 min</div></div><span class="a-sev" data-sevchip="2" data-p="a">2 · Moderate</span></div>
+              <div data-chart="a" data-w="334" data-h="96"></div>
+              <div class="a-btns"><button>Add reading</button><button class="pri">Take medication</button><button>It's over</button></div>
+            </div>
+            <div class="a-card">
+              <div><div class="a-k">How is it now?</div><div class="a-s">Imigran nasal spray 20 mg · taken 06:45</div></div>
+              <div class="a-seg"><button>Pain free</button><button class="on">Relieved</button><button>No effect</button><button>Unsure</button></div>
+              <div class="a-hint">Suggested from your readings: 3 → 2</div>
+            </div>
+            <div class="a-card">
+              <div class="a-k">Limits</div>
+              <div class="a-lim"><span>Sumatriptan, days</span><span class="v">4 / 6 in 30 d</span><span class="bar"><i class="near" style="width:67%"></i></span></div>
+              <div class="a-lim"><span>Sumatriptan, doses</span><span class="v">1 / 2 in 24 h</span><span class="bar"><i style="width:50%"></i></span></div>
+              <div class="a-lim"><span>Paracetamol</span><span class="v">0 / 4000 mg in 24 h</span><span class="bar"><i style="width:0%"></i></span></div>
+              <div class="a-s">Acute medication on 7 of the last 30 days</div>
+            </div>
+          </div>
+          <nav class="a-tabs"><span class="on">Today</span><span>Calendar</span><span>Attacks</span><span>Medications</span><span>More</span></nav>
+        </div></div>
+      </div>
+    </div>
+    <div>
+      <p class="cap">PC, 16:10</p>
+      <div class="scaler desk-s"><div class="m desk a">
+        <div class="a-side"><b>Hemi</b><span class="on">Today</span><span>Calendar</span><span>Attacks</span><span>Medications</span><span>Statistics</span><span>Settings</span></div>
+        <div class="a-main">
+          <div class="a-head"><h4>Today · Monday 19 October</h4><div class="a-btns"><button>Log afterwards</button><button>Log dose</button><button class="pri">Add reading</button></div></div>
+          <div class="a-grid">
+            <div class="a-col">
+              <div class="a-card">
+                <div class="a-row"><span class="hd" data-side="left" data-sev="3" data-p="a" data-size="40"></span><div><div class="a-k" style="font-size:16px">Ongoing attack</div><div class="a-s">Since 06:40 · woke up with it · 2 h 20 min · left side</div></div><span class="a-sev" data-sevchip="2" data-p="a">2 · Moderate</span></div>
+                <div data-chart="a" data-w="400" data-h="150"></div>
+                <div class="a-btns"><button>Add reading</button><button class="pri">Take medication</button><button>It's over</button></div>
+              </div>
+              <div class="a-card">
+                <div><div class="a-k">How is it now?</div><div class="a-s">Imigran nasal spray 20 mg · taken 06:45 · rating due since 08:45</div></div>
+                <div class="a-seg"><button>Pain free</button><button class="on">Relieved</button><button>No effect</button><button>Unsure</button></div>
+                <div class="a-hint">Suggested from your readings: 3 → 2</div>
+              </div>
+            </div>
+            <div class="a-col">
+              <div class="a-card">
+                <div class="a-k">Limits</div>
+                <div class="a-lim"><span>Sumatriptan, days</span><span class="v">4 / 6 in 30 d</span><span class="bar"><i class="near" style="width:67%"></i></span></div>
+                <div class="a-s">1 day frees up on 24 Oct</div>
+                <div class="a-lim"><span>Sumatriptan, doses</span><span class="v">1 / 2 in 24 h</span><span class="bar"><i style="width:50%"></i></span></div>
+                <div class="a-lim"><span>Sumatriptan, interval</span><span class="v">2 h · OK now</span><span class="bar"><i style="width:100%"></i></span></div>
+                <div class="a-lim"><span>Paracetamol</span><span class="v">0 / 4000 mg in 24 h</span><span class="bar"><i style="width:0%"></i></span></div>
+              </div>
+              <div class="a-card"><div class="a-s">Acute medication days, last 30 days</div><div class="a-big">7 <small>of 30</small></div></div>
+              <div class="a-card"><div class="a-s">Work today</div><div class="a-row"><div class="a-k">Missed work</div><span class="a-chip">Proposed</span></div><div class="a-s">Severity 2 or more at 08:00</div></div>
+            </div>
+            <div class="a-col">
+              <div class="a-card"><div class="a-k">October 2026</div><div class="cal" data-cal="a"></div></div>
+              <div class="a-card"><div class="a-k">Recent attacks</div>
+                <div class="a-list" data-list="a"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div></div>
+    </div>
+  </section>
+
+  <section class="dir" id="b">
+    <div class="dir-top">
+      <div>
+        <span class="letter">B</span>
+        <h2>Dim</h2>
+        <p class="pitch">Built for the attack itself. It's dark first, with warm amber instead of blue light and a font designed for legibility. While an attack is going on, the phone shows only four huge severity buttons and your usual medication. Tapping a number records a reading. Everything else is a tap away in the menu. On a PC the controls sit in a left panel, with the attack's timeline and overview to the right.</p>
+        <div class="pc">
+          <div><h3>Good</h3><ul><li>Usable in a dark room with a pounding head: a reading or a dose is one tap.</li><li>Little text, large targets, no white areas.</li><li>Atkinson Hyperlegible was made for readers with low vision, which helps when your eyes hurt.</li></ul></div>
+          <div><h3>Less good</h3><ul><li>History and statistics feel like a second app behind the menu.</li><li>Needs a proper light version too, which is more design work.</li><li>Sparse on a wide screen between attacks.</li></ul></div>
+        </div>
+        <div class="spec"><span><b>Type:</b> Atkinson Hyperlegible</span><span><b>Mobile nav:</b> menu; the screen changes with the situation</span><span><b>Severity:</b> <span class="swatches" data-sw="b"></span></span></div>
+      </div>
+      <div>
+        <p class="cap">Phone, dark theme</p>
+        <div class="scaler phone-s"><div class="m phone b">
+          <div class="b-top"><span class="b-menu" aria-label="Menu"></span><span>Attack · 2 h 20 min</span><span class="hd" data-side="left" data-sev="3" data-p="b" data-size="26"></span></div>
+          <div class="b-q">How bad is it now?</div>
+          <div class="b-sev"><div><button>0</button>Pain free</div><div><button>1</button>Mild</div><div><button class="on">2</button>Moderate</div><div><button>3</button>Severe</div></div>
+          <div class="b-last">Last reading: 2 at 08:10. Tap a number to record now.</div>
+          <button class="b-bigbtn">Take Imigran nasal spray<span>Usual medication · 2nd dose today is within limits</span></button>
+          <button class="b-midbtn">Other medication</button>
+          <div class="b-pend"><span>Imigran at 06:45:<br><b>how did it go?</b></span><em>Relieved ✓</em></div>
+          <div class="b-lims"><span><b>Sumatriptan</b> 4 of 6 days · 1 of 2 doses today</span><span><b>Acute medication</b> 7 of the last 30 days</span></div>
+          <div class="b-end"><button>It's over</button></div>
+        </div></div>
+      </div>
+    </div>
+    <div>
+      <p class="cap">PC, 16:10</p>
+      <div class="scaler desk-s"><div class="m desk b">
+        <div class="b-left">
+          <div class="b-top"><span style="font-size:20px;color:var(--text);font-weight:700">Hemi</span><span class="hd" data-side="left" data-sev="3" data-p="b" data-size="30"></span></div>
+          <div class="b-q" style="margin-top:4px">How bad is it now?</div>
+          <div class="b-sev"><div><button>0</button>Pain free</div><div><button>1</button>Mild</div><div><button class="on">2</button>Moderate</div><div><button>3</button>Severe</div></div>
+          <div class="b-last">Last reading: 2 at 08:10</div>
+          <button class="b-bigbtn">Take Imigran nasal spray<span>Usual medication · 2nd dose today is within limits</span></button>
+          <button class="b-midbtn">Other medication</button>
+          <div class="b-pend"><span>Imigran at 06:45: <b>how did it go?</b></span><em>Relieved ✓</em></div>
+          <div class="b-end"><button>It's over</button></div>
+        </div>
+        <div class="b-right">
+          <div class="b-nav"><span class="on">Now</span><span>Calendar</span><span>Attacks</span><span>Medications</span><span>Statistics</span><span>Settings</span></div>
+          <div class="b-panel"><h5>This attack · since 06:40 · woke up with it · left side</h5><div data-chart="b" data-w="770" data-h="220"></div></div>
+          <div class="b-cols">
+            <div class="b-panel"><h5>Limits</h5>
+              <div class="b-row"><span>Sumatriptan, days</span><span>4 / 6 · 30 d</span></div>
+              <div class="b-row"><span>Sumatriptan, doses</span><span>1 / 2 · 24 h</span></div>
+              <div class="b-row"><span>Sumatriptan, interval</span><span>OK now</span></div>
+              <div class="b-row"><span>Paracetamol</span><span>0 / 4000 mg</span></div>
+              <div class="b-row"><span>Acute medication</span><span>7 of 30 days</span></div>
+            </div>
+            <div class="b-panel"><h5>October</h5><div class="cal" data-cal="b"></div></div>
+            <div class="b-panel"><h5>Recent</h5><div data-list="b" style="display:grid;gap:10px"></div></div>
+          </div>
+        </div>
+      </div></div>
+    </div>
+  </section>
+
+  <section class="dir" id="c">
+    <div class="dir-top">
+      <div>
+        <span class="letter">C</span>
+        <h2>Diary</h2>
+        <p class="pitch">The calendar is the home screen. On a phone the month sits at the top and the selected day's timeline below it: readings, doses and ratings in order. A floating Record button does the logging. On a PC a full-year strip runs across the top, with the month, the day and the limits underneath. Severity uses one plum scale, from pale to deep, instead of alarm colors.</p>
+        <div class="pc">
+          <div><h3>Good</h3><ul><li>Patterns are visible at a glance: clusters, gaps, medication days.</li><li>Makes the most of a wide screen, and is good to bring to a doctor's appointment.</li><li>Calm colors. Schibsted Grotesk is a Norwegian typeface, made for the Schibsted newspapers.</li></ul></div>
+          <div><h3>Less good</h3><ul><li>Logging during an attack goes through the Record button: two taps instead of one.</li><li>The ongoing attack shares the screen with the calendar.</li></ul></div>
+        </div>
+        <div class="spec"><span><b>Type:</b> Schibsted Grotesk</span><span><b>Mobile nav:</b> bottom bar + floating Record button</span><span><b>Severity:</b> <span class="swatches" data-sw="c"></span></span></div>
+      </div>
+      <div>
+        <p class="cap">Phone, light theme</p>
+        <div class="scaler phone-s"><div class="m phone c">
+          <div class="c-top"><b>October 2026</b><span>‹ ›</span></div>
+          <div class="c-calwrap"><div class="cal" data-cal="c"></div></div>
+          <div class="c-day">
+            <div class="c-dayh"><b>Monday 19</b><span class="c-pill">Ongoing · left</span></div>
+            <div class="c-tl">
+              <div><span class="tm">06:40</span><span class="mk" data-mk="3"></span><span>Severe (3)<small>Woke up with it</small></span></div>
+              <div><span class="tm">06:45</span><span class="mk dose"></span><span>Imigran nasal spray 20 mg</span></div>
+              <div><span class="tm">08:10</span><span class="mk" data-mk="2"></span><span>Moderate (2)</span></div>
+              <div><span class="tm">08:45</span><span class="mk due"></span><span class="act">Rate Imigran: how is it now?</span></div>
+            </div>
+            <div class="c-rings" data-rings="c"></div>
+          </div>
+          <div class="c-fab">+ Record</div>
+          <nav class="c-nav"><span class="on">Calendar</span><span>Attacks</span><span>Medications</span><span>More</span></nav>
+        </div></div>
+      </div>
+    </div>
+    <div>
+      <p class="cap">PC, 16:10</p>
+      <div class="scaler desk-s"><div class="m desk c">
+        <div class="c-bar"><b>Hemi</b><span class="on">Calendar</span><span>Attacks</span><span>Medications</span><span>Statistics</span><span>Settings</span><span class="go">+ Record</span></div>
+        <div class="c-dmain">
+          <div class="c-strip">
+            <div><div class="year-m" data-yearm></div><div class="year" data-year></div></div>
+            <div class="c-stats">
+              <div class="c-stat"><b>5</b><span>Migraine days, October</span></div>
+              <div class="c-stat"><b>7 / 30</b><span>Acute medication days</span></div>
+              <div class="c-stat"><b>2</b><span>Missed work, October</span></div>
+              <div class="c-stat"><b>1</b><span>Home early, October</span></div>
+            </div>
+          </div>
+          <div class="c-3">
+            <div class="c-box"><h5>October 2026 <span>‹ ›</span></h5><div class="cal" data-cal="c"></div></div>
+            <div class="c-box"><h5>Monday 19 October <span class="c-pill">Ongoing · left</span></h5>
+              <div data-chart="c" data-w="330" data-h="110"></div>
+              <div class="c-tl">
+                <div><span class="tm">06:40</span><span class="mk" data-mk="3"></span><span>Severe (3)<small>Woke up with it</small></span></div>
+                <div><span class="tm">06:45</span><span class="mk dose"></span><span>Imigran nasal spray 20 mg</span></div>
+                <div><span class="tm">08:10</span><span class="mk" data-mk="2"></span><span>Moderate (2)</span></div>
+                <div><span class="tm">08:45</span><span class="mk due"></span><span class="act">Rate Imigran: how is it now?</span></div>
+                <div><span class="tm">Work</span><span></span><span>Missed work <small>Proposed: severity 2 or more at 08:00</small></span></div>
+              </div>
+            </div>
+            <div class="c-box"><h5>Limits</h5><div class="c-rings" data-rings="c" style="flex-direction:column;gap:10px"></div>
+              <h5 style="margin-top:6px">Recent attacks</h5><div data-list="c" style="display:grid;gap:10px"></div></div>
+          </div>
+        </div>
+      </div></div>
+    </div>
+  </section>
+
+  <section class="pick">
+    <h2>Picking one</h2>
+    <p>You don't have to take a direction whole. The parts combine well, for example C as the everyday app with B's screen taking over while an attack is ongoing.</p>
+    <p>Things worth deciding along with the direction: the severity colors (alarm colors as in A, amber as in B, or one calm scale as in C), whether the app switches to the dim look on its own during an attack, and phone navigation (tab bar, or a floating Record button).</p>
+  </section>
+</div>
+
+<script>
+const PAL = {
+  a: {1:'#f6d77a',2:'#ef9550',3:'#d23f36', t:'#2a2a2a', t3:'#ffffff', empty:'#efeee9', stroke:'#3b3a36', line:'#e2e1db', ink:'#3b3a36'},
+  b: {1:'#4a3d22',2:'#7a5a26',3:'#b9802f', t:'#a99d86', t3:'#1a1408', empty:'#1c1e24', stroke:'#b6a98f', line:'#2a2d35', ink:'#d9cdb5'},
+  c: {1:'#ead3e7',2:'#c48bbb',3:'#7a3373', t:'#1b2420', t3:'#ffffff', empty:'#ffffff', stroke:'#1b2420', line:'#e3e8e5', ink:'#1b2420'}
+};
+const SEVTXT = {2:'#1a1a1a'};
+const OCT = {2:2, 9:3, 10:2, 14:1, 19:3};
+const MEDS = new Set([2,5,9,10,14,19]);
+const ATTACKS = [
+  {d:'Mon 19 Oct', s:'Ongoing · 2 h 20 min', side:'left', sev:3},
+  {d:'Wed 14 Oct', s:'3 h · Unsure', side:'right', sev:1},
+  {d:'Fri 9 – Sat 10 Oct', s:'31 h · 1 recurrence', side:'both', sev:3},
+  {d:'Fri 2 Oct', s:'9 h', side:'left', sev:2}
+];
+
+function head(side, p, size) {
+  const P = PAL[p.p || p], fill = P[p.sev || 3], st = P.stroke;
+  const L = '<path d="M12 2.5 A8 9.5 0 0 0 12 21.5 Z" fill="' + fill + '"/>';
+  const R = '<path d="M12 2.5 A8 9.5 0 0 1 12 21.5 Z" fill="' + fill + '"/>';
+  return '<svg viewBox="0 0 24 26" width="' + size + '" height="' + Math.round(size * 26 / 24) + '" role="img" aria-label="Pain side: ' + side + ', seen from behind">' +
+    (side === 'left' || side === 'both' ? L : '') + (side === 'right' || side === 'both' ? R : '') +
+    '<ellipse cx="12" cy="12" rx="8" ry="9.5" fill="none" stroke="' + st + '" stroke-width="1.4"/>' +
+    '<path d="M4.1 10.3q-2.2 1.7 0 4.2M19.9 10.3q2.2 1.7 0 4.2M9.3 21v3.5M14.7 21v3.5" fill="none" stroke="' + st + '" stroke-width="1.4" stroke-linecap="round"/>' +
+    '<line x1="12" y1="3" x2="12" y2="21" stroke="' + st + '" stroke-width=".6" stroke-dasharray="1.4 1.4"/></svg>';
+}
+document.querySelectorAll('.hd').forEach(el => {
+  el.innerHTML = head(el.dataset.side, {p: el.dataset.p, sev: +el.dataset.sev}, +el.dataset.size);
+});
+document.querySelectorAll('[data-sevchip]').forEach(el => {
+  const P = PAL[el.dataset.p], s = +el.dataset.sevchip;
+  el.style.background = P[s]; el.style.color = s === 3 ? P.t3 : P.t;
+});
+document.querySelectorAll('[data-sw]').forEach(el => {
+  const P = PAL[el.dataset.sw];
+  el.innerHTML = [1,2,3].map(s => '<i style="background:' + P[s] + '"></i>').join('') + ' 1 · 2 · 3';
+});
+document.querySelectorAll('[data-mk]').forEach(el => { el.style.background = PAL.c[el.dataset.mk]; });
+
+function chart(el) {
+  const p = el.dataset.chart, P = PAL[p], W = +el.dataset.w, H = +el.dataset.h;
+  const padL = 18, padR = 10, padT = 18, padB = 20, T = 140;
+  const x = t => padL + t / T * (W - padL - padR);
+  const y = s => H - padB - s / 3 * (H - padT - padB);
+  let g = '';
+  [1,2,3].forEach(s => {
+    g += '<line x1="' + padL + '" x2="' + (W - padR) + '" y1="' + y(s) + '" y2="' + y(s) + '" stroke="' + P.line + '" stroke-width="1"/>';
+    g += '<text x="' + (padL - 6) + '" y="' + (y(s) + 4) + '" text-anchor="end" font-size="10" fill="' + P.ink + '" opacity=".6">' + s + '</text>';
+  });
+  [[0, 90, 3], [90, 140, 2]].forEach(([a, b, s]) => {
+    g += '<rect x="' + x(a) + '" y="' + y(s) + '" width="' + (x(b) - x(a)) + '" height="' + (y(0) - y(s)) + '" fill="' + P[s] + '" opacity=".85"/>';
+  });
+  g += '<path d="M' + x(0) + ' ' + y(3) + 'H' + x(90) + 'V' + y(2) + 'H' + x(140) + '" fill="none" stroke="' + P.ink + '" stroke-width="2"/>';
+  g += '<line x1="' + x(0) + '" x2="' + (W - padR) + '" y1="' + y(0) + '" y2="' + y(0) + '" stroke="' + P.ink + '" stroke-width="1" opacity=".5"/>';
+  g += '<line x1="' + x(5) + '" x2="' + x(5) + '" y1="' + (padT - 8) + '" y2="' + y(0) + '" stroke="' + P.ink + '" stroke-width="1.5" stroke-dasharray="3 2"/>';
+  g += '<rect x="' + (x(5) - 4) + '" y="' + (padT - 12) + '" width="8" height="8" rx="2" fill="' + P.ink + '"/>';
+  g += '<text x="' + (x(5) + 8) + '" y="' + (padT - 4) + '" font-size="10.5" fill="' + P.ink + '">Imigran</text>';
+  g += '<circle cx="' + x(125) + '" cy="' + y(0) + '" r="4.5" fill="' + P.empty + '" stroke="' + P.ink + '" stroke-width="1.5"/>';
+  g += '<text x="' + x(125) + '" y="' + (y(0) - 8) + '" text-anchor="middle" font-size="10" fill="' + P.ink + '">rate</text>';
+  [[0, '06:40'], [80, '08:00'], [140, 'now']].forEach(([t, l], i) => {
+    g += '<text x="' + x(t) + '" y="' + (H - 5) + '" font-size="10" fill="' + P.ink + '" opacity=".7" text-anchor="' + (i === 0 ? 'start' : i === 2 ? 'end' : 'middle') + '">' + l + '</text>';
+  });
+  el.innerHTML = '<svg viewBox="0 0 ' + W + ' ' + H + '" width="100%" style="display:block;max-width:' + W + 'px" role="img" aria-label="Severity since 06:40: 3, then 2 from 08:10. Imigran at 06:45.">' + g + '</svg>';
+}
+document.querySelectorAll('[data-chart]').forEach(chart);
+
+function cal(el) {
+  const P = PAL[el.dataset.cal];
+  let h = ['M','T','W','T','F','S','S'].map(d => '<div class="cal-h">' + d + '</div>').join('');
+  h += '<div></div>'.repeat(3);
+  for (let d = 1; d <= 31; d++) {
+    const s = OCT[d] || 0;
+    const bg = s ? P[s] : P.empty, fg = s === 3 ? P.t3 : (s ? (el.dataset.cal === 'b' ? '#f0e2c4' : P.t) : P.t);
+    h += '<div class="cal-d sev' + s + (d === 19 ? ' today' : '') + (d > 19 ? ' fut' : '') + '" style="background:' + bg + ';color:' + fg + '"><span>' + d + '</span>' + (MEDS.has(d) ? '<i class="med"></i>' : '') + '</div>';
+  }
+  el.innerHTML = h;
+}
+document.querySelectorAll('[data-cal]').forEach(cal);
+
+function list(el) {
+  const p = el.dataset.list;
+  el.innerHTML = ATTACKS.map(a => {
+    const ico = head(a.side, {p, sev: a.sev}, p === 'a' ? 26 : 24);
+    if (p === 'a') return '<div><span class="hd">' + ico + '</span><span class="t"><span class="a-k" style="font-size:13px">' + a.d + '</span><br><span class="a-s">' + a.s + '</span></span><span class="a-sev" style="background:' + PAL.a[a.sev] + ';color:' + (a.sev === 3 ? '#fff' : '#2a2a2a') + '">' + a.sev + '</span></div>';
+    if (p === 'b') return '<div class="b-att"><span class="hd">' + ico + '</span><div>' + a.d + '<small>' + a.s + '</small></div></div>';
+    return '<div class="c-ring"><span class="hd">' + ico + '</span><span><b>' + a.d + '</b><small>' + a.s + ' · peak ' + a.sev + '</small></span></div>';
+  }).join('');
+}
+document.querySelectorAll('[data-list]').forEach(list);
+
+function ring(frac, col, label, sub) {
+  const r = 15, c = 2 * Math.PI * r;
+  return '<div class="c-ring"><svg width="38" height="38" viewBox="0 0 38 38" aria-hidden="true"><circle cx="19" cy="19" r="' + r + '" fill="none" stroke="#e3e8e5" stroke-width="5"/><circle cx="19" cy="19" r="' + r + '" fill="none" stroke="' + col + '" stroke-width="5" stroke-linecap="round" stroke-dasharray="' + (c * frac) + ' ' + c + '" transform="rotate(-90 19 19)"/></svg><span><b>' + label + '</b><small>' + sub + '</small></span></div>';
+}
+document.querySelectorAll('[data-rings]').forEach(el => {
+  el.innerHTML = ring(4/6, '#c98a1c', '4 / 6', 'Suma. days') + ring(1/2, '#1f6f68', '1 / 2', 'Doses, 24 h') + ring(7/30, '#1f6f68', '7 / 30', 'Acute days');
+});
+
+(function year() {
+  const g = document.querySelector('[data-year]'), mEl = document.querySelector('[data-yearm]');
+  let seed = 7; const rnd = () => { seed = (seed * 16807) % 2147483647; return seed / 2147483647; };
+  const start = new Date(2025, 9, 20), P = PAL.c;
+  let h = '', lastM = -1, ml = '';
+  for (let i = 0; i < 365; i++) {
+    const d = new Date(start); d.setDate(start.getDate() + i);
+    let s = 0;
+    if (d.getFullYear() === 2026 && d.getMonth() === 9) s = OCT[d.getDate()] || 0;
+    else { const r = rnd(); s = r < .05 ? 3 : r < .1 ? 2 : r < .15 ? 1 : 0; }
+    h += '<i style="background:' + (s ? P[s] : '#e6ebe8') + '"></i>';
+    if (d.getDate() <= 7 && d.getDay() === 1 && d.getMonth() !== lastM) {
+      lastM = d.getMonth();
+      ml += '<span style="left:' + (Math.floor(i / 7) * 13.5) + 'px">' + d.toLocaleString('en', {month: 'short'}) + '</span>';
+    }
+  }
+  g.innerHTML = h; mEl.innerHTML = ml;
+})();
+
+document.querySelectorAll('.scaler').forEach(w => {
+  const m = w.firstElementChild, W = m.offsetWidth;
+  const fit = () => { m.style.transform = 'scale(' + Math.min(1, w.clientWidth / W) + ')'; };
+  fit();
+  if (window.ResizeObserver) new ResizeObserver(fit).observe(w);
+});
+</script>
