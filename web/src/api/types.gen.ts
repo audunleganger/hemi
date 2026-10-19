@@ -176,6 +176,10 @@ export interface ErrorResponse {
   details?: Record<string, number>
 }
 
+export interface FeedDto {
+  token: string | null
+}
+
 export interface HealthResponse {
   status: string
   version: string
@@ -438,6 +442,10 @@ export interface StartAttackResult {
 }
 
 export type Theme = 'dark' | 'light' | 'system'
+
+export interface TimeZoneInput {
+  timeZone: string
+}
 
 export interface TriggerDto {
   id: number

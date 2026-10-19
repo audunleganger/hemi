@@ -17,6 +17,7 @@ import com.hemi.shared.api.EndInput
 import com.hemi.shared.api.EpisodeInput
 import com.hemi.shared.api.ErrorCodes
 import com.hemi.shared.api.ErrorResponse
+import com.hemi.shared.api.FeedDto
 import com.hemi.shared.api.HealthResponse
 import com.hemi.shared.api.HomeView
 import com.hemi.shared.api.IngredientDto
@@ -42,6 +43,7 @@ import com.hemi.shared.api.SetupInput
 import com.hemi.shared.api.SetupStatus
 import com.hemi.shared.api.StartAttackInput
 import com.hemi.shared.api.StartAttackResult
+import com.hemi.shared.api.TimeZoneInput
 import com.hemi.shared.api.TriggerDto
 import com.hemi.shared.api.TriggerInput
 import com.hemi.shared.api.TriggerOrderInput
@@ -68,7 +70,7 @@ class TypeScriptTypesTest {
         serializer<SetupStatus>(), serializer<SetupInput>(), serializer<LoginInput>(), serializer<LoginResult>(),
         serializer<UserDto>(), serializer<PasswordChangeInput>(), serializer<LocaleInput>(),
         serializer<AdminUserCreate>(), serializer<AdminUserUpdate>(), serializer<BackupResult>(),
-        serializer<SettingsDto>(), serializer<SettingsInput>(),
+        serializer<SettingsDto>(), serializer<SettingsInput>(), serializer<TimeZoneInput>(), serializer<FeedDto>(),
         serializer<IngredientInput>(), serializer<IngredientDto>(), serializer<LimitInput>(), serializer<LimitDto>(), serializer<LimitStatusDto>(),
         serializer<MedicationInput>(), serializer<MedicationDto>(), serializer<MedicationImageData>(),
         serializer<TriggerInput>(), serializer<TriggerDto>(), serializer<TriggerOrderInput>(),
