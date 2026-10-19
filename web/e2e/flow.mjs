@@ -163,6 +163,14 @@ await step('tablet layout (DS-1)', async () => {
   await page.goto(BASE)
 })
 
+await step('attack list keeps one status on (V-4)', async () => {
+  await page.getByRole('link', { name: 'Attacks', exact: true }).first().click()
+  const chips = page.getByRole('group', { name: 'Status' })
+  await chips.getByRole('button', { name: 'Unsure' }).click()
+  await chips.getByRole('button', { name: 'Not migraine' }).click()
+  if (!(await chips.getByRole('button', { name: 'Migraine', exact: true }).isDisabled())) throw new Error('the last status can be turned off')
+})
+
 await step('logout and login', async () => {
   await page.getByRole('button', { name: 'Log out' }).click()
   await page.getByRole('button', { name: 'Log in' }).waitFor()

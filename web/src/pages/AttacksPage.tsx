@@ -7,7 +7,7 @@ import { clockMinutes } from '../lib/time'
 import { STATUSES } from '../record/AfterwardsForm'
 import { RecentAttacks } from './home/RecentAttacks'
 
-/** All attacks, newest first, with filters (V-4). */
+/** All attacks, newest first, with filters (V-4). At least one status stays on: none would mean no filter. */
 export function AttacksPage() {
   const { t } = useTranslation()
   const settings = useSettings()
@@ -22,11 +22,22 @@ export function AttacksPage() {
       <Card>
         <div className="filters">
           <div className="chips" role="group" aria-label={t('attack.status')}>
-            {STATUSES.map((status) => (
-              <button key={status} type="button" className={`chip ${statuses.includes(status) ? 'on' : ''}`} aria-pressed={statuses.includes(status)} onClick={() => toggle(status)}>
-                {t(`status.${status}`)}
-              </button>
-            ))}
+            {STATUSES.map((status) => {
+              const last = statuses.length === 1 && statuses[0] === status
+              return (
+                <button
+                  key={status}
+                  type="button"
+                  className={`chip ${statuses.includes(status) ? 'on' : ''}`}
+                  aria-pressed={statuses.includes(status)}
+                  disabled={last}
+                  title={last ? t('attacks.lastStatus') : undefined}
+                  onClick={() => toggle(status)}
+                >
+                  {t(`status.${status}`)}
+                </button>
+              )
+            })}
           </div>
           <select className="input input-inline" aria-label={t('attacks.peakFilter')} value={peak ?? ''} onChange={(e) => setPeak(e.target.value ? Number(e.target.value) : undefined)}>
             <option value="">{t('attacks.anyPeak')}</option>
