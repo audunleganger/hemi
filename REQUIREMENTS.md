@@ -1,6 +1,8 @@
 # Hemi — Requirement Specification
 
-Version 0.5 · 2026-10-19
+Version 0.6 · 2026-10-19
+
+*0.6: code identifiers and license (appendix).*
 
 *0.5: look and layout (3.12): calendar-first app with an attack mode, dark by default; the separate night theme is replaced by attack mode (V-7, S-4).*
 
@@ -355,3 +357,6 @@ None at the moment.
 | Acute medication days | Last 30 days across all medications with an active ingredient, on the front page |
 | Logging afterwards | One form, only the start required; all missing data handled without errors |
 | Design | Direction C (calendar first, plum severity scale, Schibsted Grotesk) with direction B (dim amber, big buttons, Atkinson Hyperlegible) as attack mode; dark by default with a toggle |
+| Code identifiers | `hemi`: package `com.hemi`, env vars `HEMI_*`, image `ghcr.io/audunleganger/hemi`. The visible name is still only in the i18n `appName` |
+| License | AGPL-3.0, as Larder |
+| Schema before release | Schema version 1 changes in place until the first release; then `1.db` is snapshotted and migrations start |
