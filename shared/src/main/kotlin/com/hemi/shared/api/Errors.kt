@@ -16,6 +16,9 @@ object ErrorCodes {
     const val LAST_ADMIN = "LAST_ADMIN"
     const val WEAK_PASSWORD = "WEAK_PASSWORD"
     const val INVALID_IMPORT = "INVALID_IMPORT"
+
+    /** An attack is already ongoing; only one at a time. */
+    const val ATTACK_ONGOING = "ATTACK_ONGOING"
 }
 
 @Serializable

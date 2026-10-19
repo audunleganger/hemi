@@ -6,12 +6,14 @@ import com.hemi.db.HemiDatabase
 object LocalUser {
     const val USERNAME = "local"
 
-    /** Returns the local user's id, creating it on first use. */
+    /** Returns the local user's id, creating and seeding it on first use. */
     fun ensure(db: HemiDatabase, locale: String?, now: Long = System.currentTimeMillis()): Long =
         db.transactionWithResult {
             db.appUserQueries.selectFirst().executeAsOneOrNull()?.id ?: run {
                 db.appUserQueries.insertUser(USERNAME, null, true, locale, now)
-                db.appUserQueries.lastInsertRowId().executeAsOne()
+                val id = db.appUserQueries.lastInsertRowId().executeAsOne()
+                Seeder.seed(db, id, locale)
+                id
             }
         }
 }
