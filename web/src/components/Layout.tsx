@@ -48,21 +48,28 @@ function RecordButton({ className }: { className: string }) {
 }
 
 /**
- * The app frame (DS-1): on PCs and tablets a top bar with the navigation and + Record; on phones a bottom
- * navigation (Calendar · Attacks · Medications · More) with a floating + Record button above it. During an
- * attack, "Now" (the attack screen) comes first and the calendar has its own place (DS-3).
+ * The app frame (DS-1): on PCs a top bar with the navigation and + Record; on tablets the same bar with the
+ * phone's items (Settings, Admin and Log out move to More); on phones a bottom navigation (Calendar · Attacks ·
+ * Medications · More) with a floating + Record button above it. During an attack, "Now" (the attack screen)
+ * comes first and the calendar has its own place (DS-3).
  */
 function Frame() {
   const { t } = useTranslation()
   const { logout } = useAuth()
   const user = useUser()
   const { ongoing } = useAppearance()
-  const main = [
+  const main: { to: string; label: string; end?: boolean; only?: 'pc' | 'tablet' }[] = [
     ...(ongoing ? [{ to: '/', label: t('nav.now'), end: true }, { to: '/calendar', label: t('nav.calendar') }] : [{ to: '/', label: t('nav.calendar'), end: true }]),
     { to: '/attacks', label: t('nav.attacks') },
     { to: '/medications', label: t('nav.medications') },
   ]
-  const wide = [...main, { to: '/settings', label: t('nav.settings') }, ...(user.isAdmin ? [{ to: '/admin', label: t('nav.admin') }] : [])]
+  // `pc` links show only on PCs, `more` only on tablets.
+  const wide: typeof main = [
+    ...main,
+    { to: '/settings', label: t('nav.settings'), only: 'pc' as const },
+    ...(user.isAdmin ? [{ to: '/admin', label: t('nav.admin'), only: 'pc' as const }] : []),
+    { to: '/more', label: t('nav.more'), only: 'tablet' as const },
+  ]
   const linkClass = ({ isActive }: { isActive: boolean }) => `nav-link ${isActive ? 'active' : ''}`
   const phone = [...main, { to: '/more', label: t('nav.more') }]
   return (
@@ -73,15 +80,20 @@ function Frame() {
         </NavLink>
         <nav className="nav nav-wide" aria-label={t('nav.label')}>
           {wide.map((link) => (
-            <NavLink key={link.to} to={link.to} end={link.end} className={linkClass}>
+            <NavLink
+              key={link.to}
+              to={link.to}
+              end={link.end}
+              className={({ isActive }) => `${linkClass({ isActive })} ${link.only ? `only-${link.only}` : ''}`}
+            >
               {link.label}
             </NavLink>
           ))}
         </nav>
         <div className="user-menu">
           <ThemeToggle />
-          <span className="muted">{user.username}</span>
-          <button type="button" className="btn btn-ghost btn-small" onClick={() => void logout()}>
+          <span className="muted only-pc">{user.username}</span>
+          <button type="button" className="btn btn-ghost btn-small only-pc" onClick={() => void logout()}>
             {t('nav.logout')}
           </button>
           <RecordButton className="btn btn-primary record-top" />

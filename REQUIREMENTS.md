@@ -1,6 +1,8 @@
 # Hemi — Requirement Specification
 
-Version 0.9 · 2026-10-19
+Version 0.10 · 2026-10-19
+
+*0.10: three layouts by width (appendix, "Layouts by width"): phones up to 719 px, tablets 720–1099 px, PCs from 1100 px.*
 
 *0.9: feedback from the first look at the web app (appendix, "Feedback on the web app"): start with a chosen medication, discard an ongoing attack, everything editable from the attack page, pink–red severity colors, at least one status in the attack filter, layouts between phone and PC.*
 
@@ -413,3 +415,15 @@ The user's first look at PR #4, running in Docker.
 | Severity colors (DS-6) | Pink / red / dark red for 1 / 2 / 3, replacing plum, in attack mode too (dimmed there) instead of amber. The accent stays amber |
 | Status filter (V-4) | Turning off all three statuses still showed attacks. Now at least one status must stay on |
 
+### Layouts by width (0.10)
+
+Fixes the broken widths between phone and PC view (DS-1, 0.9). `web/e2e/flow.mjs` checks 720, 900 and 1099 px for horizontal overflow.
+
+| Width | Decision |
+|---|---|
+| Phones, up to 719 px | Bottom navigation and floating + Record. The content stays at most 600 px wide and centred, instead of stretching on small tablets |
+| Tablets, 720–1099 px | Top bar with the phone's items (Calendar · Attacks · Medications · More); Settings, Admin and Log out are under More and the username is hidden, so the bar always fits |
+| PCs, from 1100 px | Top bar with every item, the username and Log out |
+| Calendar home | Calendar and day side by side from 720 px, with limits and recent attacks underneath; the year strip from 1100 px; three columns only from 1280 px |
+| Attack mode | Controls and chart side by side from 720 px (a narrower controls column on tablets, with limits and recent attacks under the chart); on phones only the controls (0.8) |
+| Limit form | "per ⟨length⟩ ⟨unit⟩" wraps as one piece |

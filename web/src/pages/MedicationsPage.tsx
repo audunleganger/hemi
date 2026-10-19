@@ -182,15 +182,17 @@ function LimitForm({ ingredient }: { ingredient: IngredientDto }) {
         ))}
       </select>
       {kind !== 'min_interval' && <DecimalInput aria-label={t('limits.max')} placeholder={t('limits.max')} value={max} onChange={setMax} required />}
-      <span className="muted">{kind === 'min_interval' ? t('limits.atLeast') : t('limits.per')}</span>
-      <DecimalInput aria-label={t('limits.windowLength')} value={length} onChange={setLength} required />
-      <select className="input" aria-label={t('limits.windowUnit')} value={unit} onChange={(e) => setUnit(e.target.value as WindowUnit)}>
-        {(kind === 'min_interval' ? (['hours', 'days'] as WindowUnit[]) : (['hours', 'days', 'weeks', 'month'] as WindowUnit[])).map((u) => (
-          <option key={u} value={u}>
-            {t(`limits.windowUnits.${u}`)}
-          </option>
-        ))}
-      </select>
+      <span className="limit-window">
+        <span className="muted">{kind === 'min_interval' ? t('limits.atLeast') : t('limits.per')}</span>
+        <DecimalInput aria-label={t('limits.windowLength')} value={length} onChange={setLength} required />
+        <select className="input" aria-label={t('limits.windowUnit')} value={unit} onChange={(e) => setUnit(e.target.value as WindowUnit)}>
+          {(kind === 'min_interval' ? (['hours', 'days'] as WindowUnit[]) : (['hours', 'days', 'weeks', 'month'] as WindowUnit[])).map((u) => (
+            <option key={u} value={u}>
+              {t(`limits.windowUnits.${u}`)}
+            </option>
+          ))}
+        </select>
+      </span>
       <button type="submit" className="btn btn-small" disabled={create.isPending}>
         {t('limits.add')}
       </button>
