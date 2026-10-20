@@ -66,6 +66,7 @@ function Frame() {
   // `pc` links show only on PCs, `more` only on tablets.
   const wide: typeof main = [
     ...main,
+    { to: '/doses', label: t('nav.doses'), only: 'pc' as const },
     { to: '/settings', label: t('nav.settings'), only: 'pc' as const },
     ...(user.isAdmin ? [{ to: '/admin', label: t('nav.admin'), only: 'pc' as const }] : []),
     { to: '/more', label: t('nav.more'), only: 'tablet' as const },

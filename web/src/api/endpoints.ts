@@ -139,6 +139,15 @@ export const deleteEpisode = (id: number, episodeId: number) => api<AttackDto>(`
 export const splitEpisode = (id: number, episodeId: number) => api<AttackDto>(`/attacks/${id}/episodes/${episodeId}/split`, { method: 'POST' })
 
 // Doses
+export interface DoseQuery {
+  medicationId?: number
+  ingredientId?: number
+  rated?: boolean
+  withAttack?: boolean
+  from?: string
+  to?: string
+}
+export const listDoses = (q: DoseQuery = {}) => api<DoseDto[]>('/doses', { query: { ...q } })
 export const createDose = (input: DoseInput) => api<DoseDto>('/doses', { method: 'POST', body: input })
 export const previewDose = (input: DosePreviewInput) => api<DosePreview>('/doses/preview', { method: 'POST', body: input })
 export const updateDose = (id: number, input: DoseInput) => api<DoseDto>(`/doses/${id}`, { method: 'PUT', body: input })
