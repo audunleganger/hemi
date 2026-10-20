@@ -14,6 +14,7 @@ export function MorePage() {
       <PageHeader title={t('nav.more')} />
       <Card>
         <nav className="link-list">
+          <Link to="/doses">{t('nav.doses')}</Link>
           <Link to="/settings">{t('nav.settings')}</Link>
           {user.isAdmin && <Link to="/admin">{t('nav.admin')}</Link>}
         </nav>

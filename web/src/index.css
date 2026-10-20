@@ -727,7 +727,7 @@ textarea.input {
   text-align: left;
 }
 
-.input-inline {
+.input.input-inline {
   width: auto;
   min-height: 36px;
   padding: 5px 10px;

@@ -262,6 +262,35 @@ await step('delete an attack from its page (AT-12)', async () => {
   })
 })
 
+await step('dose list filters and edits doses (V-6, DO-8)', async () => {
+  await page.getByRole('link', { name: 'Doses', exact: true }).first().click()
+  const rows = page.locator('.edit-row')
+  const waitForRows = (n, message) =>
+    page.waitForFunction((n) => document.querySelectorAll('.edit-row').length === n, n, { timeout: 3000 }).catch(() => {
+      throw new Error(message)
+    })
+  await rows.first().waitFor()
+  const all = await rows.count()
+  // The dose rated on the attack page earlier.
+  await page.getByLabel('Rating').selectOption('yes')
+  await page.getByText('Relieved · Attack · Took a while').waitFor()
+  await page.getByLabel('Rating').selectOption('any')
+  await waitForRows(all, 'clearing the rating filter did not bring the doses back')
+  await page.getByLabel('Attack', { exact: true }).selectOption('no')
+  await page.waitForFunction((n) => document.querySelectorAll('.edit-row').length < n || document.querySelector('.empty'), all, { timeout: 3000 })
+  const without = await rows.count()
+  // Taking a dose out of its attack moves it to "Without attack".
+  await page.getByLabel('Attack', { exact: true }).selectOption('yes')
+  await rows.first().waitFor()
+  await page.getByRole('button', { name: /^Edit Imigran nasal spray 20 mg at/ }).first().click()
+  await page.getByLabel('Part of this attack').uncheck()
+  await page.getByRole('button', { name: 'Save', exact: true }).click()
+  await page.getByText('Imigran nasal spray 20 mg is no longer part of this attack.').waitFor()
+  await page.getByLabel('Attack', { exact: true }).selectOption('no')
+  await waitForRows(without + 1, 'the dose taken out of its attack is not listed without one')
+  await shot('07i-doses')
+})
+
 await step('settings and admin', async () => {
   await page.getByRole('link', { name: 'Settings' }).click()
   await page.getByRole('heading', { name: 'Settings' }).waitFor()
@@ -290,6 +319,10 @@ await step('phone layout', async () => {
   await p2.getByRole('heading', { name: 'More' }).waitFor()
   await p2.screenshot({ path: `${SHOTS}/10-phone-more.png`, fullPage: true })
   if (await p2.evaluate(() => document.documentElement.scrollWidth > window.innerWidth)) problems.push('horizontal overflow on phone')
+  // The dose list is under More on phones (V-6).
+  await p2.getByRole('link', { name: 'Doses' }).click()
+  await p2.getByText('No doses yet.').waitFor()
+  if (await p2.evaluate(() => document.documentElement.scrollWidth > window.innerWidth)) problems.push('horizontal overflow on the phone dose list')
   } catch (e) {
     await p2.screenshot({ path: `${SHOTS}/fail-phone.png`, fullPage: true })
     throw e
@@ -338,7 +371,7 @@ await step('tablet layout (DS-1)', async () => {
   // Between phone and PC the top bar has the phone's items, with Settings and Log out under More.
   for (const width of [720, 900, 1099]) {
     await page.setViewportSize({ width, height: 900 })
-    for (const path of ['/', '/attacks', '/medications']) {
+    for (const path of ['/', '/attacks', '/doses', '/medications']) {
       await page.goto(BASE + path)
       await page.locator('.topbar').getByRole('link', { name: 'More' }).waitFor()
       if (await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth)) problems.push(`horizontal overflow at ${width} px on ${path}`)

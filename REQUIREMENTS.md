@@ -1,6 +1,8 @@
 # Hemi — Requirement Specification
 
-Version 0.12 · 2026-10-19
+Version 0.13 · 2026-10-20
+
+*0.13: where the dose list lives, and what it shows (appendix, "Dose list").*
 
 *0.12: "Start attack + choose medication" (appendix, "Starting with a medication").*
 
@@ -448,3 +450,11 @@ Fixes the broken widths between phone and PC view (DS-1, 0.9). `web/e2e/flow.mjs
 |---|---|
 | The picker (AT-1) | "Start attack + choose medication" in + Record lists the active medications: acute first, then preventive ones, then remedies, each by name, with the usual quantity. One tap starts the attack and logs that quantity |
 | Over a limit (LI-4) | If the dose would go over a limit, the picker shows what it does and asks: "Start attack + take ⟨medication⟩ anyway" or "Choose another medication". "Start attack + take ⟨usual⟩" in + Record now asks the same way, as it already did in attack mode (0.8) |
+
+### Dose list (0.13)
+
+| Topic | Decision |
+|---|---|
+| Where (V-6, DS-1) | `/doses`. "Doses" is in the PC top bar after Medications; on phones and tablets it's under More, since the bottom navigation stays at four items |
+| Rows | Newest first: date and time, medication, quantity, "over limit" badge; below, the rating, a link to the attack (if any) and the note. **Edit** opens the same form as on the attack page (DO-8); "Part of this attack" shows only for doses in an attack |
+| Filters | Medication and active ingredient (archived ones included, marked), rated or not, with or without attack |

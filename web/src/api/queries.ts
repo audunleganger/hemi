@@ -22,6 +22,8 @@ export const useAttacks = (q: endpoints.AttackQuery = {}) => useQuery({ queryKey
 
 export const useAttack = (id: number) => useQuery({ queryKey: ['attacks', id], queryFn: () => endpoints.attack(id) })
 
+export const useDoses = (q: endpoints.DoseQuery = {}) => useQuery({ queryKey: ['doses', q], queryFn: () => endpoints.listDoses(q), placeholderData: (previous) => previous })
+
 export const useMedications = (includeArchived = false) =>
   useQuery({ queryKey: ['medications', { includeArchived }], queryFn: () => endpoints.listMedications(includeArchived) })
 

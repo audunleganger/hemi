@@ -25,7 +25,7 @@ export function DosesEditor({ attack }: { attack: AttackDto }) {
         {attack.doses.map((dose) => (
           <li key={dose.id}>
             {editing === dose.id ? (
-              <DoseEditForm attack={attack} dose={dose} onDone={() => setEditing(null)} />
+              <DoseEditForm attackId={attack.summary.id} dose={dose} onDone={() => setEditing(null)} />
             ) : (
               <div className="edit-row">
                 <span>
@@ -49,7 +49,7 @@ export function DosesEditor({ attack }: { attack: AttackDto }) {
         ))}
         {editing === 'new' && (
           <li>
-            <DoseEditForm attack={attack} dose={null} onDone={() => setEditing(null)} />
+            <DoseEditForm attackId={attack.summary.id} dose={null} onDone={() => setEditing(null)} />
           </li>
         )}
       </ul>
@@ -65,10 +65,11 @@ export function DosesEditor({ attack }: { attack: AttackDto }) {
 }
 
 /**
- * Edits a dose, or adds one to the attack when [dose] is null. Shows the limit preview and asks before going
- * over a limit (LI-4), like logging a dose.
+ * Edits a dose, or adds one to attack [attackId] when [dose] is null. Shows the limit preview and asks before
+ * going over a limit (LI-4), like logging a dose. Used on the attack page and in the dose list (V-6), where
+ * [attackId] is the dose's own attack, if any.
  */
-function DoseEditForm({ attack, dose, onDone }: { attack: AttackDto; dose: DoseDto | null; onDone: () => void }) {
+export function DoseEditForm({ attackId, dose, onDone }: { attackId: number | null; dose: DoseDto | null; onDone: () => void }) {
   const { t } = useTranslation()
   const toast = useToast()
   const medications = useMedications(true)
@@ -80,7 +81,7 @@ function DoseEditForm({ attack, dose, onDone }: { attack: AttackDto; dose: DoseD
   const at = useMomentInputs(dose?.at ?? nowMoment())
   const [rating, setRating] = useState<Rating | ''>(dose?.rating ?? '')
   const [note, setNote] = useState(dose?.note ?? '')
-  const [inAttack, setInAttack] = useState(true)
+  const [inAttack, setInAttack] = useState(attackId !== null)
   const [confirming, setConfirming] = useState(false)
 
   const quantityValue = quantity === null ? (medication?.defaultQuantity ?? 1) : parseDecimal(quantity)
@@ -97,7 +98,7 @@ function DoseEditForm({ attack, dose, onDone }: { attack: AttackDto; dose: DoseD
   })
 
   const save = useApiMutation(async () => {
-    const input = { medicationId: medication!.id, quantity: quantityValue, at: moment, note: note.trim() || null, attackId: inAttack ? attack.summary.id : null, autoAttack: false }
+    const input = { medicationId: medication!.id, quantity: quantityValue, at: moment, note: note.trim() || null, attackId: inAttack ? attackId : null, autoAttack: false }
     const saved = dose ? await endpoints.updateDose(dose.id, input) : await endpoints.createDose(input)
     if (rating && rating !== saved.rating) {
       // A changed rating keeps when it was first rated, as long as that's still after the dose (DO-5).
@@ -117,7 +118,7 @@ function DoseEditForm({ attack, dose, onDone }: { attack: AttackDto; dose: DoseD
     }
     save.mutate(undefined, {
       onSuccess: (saved) => {
-        if (!inAttack) toast.show(t('doses.movedOut', { medication: saved.medicationName }))
+        if (attackId !== null && !inAttack) toast.show(t('doses.movedOut', { medication: saved.medicationName }))
         onDone()
       },
     })
@@ -168,12 +169,12 @@ function DoseEditForm({ attack, dose, onDone }: { attack: AttackDto; dose: DoseD
       <Field label={t('dose.note')}>
         <input className="input" value={note} onChange={(e) => setNote(e.target.value)} />
       </Field>
-      {dose && (
+      {dose && attackId !== null && (
         <label className="checkbox">
           <input type="checkbox" checked={inAttack} onChange={(e) => setInAttack(e.target.checked)} /> {t('doses.inThisAttack')}
         </label>
       )}
-      {!inAttack && <p className="field-hint">{t('doses.outHint')}</p>}
+      {attackId !== null && !inAttack && <p className="field-hint">{t('doses.outHint')}</p>}
       <LimitPreview preview={preview.data} />
       {confirming && (
         <p className="warning-text" role="alert">
