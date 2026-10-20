@@ -1188,6 +1188,44 @@ details.more-details[open] > summary {
   color: var(--sub);
 }
 
+.edit-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.edit-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.9rem;
+}
+
+.edit-row small {
+  display: block;
+  color: var(--sub);
+}
+
+.reading-line {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.reading-line .tl-marker {
+  flex: none;
+}
+
+.edit-form {
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-small);
+  background: var(--surface-2);
+}
+
 .pill-link {
   text-decoration: none;
 }
