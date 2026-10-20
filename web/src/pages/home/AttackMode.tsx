@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next'
+import { Link } from 'react-router'
 import * as endpoints from '../../api/endpoints'
 import { useApiMutation, useAttacks } from '../../api/queries'
 import type { HomeView } from '../../api/types.gen'
@@ -46,10 +47,10 @@ export function AttackMode({ home, now }: { home: HomeView; now: number }) {
 
   const controls = (
     <div className="attack-controls">
-      <div className="attack-top">
-        <span>{t('attackMode.since', { duration: formatDuration(now - attack.summary.start.at, units) })}</span>
+      <Link to={`/attacks/${id}`} className="attack-top" title={t('attackPage.open')}>
+        <span>{t('attackMode.since', { duration: formatDuration(now - attack.summary.start.at, units) })} ›</span>
         <HeadIcon side={attack.summary.painSide} severity={attack.summary.peak} size={30} />
-      </div>
+      </Link>
       <h1 className="attack-question">{t('attackMode.question')}</h1>
       <SeverityButtons large value={last?.severity ?? null} onChange={(severity) => reading.mutate(severity)} />
       <p className="attack-last">
@@ -91,7 +92,7 @@ export function AttackMode({ home, now }: { home: HomeView; now: number }) {
       <div className="attack-side">
         <section className="panel">
           <h2 className="panel-title">
-            {t('attackMode.thisAttack', { time: clock(attack.summary.start) })}
+            <Link to={`/attacks/${id}`}>{t('attackMode.thisAttack', { time: clock(attack.summary.start) })}</Link>
             {attack.summary.wokeUp ? ` · ${t('day.wokeUp')}` : ''}
           </h2>
           <AttackChart attack={attack} now={now} />

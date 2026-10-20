@@ -8,6 +8,7 @@ import { Layout } from './components/Layout'
 import { Loading } from './components/ui'
 import { AdminPage } from './pages/AdminPage'
 import { HomePage } from './pages/HomePage'
+import { AttackPage } from './pages/AttackPage'
 import { AttacksPage } from './pages/AttacksPage'
 import { LoginPage, SetupPage } from './pages/LoginPage'
 import { MedicationsPage } from './pages/MedicationsPage'
@@ -76,6 +77,7 @@ function Gate() {
             <Route index element={<HomePage />} />
             <Route path="calendar" element={<HomePage calendar />} />
             <Route path="attacks" element={<AttacksPage />} />
+            <Route path="attacks/:id" element={<AttackPage />} />
             <Route path="medications" element={<MedicationsPage />} />
             <Route path="more" element={<MorePage />} />
             <Route path="settings" element={<SettingsPage />} />

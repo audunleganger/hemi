@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next'
+import { Link } from 'react-router'
 import type { DayView, DoseDto, PendingRating, WorkImpact } from '../api/types.gen'
 import * as endpoints from '../api/endpoints'
 import { useApiMutation } from '../api/queries'
@@ -20,7 +21,7 @@ interface Item {
 
 /**
  * The selected day as a vertical timeline (DS-2): readings, doses, due ratings, and the day's work impact
- * (WI-1 … WI-3).
+ * (WI-1 … WI-3). An attack's start links to its page (V-5).
  */
 export function DayTimeline({ day, cutoffMinutes, now, pending }: { day: DayView; cutoffMinutes: number; now: number; pending: PendingRating[] }) {
   const { t } = useTranslation()
@@ -31,7 +32,7 @@ export function DayTimeline({ day, cutoffMinutes, now, pending }: { day: DayView
   for (const attack of day.attacks) {
     if (dayOf(attack.start, cutoffMinutes) === day.date) {
       const note = [attack.wokeUp ? t('day.wokeUp') : null, attack.status !== 'migraine' ? t(`status.${attack.status}`) : null].filter(Boolean).join(' · ')
-      items.push({ at: attack.start.at - 1, key: `start-${attack.id}`, time: clock(attack.start), marker: 'event', content: <span>{t('day.started')}{note && <small>{note}</small>}</span> })
+      items.push({ at: attack.start.at - 1, key: `start-${attack.id}`, time: clock(attack.start), marker: 'event', content: <span><Link to={`/attacks/${attack.id}`}>{t('day.started')}</Link>{note && <small>{note}</small>}</span> })
     }
     if (attack.end && dayOf(attack.end, cutoffMinutes) === day.date) {
       items.push({ at: attack.end.at + 1, key: `end-${attack.id}`, time: clock(attack.end), marker: 'event', content: <span>{t('day.over')}</span> })

@@ -155,6 +155,43 @@ await step('discard a recurrence started by mistake (AT-16)', async () => {
   })
 })
 
+await step('edit an attack on its page (V-5, AT-12)', async () => {
+  // The day view's pill opens the attack.
+  await page.locator('.day-panel .pill-link').click()
+  await page.getByRole('heading', { name: 'Timeline' }).waitFor()
+  await page.getByRole('button', { name: 'Nauseous' }).click()
+  await page.getByRole('button', { name: 'Left', exact: true }).click()
+  await page.getByRole('button', { name: 'Stress' }).click()
+  await page.getByLabel('Note').fill('Bright sun all day')
+  await page.getByRole('button', { name: 'Save', exact: true }).click()
+  await page.getByText('Attack updated.').waitFor()
+  await page.reload()
+  await page.getByRole('button', { name: 'Nauseous', pressed: true }).waitFor()
+  await page.getByRole('button', { name: 'Stress', pressed: true }).waitFor()
+  if ((await page.getByLabel('Note').inputValue()) !== 'Bright sun all day') throw new Error('note not saved')
+  await page.getByRole('img', { name: 'Pain side: Left, seen from behind' }).first().waitFor()
+  await shot('07d-attack-page')
+  await page.setViewportSize({ width: 390, height: 844 })
+  if (await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth)) problems.push('horizontal overflow on the attack page on phone')
+  await shot('07e-attack-page-phone')
+  await page.setViewportSize({ width: 1280, height: 900 })
+})
+
+await step('delete an attack from its page (AT-12)', async () => {
+  await page.getByRole('link', { name: 'Attacks', exact: true }).first().click()
+  const rows = page.locator('.attack-row')
+  await rows.nth(1).waitFor()
+  const before = await rows.count()
+  // The oldest is the one logged afterwards for yesterday.
+  await rows.last().click()
+  await page.getByRole('button', { name: 'Delete attack' }).click()
+  await page.getByRole('button', { name: 'Yes, do it' }).click()
+  await page.getByText('Attack deleted.').waitFor()
+  await page.waitForFunction((n) => document.querySelectorAll('.attack-row').length === n, before - 1, { timeout: 3000 }).catch(() => {
+    throw new Error('the attack is still listed')
+  })
+})
+
 await step('settings and admin', async () => {
   await page.getByRole('link', { name: 'Settings' }).click()
   await page.getByRole('heading', { name: 'Settings' }).waitFor()

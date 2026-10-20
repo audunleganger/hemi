@@ -20,6 +20,8 @@ export const useDay = (date: string) => useQuery({ queryKey: ['days', date], que
 
 export const useAttacks = (q: endpoints.AttackQuery = {}) => useQuery({ queryKey: ['attacks', q], queryFn: () => endpoints.listAttacks(q) })
 
+export const useAttack = (id: number) => useQuery({ queryKey: ['attacks', id], queryFn: () => endpoints.attack(id) })
+
 export const useMedications = (includeArchived = false) =>
   useQuery({ queryKey: ['medications', { includeArchived }], queryFn: () => endpoints.listMedications(includeArchived) })
 
