@@ -1,16 +1,14 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useAttacks, useSettings } from '../api/queries'
+import { useAttacks } from '../api/queries'
 import type { AttackStatus } from '../api/types.gen'
 import { Card, PageHeader, QueryView } from '../components/ui'
-import { clockMinutes } from '../lib/time'
-import { STATUSES } from '../record/AfterwardsForm'
+import { STATUSES } from '../record/AttackFields'
 import { RecentAttacks } from './home/RecentAttacks'
 
 /** All attacks, newest first, with filters (V-4). At least one status stays on: none would mean no filter. */
 export function AttacksPage() {
   const { t } = useTranslation()
-  const settings = useSettings()
   const [statuses, setStatuses] = useState<AttackStatus[]>(STATUSES)
   const [peak, setPeak] = useState<number | undefined>(undefined)
   const attacks = useAttacks({ status: statuses, peak })
@@ -49,7 +47,7 @@ export function AttacksPage() {
           </select>
         </div>
         <QueryView query={attacks}>
-          {(list) => <RecentAttacks attacks={list} limit={1000} cutoffMinutes={settings.data ? clockMinutes(settings.data.dayCutoff) : 240} />}
+          {(list) => <RecentAttacks attacks={list} limit={1000} />}
         </QueryView>
       </Card>
     </div>

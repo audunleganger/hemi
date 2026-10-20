@@ -9,6 +9,7 @@ import { ErrorText, Field, FieldGroup } from '../components/ui'
 import { addDays } from '../lib/dates'
 import { parseDecimal } from '../lib/format'
 import { momentFromLocal, nowMoment, toInputs } from '../lib/time'
+import { NauseaField, StatusField, TriggersField } from './AttackFields'
 import { RATINGS } from './RatingPrompt'
 
 interface DoseRow {
@@ -18,9 +19,6 @@ interface DoseRow {
   time: string
   rating: Rating | ''
 }
-
-export const STATUSES: AttackStatus[] = ['migraine', 'unsure', 'not_migraine']
-export const NAUSEA: Nausea[] = ['none', 'nauseous', 'vomited']
 
 /**
  * Log an attack that is over (AT-14), e.g. "yesterday 14:00–22:00". Only the start is required; everything
@@ -103,43 +101,13 @@ export function AfterwardsForm({ onDone }: { onDone: () => void }) {
       <details className="more-details">
         <summary>{t('afterwards.details')}</summary>
         <div className="stack">
-          <FieldGroup label={t('attack.status')}>
-            <div className="segmented" role="group">
-              {STATUSES.map((s) => (
-                <button key={s} type="button" className={status === s ? 'active' : ''} aria-pressed={status === s} onClick={() => setStatus(s)}>
-                  {t(`status.${s}`)}
-                </button>
-              ))}
-            </div>
-          </FieldGroup>
-          <FieldGroup label={t('attack.nausea')}>
-            <div className="segmented" role="group">
-              {NAUSEA.map((n) => (
-                <button key={n} type="button" className={nausea === n ? 'active' : ''} aria-pressed={nausea === n} onClick={() => setNausea(nausea === n ? null : n)}>
-                  {t(`nausea.${n}`)}
-                </button>
-              ))}
-            </div>
-          </FieldGroup>
+          <StatusField value={status} onChange={setStatus} />
+          <NauseaField value={nausea} onChange={setNausea} />
           <div className="field">
             <span className="field-label">{t('painSide.label')}</span>
             <PainSidePicker value={painSide} onChange={setPainSide} />
           </div>
-          {triggers.data && triggers.data.length > 0 && (
-            <div className="field">
-              <span className="field-label">{t('attack.triggers')}</span>
-              <div className="chips">
-                {triggers.data.map((trigger) => {
-                  const on = triggerIds.includes(trigger.id)
-                  return (
-                    <button key={trigger.id} type="button" className={`chip ${on ? 'on' : ''}`} aria-pressed={on} onClick={() => setTriggerIds(on ? triggerIds.filter((id) => id !== trigger.id) : [...triggerIds, trigger.id])}>
-                      {trigger.name}
-                    </button>
-                  )
-                })}
-              </div>
-            </div>
-          )}
+          <TriggersField triggers={triggers.data ?? []} value={triggerIds} onChange={setTriggerIds} />
           <Field label={t('dose.note')}>
             <textarea className="input" rows={2} value={note} onChange={(e) => setNote(e.target.value)} />
           </Field>

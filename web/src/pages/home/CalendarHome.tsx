@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next'
+import { Link } from 'react-router'
 import { useAttacks, useCalendar, useDay } from '../../api/queries'
 import type { CalendarDay, HomeView, SettingsDto } from '../../api/types.gen'
 import { formatMonth, MonthCalendar, monthGrid, SeverityLegend, shiftMonth, YearStrip } from '../../components/Calendars'
@@ -106,11 +107,11 @@ export function CalendarHome({
           <div className="panel-head">
             <h2>{formatDate(selected, currentLocale(), 'weekday')}</h2>
             {selectedAttack && (
-              <span className="pill">
+              <Link to={`/attacks/${selectedAttack.id}`} className="pill pill-link">
                 <HeadIcon side={selectedAttack.painSide} severity={selectedAttack.peak} size={16} />
                 {selectedAttack.ongoing ? t('attacks.ongoing') : selectedAttack.peak !== null ? t('attacks.peak', { severity: selectedAttack.peak }) : t('attacks.peakUnknown')}
                 {selectedAttack.painSide ? ` · ${t(`painSide.${selectedAttack.painSide}`)}` : ''}
-              </span>
+              </Link>
             )}
           </div>
           {day.data && <DayTimeline day={day.data} cutoffMinutes={cutoff} now={now} pending={home.pendingRatings} />}
@@ -125,7 +126,7 @@ export function CalendarHome({
           </div>
           {home.limits.length === 0 && <p className="field-hint">{t('limits.none')}</p>}
           <h2 className="panel-title recent-title">{t('home.recent')}</h2>
-          <RecentAttacks attacks={recent.data} cutoffMinutes={cutoff} />
+          <RecentAttacks attacks={recent.data} />
         </section>
       </div>
     </div>

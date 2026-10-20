@@ -1,20 +1,11 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useSearchParams } from 'react-router'
 import { useHome, useSettings } from '../api/queries'
 import { QueryView } from '../components/ui'
 import { isValidIsoDate } from '../lib/dates'
+import { useNow } from '../lib/useNow'
 import { AttackMode } from './home/AttackMode'
 import { CalendarHome } from './home/CalendarHome'
-
-/** A clock that ticks every minute, for durations and due ratings. */
-function useNow(): number {
-  const [now, setNow] = useState(() => Date.now())
-  useEffect(() => {
-    const timer = window.setInterval(() => setNow(Date.now()), 30_000)
-    return () => window.clearInterval(timer)
-  }, [])
-  return now
-}
 
 /** Home (V-1): the attack screen while an attack is ongoing (DS-3), otherwise the calendar (DS-2). */
 export function HomePage({ calendar = false }: { calendar?: boolean }) {

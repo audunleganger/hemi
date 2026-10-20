@@ -1130,6 +1130,80 @@ details.more-details[open] > summary {
   }
 }
 
+/* ---------- Attack page (V-5) ---------- */
+
+.back-link {
+  align-self: flex-start;
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.attack-page-header {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+}
+
+.attack-page-header h1 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.attack-page-header p {
+  margin: 4px 0 0;
+}
+
+.attack-page-cols {
+  display: grid;
+  gap: 18px;
+  align-items: start;
+}
+
+@media (min-width: 1100px) {
+  .attack-page-cols {
+    grid-template-columns: minmax(0, 3fr) minmax(320px, 2fr);
+  }
+}
+
+.dose-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+}
+
+.dose-list li {
+  display: flex;
+  gap: 12px;
+  align-items: baseline;
+  font-size: 0.9rem;
+}
+
+.dose-list small {
+  display: block;
+  color: var(--sub);
+}
+
+.pill-link {
+  text-decoration: none;
+}
+
+.pill-link:hover {
+  border-color: var(--accent);
+}
+
+a.attack-top {
+  text-decoration: none;
+}
+
+a.attack-top:hover span {
+  color: var(--accent);
+}
+
 /* ---------- Attack mode (DS-3) ---------- */
 
 .attack-mode-page {

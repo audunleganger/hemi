@@ -2,10 +2,10 @@ import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import type { AttackSummary } from '../../api/types.gen'
 import { HeadIcon } from '../../components/HeadIcon'
-import { dayOf, formatDuration, formatMomentDay } from '../../lib/time'
+import { formatDuration, formatMomentDay } from '../../lib/time'
 
-/** The last few attacks with their pain-side head (V-4, DS-7). */
-export function RecentAttacks({ attacks, limit = 4, cutoffMinutes = 240 }: { attacks: AttackSummary[] | undefined; limit?: number; cutoffMinutes?: number }) {
+/** The last few attacks with their pain-side head (V-4, DS-7); each opens its page (V-5). */
+export function RecentAttacks({ attacks, limit = 4 }: { attacks: AttackSummary[] | undefined; limit?: number }) {
   const { t } = useTranslation()
   if (!attacks) return null
   if (attacks.length === 0) return <p className="empty">{t('home.noAttacks')}</p>
@@ -21,7 +21,7 @@ export function RecentAttacks({ attacks, limit = 4, cutoffMinutes = 240 }: { att
         ].filter(Boolean)
         return (
           <li key={attack.id}>
-            <Link to={`/?day=${dayOf(attack.start, cutoffMinutes)}`} className="attack-row">
+            <Link to={`/attacks/${attack.id}`} className="attack-row">
               <HeadIcon side={attack.painSide} severity={attack.peak} />
               <span>
                 <b>{formatMomentDay(attack.start)}</b>
