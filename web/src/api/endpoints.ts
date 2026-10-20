@@ -31,6 +31,7 @@ import type {
   RateInput,
   RatingSuggestion,
   ReadingInput,
+  EpisodeInput,
   SettingsDto,
   SettingsInput,
   SetupInput,
@@ -129,6 +130,12 @@ export const deleteAttack = (id: number) => api<void>(`/attacks/${id}`, { method
 export const discardAttack = (id: number, input: DiscardInput) => api<DiscardResult>(`/attacks/${id}/discard`, { method: 'POST', body: input })
 export const endAttack = (id: number, input: EndInput = {}) => api<AttackDto>(`/attacks/${id}/end`, { method: 'POST', body: input })
 export const addReading = (id: number, input: ReadingInput) => api<AttackDto>(`/attacks/${id}/readings`, { method: 'POST', body: input })
+export const updateReading = (id: number, readingId: number, input: ReadingInput) =>
+  api<AttackDto>(`/attacks/${id}/readings/${readingId}`, { method: 'PUT', body: input })
+export const deleteReading = (id: number, readingId: number) => api<AttackDto>(`/attacks/${id}/readings/${readingId}`, { method: 'DELETE' })
+export const updateEpisode = (id: number, episodeId: number, input: EpisodeInput) =>
+  api<AttackDto>(`/attacks/${id}/episodes/${episodeId}`, { method: 'PUT', body: input })
+export const deleteEpisode = (id: number, episodeId: number) => api<AttackDto>(`/attacks/${id}/episodes/${episodeId}`, { method: 'DELETE' })
 export const splitEpisode = (id: number, episodeId: number) => api<AttackDto>(`/attacks/${id}/episodes/${episodeId}/split`, { method: 'POST' })
 
 // Doses

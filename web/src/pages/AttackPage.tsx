@@ -13,6 +13,7 @@ import { formatQuantity } from '../lib/format'
 import { clock, formatDuration, formatMomentDay, localDate } from '../lib/time'
 import { useNow } from '../lib/useNow'
 import { NauseaField, StatusField, TriggersField } from '../record/AttackFields'
+import { EpisodesEditor, ReadingsEditor } from './AttackEditors'
 
 /** An attack's page (V-5): its timeline, its doses, and its details, all editable (AT-12). */
 export function AttackPage() {
@@ -78,6 +79,12 @@ function AttackView({ attack, triggers, now }: { attack: AttackDto; triggers: Tr
         <div className="stack">
           <Card title={t('attackPage.timeline')}>
             <AttackChart attack={attack} now={now} />
+          </Card>
+          <Card title={t('episodes.title')}>
+            <EpisodesEditor attack={attack} />
+          </Card>
+          <Card title={t('readings.title')}>
+            <ReadingsEditor attack={attack} />
           </Card>
           <Card title={t('afterwards.doses')}>
             {attack.doses.length === 0 ? (

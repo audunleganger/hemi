@@ -177,6 +177,46 @@ await step('edit an attack on its page (V-5, AT-12)', async () => {
   await page.setViewportSize({ width: 1280, height: 900 })
 })
 
+await step('edit readings on the attack page (AT-3, AT-12)', async () => {
+  const readings = page.locator('.card', { has: page.getByRole('heading', { name: 'Readings' }) })
+  await readings.getByRole('button', { name: /^Edit reading 3 at/ }).click()
+  await readings.getByRole('button', { name: '2 Moderate' }).click()
+  await readings.getByRole('button', { name: 'Save', exact: true }).click()
+  await readings.getByRole('button', { name: /^Edit reading 2 at/ }).waitFor()
+  const count = () => page.locator('.reading-line').count()
+  const waitForCount = (n, message) =>
+    page.waitForFunction((n) => document.querySelectorAll('.reading-line').length === n, n, { timeout: 3000 }).catch(() => {
+      throw new Error(message)
+    })
+  const before = await count()
+  await readings.getByRole('button', { name: '+ Add reading' }).click()
+  await readings.getByRole('button', { name: '1 Mild' }).click()
+  await readings.getByRole('button', { name: 'Save', exact: true }).click()
+  // The list refreshes after the form closes, so wait for the new reading itself.
+  await waitForCount(before + 1, 'the reading was not added')
+  await readings.getByRole('button', { name: /^Edit reading 1 at/ }).last().click()
+  await readings.getByRole('button', { name: 'Delete reading' }).click()
+  await readings.getByRole('button', { name: 'Yes, do it' }).click()
+  await waitForCount(before, 'the reading was not deleted')
+  await shot('07f-readings')
+})
+
+await step('edit episodes and split a recurrence (AT-7, AT-12)', async () => {
+  const episodes = page.locator('.card', { has: page.getByRole('heading', { name: 'Episodes' }) })
+  await episodes.getByRole('button', { name: 'Edit Attack' }).click()
+  await episodes.getByLabel('Woke up with it').check()
+  await episodes.getByRole('button', { name: 'Save', exact: true }).click()
+  await page.locator('.attack-page-header').getByText('Woke up with it').waitFor()
+  await episodes.getByRole('button', { name: 'Edit Recurrence' }).click()
+  await shot('07g-episode-form')
+  await episodes.getByRole('button', { name: 'Make it its own attack' }).click()
+  await page.getByText('The recurrence is now its own attack.').waitFor()
+  await episodes.getByRole('button', { name: 'Edit Recurrence' }).waitFor({ state: 'detached' })
+  await page.getByRole('button', { name: 'Open', exact: true }).click()
+  await page.waitForURL(/\/attacks\/\d+$/)
+  await page.locator('.attack-page-header').getByText('Woke up with it').waitFor({ state: 'detached' })
+})
+
 await step('delete an attack from its page (AT-12)', async () => {
   await page.getByRole('link', { name: 'Attacks', exact: true }).first().click()
   const rows = page.locator('.attack-row')
