@@ -141,6 +141,7 @@ export const splitEpisode = (id: number, episodeId: number) => api<AttackDto>(`/
 // Doses
 export const createDose = (input: DoseInput) => api<DoseDto>('/doses', { method: 'POST', body: input })
 export const previewDose = (input: DosePreviewInput) => api<DosePreview>('/doses/preview', { method: 'POST', body: input })
+export const updateDose = (id: number, input: DoseInput) => api<DoseDto>(`/doses/${id}`, { method: 'PUT', body: input })
 export const rateDose = (id: number, input: RateInput) => api<DoseDto>(`/doses/${id}/rate`, { method: 'POST', body: input })
 export const dismissRating = (id: number) => api<DoseDto>(`/doses/${id}/dismiss`, { method: 'POST' })
 export const ratingSuggestion = (id: number, severity: number) => api<RatingSuggestion>(`/doses/${id}/suggestion`, { query: { severity } })

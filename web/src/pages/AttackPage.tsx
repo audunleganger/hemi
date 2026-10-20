@@ -9,10 +9,10 @@ import { AttackChart } from '../components/AttackChart'
 import { HeadIcon, PainSidePicker } from '../components/HeadIcon'
 import { useToast } from '../components/Toast'
 import { Card, ConfirmButton, ErrorText, Field, QueryView } from '../components/ui'
-import { formatQuantity } from '../lib/format'
 import { clock, formatDuration, formatMomentDay, localDate } from '../lib/time'
 import { useNow } from '../lib/useNow'
 import { NauseaField, StatusField, TriggersField } from '../record/AttackFields'
+import { DosesEditor } from './AttackDoses'
 import { EpisodesEditor, ReadingsEditor } from './AttackEditors'
 
 /** An attack's page (V-5): its timeline, its doses, and its details, all editable (AT-12). */
@@ -87,23 +87,7 @@ function AttackView({ attack, triggers, now }: { attack: AttackDto; triggers: Tr
             <ReadingsEditor attack={attack} />
           </Card>
           <Card title={t('afterwards.doses')}>
-            {attack.doses.length === 0 ? (
-              <p className="empty">{t('attackPage.noDoses')}</p>
-            ) : (
-              <ul className="dose-list">
-                {attack.doses.map((dose) => (
-                  <li key={dose.id}>
-                    <span className="tnum muted">{clock(dose.at)}</span>
-                    <span>
-                      {dose.medicationName} · {formatQuantity(dose.quantity)} {dose.doseUnit}
-                      <small>
-                        {dose.rating ? t(`rating.${dose.rating}`) + (dose.sustained === false ? ` · ${t('rating.notSustained')}` : '') : t('rating.notRated')}
-                      </small>
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            )}
+            <DosesEditor attack={attack} />
           </Card>
         </div>
         <Card title={t('attackPage.details')}>

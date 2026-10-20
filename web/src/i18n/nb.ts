@@ -210,6 +210,14 @@ const nb: Translation<typeof en> = {
     estimatedHint: 'Anslått da anfallet ble registrert i etterkant. Lagrer du, blir den en vanlig måling.',
     delete: 'Slett målingen',
   },
+  doses: {
+    add: '+ Legg til inntak',
+    edit: 'Endre {{medication}} kl. {{time}}',
+    inThisAttack: 'Del av dette anfallet',
+    outHint: 'Det blir stående i dagboken som et inntak uten anfall.',
+    movedOut: '{{medication}} er ikke lenger del av dette anfallet.',
+    delete: 'Slett inntaket',
+  },
   attackMode: {
     since: 'Anfall · {{duration}}',
     question: 'Hvor ille er det nå?',

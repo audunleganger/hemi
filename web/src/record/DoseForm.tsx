@@ -38,11 +38,12 @@ export function DoseForm({ initialMedicationId, onDone }: { initialMedicationId?
 
   const quantityValue = quantity === null ? (medication?.defaultQuantity ?? 1) : parseDecimal(quantity)
   const at = timeEdited ? momentFromLocal(date, time) : null
-  const input = useDebounced({ medicationId: medication?.id, quantity: quantityValue, at })
+  // Debounced as a string: a new object every render would never settle.
+  const input = JSON.parse(useDebounced(JSON.stringify({ medicationId: medication?.id ?? null, quantity: quantityValue, at }))) as { medicationId: number | null; quantity: number | null; at: typeof at }
   const preview = useQuery({
     queryKey: ['preview', input],
     queryFn: () => endpoints.previewDose({ medicationId: input.medicationId!, quantity: input.quantity, at: input.at }),
-    enabled: input.medicationId !== undefined && input.quantity !== null && !Number.isNaN(input.quantity) && input.quantity > 0,
+    enabled: input.medicationId !== null && input.quantity !== null && !Number.isNaN(input.quantity) && input.quantity > 0,
     placeholderData: (previous) => previous,
   })
   const save = useApiMutation(endpoints.createDose)
