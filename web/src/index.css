@@ -1204,6 +1204,10 @@ details.more-details[open] > summary {
   font-size: 0.9rem;
 }
 
+.edit-row .badge {
+  margin-left: 6px;
+}
+
 .edit-row small {
   display: block;
   color: var(--sub);

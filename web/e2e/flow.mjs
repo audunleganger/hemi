@@ -14,6 +14,8 @@ const page = await context.newPage()
 const problems = []
 page.on('console', (m) => { if (m.type() === 'error' || m.type() === 'warning') problems.push(`[${m.type()}] ${m.text()}`) })
 page.on('pageerror', (e) => problems.push(`[pageerror] ${e.message}`))
+// The console says only that a request failed; this says which one.
+page.on('response', async (r) => { if (r.status() >= 400) problems.push(`[${r.status()}] ${r.request().method()} ${new URL(r.url()).pathname} ${(await r.text().catch(() => '')).slice(0, 160)}`) })
 const shot = (name) => page.screenshot({ path: `${SHOTS}/${name}.png`, fullPage: true })
 const step = async (name, fn) => {
   try { await fn(); console.log('ok  ', name) }
@@ -215,6 +217,34 @@ await step('edit episodes and split a recurrence (AT-7, AT-12)', async () => {
   await page.getByRole('button', { name: 'Open', exact: true }).click()
   await page.waitForURL(/\/attacks\/\d+$/)
   await page.locator('.attack-page-header').getByText('Woke up with it').waitFor({ state: 'detached' })
+})
+
+await step('edit, add and delete doses on the attack page (DO-8, LI-4)', async () => {
+  // On the attack split off in the previous step: its one Imigran dose came along.
+  const doses = page.locator('.card', { has: page.getByRole('heading', { name: 'Medication taken' }) })
+  const rows = doses.locator('.edit-row')
+  const waitForRows = (n, message) =>
+    page.waitForFunction((n) => [...document.querySelectorAll('.card')].find((c) => c.querySelector('h2')?.textContent === 'Medication taken')?.querySelectorAll('.edit-row').length === n, n, { timeout: 3000 }).catch(() => {
+      throw new Error(message)
+    })
+  await rows.first().waitFor()
+  const before = await rows.count()
+  await doses.getByRole('button', { name: /^Edit Imigran nasal spray 20 mg at/ }).first().click()
+  await doses.getByLabel('Rating').selectOption('relieved')
+  await doses.getByLabel('Note').fill('Took a while')
+  await doses.getByRole('button', { name: 'Save', exact: true }).click()
+  await doses.getByText('Relieved · Took a while').waitFor()
+  // A third Imigran dose in 24 hours goes over the limit, so it asks first (LI-4).
+  await doses.getByRole('button', { name: '+ Add dose' }).click()
+  await doses.getByText('Sumatriptan: 2 → 3 of 2 doses in 24 hours').waitFor()
+  await doses.getByRole('button', { name: 'Save', exact: true }).click()
+  await doses.getByRole('button', { name: 'Save anyway' }).click()
+  await waitForRows(before + 1, 'the dose was not added')
+  await shot('07h-doses')
+  await doses.getByRole('button', { name: /^Edit Imigran nasal spray 20 mg at/ }).last().click()
+  await doses.getByRole('button', { name: 'Delete dose' }).click()
+  await doses.getByRole('button', { name: 'Yes, do it' }).click()
+  await waitForRows(before, 'the dose was not deleted')
 })
 
 await step('delete an attack from its page (AT-12)', async () => {

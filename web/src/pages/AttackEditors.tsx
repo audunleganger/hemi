@@ -14,7 +14,7 @@ import { clock, formatMomentDay, localDate, momentFromLocal, nowMoment, toInputs
  * A date and time input pair for a moment. Time inputs are minute-rounded, so an untouched pair gives back
  * the moment it started from rather than a rounded one.
  */
-function useMomentInputs(initial: Moment | null) {
+export function useMomentInputs(initial: Moment | null) {
   const start = initial ? toInputs(initial) : { date: '', time: '' }
   const [date, setDate] = useState(start.date)
   const [time, setTime] = useState(start.time)
@@ -29,7 +29,7 @@ function useMomentInputs(initial: Moment | null) {
   }
 }
 
-function MomentFields({ labels, inputs, required = false, hint }: { labels: [string, string]; inputs: ReturnType<typeof useMomentInputs>; required?: boolean; hint?: string }) {
+export function MomentFields({ labels, inputs, required = false, hint }: { labels: [string, string]; inputs: ReturnType<typeof useMomentInputs>; required?: boolean; hint?: string }) {
   return (
     <div>
       <div className="form-row">
@@ -46,7 +46,7 @@ function MomentFields({ labels, inputs, required = false, hint }: { labels: [str
 }
 
 /** "Mon 19 Oct 14:00", with the day left out when it's the same as [sameDayAs]. */
-function when(m: Moment, sameDayAs?: Moment): string {
+export function when(m: Moment, sameDayAs?: Moment): string {
   return sameDayAs && localDate(m) === localDate(sameDayAs) ? clock(m) : `${formatMomentDay(m)} ${clock(m)}`
 }
 

@@ -207,6 +207,14 @@ const en = {
     estimatedHint: 'Estimated when logged afterwards. Saving makes it a regular reading.',
     delete: 'Delete reading',
   },
+  doses: {
+    add: '+ Add dose',
+    edit: 'Edit {{medication}} at {{time}}',
+    inThisAttack: 'Part of this attack',
+    outHint: 'It stays in your diary as a dose without an attack.',
+    movedOut: '{{medication}} is no longer part of this attack.',
+    delete: 'Delete dose',
+  },
   attackMode: {
     since: 'Attack · {{duration}}',
     question: 'How bad is it now?',
