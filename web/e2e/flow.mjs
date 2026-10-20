@@ -298,6 +298,42 @@ await step('phone layout', async () => {
   }
 })
 
+await step('the chart folds a long gap between episodes (DS-10)', async () => {
+  // As kari, who has no attacks yet, so the recurrence can only join the attack made here.
+  const ctx = await browser.newContext({ viewport: { width: 1280, height: 900 }, locale: 'en-US' })
+  ctx.setDefaultTimeout(6000)
+  const p3 = await ctx.newPage()
+  try {
+    await p3.goto(BASE)
+    await p3.getByLabel('Username').fill('kari')
+    await p3.getByLabel('Password').fill('passord123')
+    await p3.getByRole('button', { name: 'Log in' }).click()
+    await p3.getByRole('button', { name: '+ Record' }).first().waitFor()
+    const token = await p3.evaluate(() => localStorage.getItem('hemi.token'))
+    const offset = -new Date().getTimezoneOffset()
+    const hoursAgo = (h) => ({ at: Date.now() - h * 3_600_000, offset })
+    const post = async (path, data) => {
+      const r = await p3.request.post(`${BASE}/api/v1${path}`, { data, headers: { Authorization: `Bearer ${token}` } })
+      if (!r.ok()) throw new Error(`${path}: ${r.status()} ${await r.text()}`)
+      return r.json()
+    }
+    await post('/attacks/afterwards', { start: hoursAgo(40), end: hoursAgo(36), peakSeverity: 2 })
+    const { attack, recurrenceOf } = await post('/attacks/start', { at: hoursAgo(10), severity: 3 })
+    if (!recurrenceOf) throw new Error('the second start was not a recurrence')
+    await post(`/attacks/${attack.summary.id}/readings`, { at: hoursAgo(8), severity: 1 })
+    await post(`/attacks/${attack.summary.id}/end`, { at: hoursAgo(7) })
+    await p3.goto(`${BASE}/attacks/${attack.summary.id}`)
+    await p3.locator('.chart-break').getByText('26 h').waitFor()
+    await p3.screenshot({ path: `${SHOTS}/07i-chart-gap.png` })
+    await p3.setViewportSize({ width: 390, height: 844 })
+    await p3.locator('.chart-break').waitFor()
+    if (await p3.evaluate(() => document.documentElement.scrollWidth > window.innerWidth)) problems.push('horizontal overflow on the attack page with a folded gap')
+    await p3.screenshot({ path: `${SHOTS}/07j-chart-gap-phone.png` })
+  } finally {
+    await ctx.close()
+  }
+})
+
 await step('tablet layout (DS-1)', async () => {
   // Between phone and PC the top bar has the phone's items, with Settings and Log out under More.
   for (const width of [720, 900, 1099]) {

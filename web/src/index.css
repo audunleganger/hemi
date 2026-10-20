@@ -1400,6 +1400,11 @@ a.attack-top:hover span {
   align-items: start;
 }
 
+.attack-chart-wrap {
+  width: 100%;
+  min-width: 0;
+}
+
 .attack-chart {
   width: 100%;
   height: auto;
@@ -1411,6 +1416,7 @@ a.attack-top:hover span {
 .chart-line { fill: none; stroke: var(--text); stroke-width: 2; }
 .chart-dose { stroke: var(--text); stroke-width: 1.5; stroke-dasharray: 3 2; }
 .chart-dose-mark { fill: var(--text); }
+.chart-gap { stroke: var(--sub); stroke-width: 1; stroke-dasharray: 2 3; }
 .chart-due { fill: var(--surface); stroke: var(--text); stroke-width: 1.5; }
 .chart-label { fill: var(--sub); font-size: 11px; font-family: var(--font); }
 
