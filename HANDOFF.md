@@ -1,8 +1,8 @@
 # Handoff (2026-10-20)
 
 ## State
-- `main` has PRs #10–#13: the attack page (V-5) is done (`web/src/pages/AttackPage.tsx`, editors in `AttackEditors.tsx` and `AttackDoses.tsx`, chart layout in `web/src/lib/chartLayout.ts`).
-- PR #14 (branch `dose-list`): the dose list (V-6) at `/doses` (`web/src/pages/DosesPage.tsx`), with medication, ingredient, rated and attack filters and inline editing through `DoseEditForm`, which now takes `attackId: number | null`. "Doses" is in the PC top bar and under More (REQUIREMENTS 0.13). Waiting for the user to merge.
+- `main` has PRs #10–#14: the attack page (V-5) and the dose list (V-6, `/doses`, `web/src/pages/DosesPage.tsx`) are done. Both edit doses with `DoseEditForm` (`AttackDoses.tsx`), which takes `attackId: number | null`. "Doses" is in the PC top bar and under More (REQUIREMENTS 0.13).
+- No open PRs; nothing half-done. Start new work from `origin/main`.
 - Released: only `v0.1.0`. Everything since (#4… #14 web features) is unreleased; the user tags and bumps `~/development/infra/hemi`.
 
 ## Next
@@ -27,6 +27,7 @@
 - When tagging, fetch after the user says they've merged, and check the tag points at the merge commit.
 - Breakpoints: phone ≤719, tablet 720–1099, PC ≥1100. `.btn` overrides `.only-pc` unless the selector is `.topbar .only-pc`.
 - `pkill -f hemi-server.jar` kills the calling shell; use `fuser -k 8080/tcp`. Heredocs mangle `"\;"` in Kotlin; use Edit there.
+- The e2e dose-list step takes an Imigran dose out of its attack; later steps that count doses per attack must allow for it.
 - `Field` wraps its child in a `<label>`; button groups need `FieldGroup`.
 - Inline selects need `.input.input-inline`: `select.input` (width 100%) outranks a lone `.input-inline`.
 - Don't touch `~/development/infra` unless asked, and don't wipe its `data`.
