@@ -1,14 +1,13 @@
 # Handoff (2026-10-20)
 
 ## State
-- `main` has PRs #10–#13: the attack page (V-5) is done. `/attacks/:id` (`web/src/pages/AttackPage.tsx`) has the chart, details form (status, nausea, pain side, triggers, note), episodes and readings editors (`AttackEditors.tsx`), doses editor (`AttackDoses.tsx`) and delete. It opens from attack rows, the day view (pill, "Attack started") and the attack-mode header. The chart layout (folded gaps, ticks, label rows) is in `web/src/lib/chartLayout.ts`, with unit tests.
-- No open PRs; nothing half-done. Start new work from `origin/main`.
-- Released: only `v0.1.0`. Everything since (#4… #13 web features) is unreleased; the user tags and bumps `~/development/infra/hemi`.
+- `main` has PRs #10–#13: the attack page (V-5) is done (`web/src/pages/AttackPage.tsx`, editors in `AttackEditors.tsx` and `AttackDoses.tsx`, chart layout in `web/src/lib/chartLayout.ts`).
+- PR #14 (branch `dose-list`): the dose list (V-6) at `/doses` (`web/src/pages/DosesPage.tsx`), with medication, ingredient, rated and attack filters and inline editing through `DoseEditForm`, which now takes `attackId: number | null`. "Doses" is in the PC top bar and under More (REQUIREMENTS 0.13). Waiting for the user to merge.
+- Released: only `v0.1.0`. Everything since (#4… #14 web features) is unreleased; the user tags and bumps `~/development/infra/hemi`.
 
 ## Next
-1. Dose list (V-6): newest first, filters by medication, ingredient, rated/unrated, attack/no attack. Reuse `DoseEditForm` from `AttackDoses.tsx` (it takes the attack today; make that optional) so doses without an attack become editable.
-2. Moving a dose to another attack (DO-1): the server takes any `attackId` in `PUT /doses/{id}`; the UI only has "Part of this attack".
-3. Then: triggers in Settings (TR-1…3); medication photos (ME-8, copy Larder's `web/src/lib/images.ts`); statistics (ST-1…6); CSV/JSON export (X-1, X-2); calendar feed + "include Unsure" filter (X-3, AT-4); Android last.
+1. Moving a dose to another attack (DO-1): the server takes any `attackId` in `PUT /doses/{id}`; `DoseEditForm` only has "Part of this attack" (and nothing for doses without one). An attack picker there would serve both the attack page and the dose list.
+2. Then: triggers in Settings (TR-1…3); medication photos (ME-8, copy Larder's `web/src/lib/images.ts`; thumbnails also go in the dose list); statistics (ST-1…6); CSV/JSON export (X-1, X-2); calendar feed + "include Unsure" filter (X-3, AT-4); Android last.
 
 ## Open questions
 - Toasts stack up (up to five at once). Proposed: each new toast replaces the previous one. No answer yet.
@@ -29,4 +28,5 @@
 - Breakpoints: phone ≤719, tablet 720–1099, PC ≥1100. `.btn` overrides `.only-pc` unless the selector is `.topbar .only-pc`.
 - `pkill -f hemi-server.jar` kills the calling shell; use `fuser -k 8080/tcp`. Heredocs mangle `"\;"` in Kotlin; use Edit there.
 - `Field` wraps its child in a `<label>`; button groups need `FieldGroup`.
+- Inline selects need `.input.input-inline`: `select.input` (width 100%) outranks a lone `.input-inline`.
 - Don't touch `~/development/infra` unless asked, and don't wipe its `data`.
