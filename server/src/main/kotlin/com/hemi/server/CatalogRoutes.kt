@@ -7,6 +7,8 @@ import com.hemi.shared.api.MedicationImageData
 import com.hemi.shared.api.MedicationInput
 import com.hemi.shared.api.SettingsInput
 import com.hemi.shared.api.TimeZoneInput
+import com.hemi.shared.api.SymptomInput
+import com.hemi.shared.api.SymptomOrderInput
 import com.hemi.shared.api.TriggerInput
 import com.hemi.shared.api.TriggerOrderInput
 import com.hemi.shared.domain.notFound
@@ -14,6 +16,7 @@ import com.hemi.shared.service.IngredientService
 import com.hemi.shared.service.LimitService
 import com.hemi.shared.service.MedicationService
 import com.hemi.shared.service.SettingsService
+import com.hemi.shared.service.SymptomService
 import com.hemi.shared.service.TriggerService
 import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
@@ -29,7 +32,7 @@ import io.ktor.server.routing.post
 import io.ktor.server.routing.put
 import io.ktor.server.routing.route
 
-/** Settings, ingredients, limits, medications and triggers (S-*, IN-*, LI-*, ME-*, TR-*). */
+/** Settings, ingredients, limits, medications, triggers and symptoms (S-*, IN-*, LI-*, ME-*, TR-*, WS-2). */
 fun Route.catalogRoutes(database: Database, auth: Auth) {
     route("/settings") {
         get { call.respond(call.withUser(database, auth) { db, user -> SettingsService(db, user).get() }) }
@@ -180,6 +183,39 @@ fun Route.catalogRoutes(database: Database, auth: Auth) {
         delete("/{id}") {
             val id = call.idParam()
             call.withUser(database, auth) { db, user -> TriggerService(db, user).delete(id) }
+            call.respond(HttpStatusCode.NoContent)
+        }
+    }
+
+    route("/symptoms") {
+        get {
+            val all = call.flag("includeArchived")
+            call.respond(call.withUser(database, auth) { db, user -> SymptomService(db, user).list(all) })
+        }
+        post {
+            val input = call.receive<SymptomInput>()
+            call.respond(HttpStatusCode.Created, call.withUser(database, auth) { db, user -> SymptomService(db, user).create(input.name) })
+        }
+        put("/order") {
+            val input = call.receive<SymptomOrderInput>()
+            call.respond(call.withUser(database, auth) { db, user -> SymptomService(db, user).reorder(input) })
+        }
+        put("/{id}") {
+            val id = call.idParam()
+            val input = call.receive<SymptomInput>()
+            call.respond(call.withUser(database, auth) { db, user -> SymptomService(db, user).rename(id, input.name) })
+        }
+        post("/{id}/archive") {
+            val id = call.idParam()
+            call.respond(call.withUser(database, auth) { db, user -> SymptomService(db, user).setArchived(id, true) })
+        }
+        post("/{id}/unarchive") {
+            val id = call.idParam()
+            call.respond(call.withUser(database, auth) { db, user -> SymptomService(db, user).setArchived(id, false) })
+        }
+        delete("/{id}") {
+            val id = call.idParam()
+            call.withUser(database, auth) { db, user -> SymptomService(db, user).delete(id) }
             call.respond(HttpStatusCode.NoContent)
         }
     }

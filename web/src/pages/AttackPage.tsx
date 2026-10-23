@@ -3,7 +3,7 @@ import { useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useNavigate, useParams } from 'react-router'
 import * as endpoints from '../api/endpoints'
-import { useApiMutation, useAttack, useTriggers } from '../api/queries'
+import { useApiMutation, useAttack, useSymptoms, useTriggers } from '../api/queries'
 import type { AttackDto, AttackStatus, Nausea, PainSide, TriggerDto } from '../api/types.gen'
 import { AttackChart } from '../components/AttackChart'
 import { HeadIcon, PainSidePicker } from '../components/HeadIcon'
@@ -12,8 +12,10 @@ import { Card, ConfirmButton, ErrorText, Field, QueryView } from '../components/
 import { clock, formatDuration, formatMomentDay, localDate } from '../lib/time'
 import { useNow } from '../lib/useNow'
 import { NauseaField, StatusField, TriggersField } from '../record/AttackFields'
+import { useRecord } from '../record/RecordContext'
 import { DosesEditor } from './AttackDoses'
 import { EpisodesEditor, ReadingsEditor } from './AttackEditors'
+import { symptomNames } from '../lib/symptoms'
 
 /** An attack's page (V-5): its timeline, its doses, and its details, all editable (AT-12). */
 export function AttackPage() {
@@ -39,7 +41,7 @@ function AttackView({ attack, triggers, now }: { attack: AttackDto; triggers: Tr
     onSuccess: () => {
       client.removeQueries({ queryKey: ['attacks', attack.summary.id] })
       toast.show(t('attackPage.deleted'))
-      void navigate('/attacks')
+      void navigate('/diary')
       void client.invalidateQueries({ predicate: (query) => query.queryKey[0] !== 'images' })
     },
   })
@@ -62,8 +64,8 @@ function AttackView({ attack, triggers, now }: { attack: AttackDto; triggers: Tr
 
   return (
     <>
-      <Link to="/attacks" className="back-link">
-        ← {t('attacks.title')}
+      <Link to="/diary" className="back-link">
+        ← {t('diary.title')}
       </Link>
       <header className="attack-page-header">
         <HeadIcon side={summary.painSide} severity={summary.peak} size={44} />
@@ -77,6 +79,11 @@ function AttackView({ attack, triggers, now }: { attack: AttackDto; triggers: Tr
       </header>
       <div className="attack-page-cols">
         <div className="stack">
+          {attack.signs.length > 0 && (
+            <Card title={t('signs.onAttack')}>
+              <SignsBefore attack={attack} />
+            </Card>
+          )}
           <Card title={t('attackPage.timeline')}>
             <AttackChart attack={attack} now={now} />
           </Card>
@@ -109,6 +116,31 @@ function AttackView({ attack, triggers, now }: { attack: AttackDto; triggers: Tr
         <ErrorText error={remove.error} />
       </Card>
     </>
+  )
+}
+
+/** The warning signs that came before the attack (WS-3); each opens for editing (WS-5). */
+function SignsBefore({ attack }: { attack: AttackDto }) {
+  const { t } = useTranslation()
+  const record = useRecord()
+  const symptoms = useSymptoms(true)
+  const units = { d: t('units.d'), h: t('units.h'), min: t('units.min') }
+  return (
+    <ul className="sign-list">
+      {attack.signs.map((sign) => {
+        const names = symptomNames(sign.symptomIds, symptoms.data)
+        const before = sign.attackStart && sign.attackStart.at > sign.at.at ? t('signs.beforeAttack', { time: formatDuration(sign.attackStart.at - sign.at.at, units) }) : null
+        return (
+          <li key={sign.id}>
+            <button type="button" className="link-button" onClick={() => record.open({ kind: 'sign', sign })}>
+              {clock(sign.at)}
+              {before && ` · ${before}`}
+            </button>
+            <span>{[names.length > 0 ? names.join(', ') : t('signs.noSymptoms'), sign.note].filter(Boolean).join(' · ')}</span>
+          </li>
+        )
+      })}
+    </ul>
   )
 }
 

@@ -8,6 +8,7 @@ import { LanguageSwitch } from '../components/LanguageSwitch'
 import { ThemeSwitch } from '../components/ThemeToggle'
 import { Card, ErrorText, Field, PageHeader } from '../components/ui'
 import { DiarySettings } from './DiarySettings'
+import { SymptomSettings } from './SymptomSettings'
 
 function PasswordForm() {
   const { t } = useTranslation()
@@ -84,6 +85,7 @@ export function SettingsPage() {
         <ThemeSwitch />
       </Card>
       {settings.data && <DiarySettings key={settings.dataUpdatedAt} settings={settings.data} />}
+      <SymptomSettings />
       {health.data && (
         <p className="muted small">
           {t('settings.version', { version: health.data.version, api: health.data.apiVersion })}

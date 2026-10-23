@@ -58,16 +58,28 @@ class TriggerService(private val db: HemiDatabase, private val userId: Long) {
     }
 }
 
-/** What every new user starts with (IN-2, TR-2): a short list of triggers in their language, and nothing else. */
+/** What every new user starts with (IN-2, TR-2, WS-2): short lists of triggers and symptoms in their language, and nothing else. */
 object Seeder {
     private val starterTriggers = mapOf(
         "en" to listOf("Poor sleep", "Alcohol", "Stress", "Skipped meal", "Dehydration", "Screen time"),
         "nb" to listOf("Dårlig søvn", "Alkohol", "Stress", "Hoppet over måltid", "For lite væske", "Skjermtid"),
     )
 
+    // Also in migrations/1.sqm, for users from before warning signs.
+    private val starterSymptoms = mapOf(
+        "en" to listOf("Visual aura", "Light sensitivity", "Stiff neck", "Yawning", "Tiredness", "Food cravings", "Mood change"),
+        "nb" to listOf("Synsaura", "Lysømfintlighet", "Stiv nakke", "Gjesping", "Tretthet", "Matsug", "Humørendring"),
+    )
+
     fun seed(db: HemiDatabase, userId: Long, locale: String?) = db.transaction {
-        if (db.diaryQueries.selectTriggers(userId).executeAsList().isNotEmpty()) return@transaction
-        val names = starterTriggers[Languages.of(locale)] ?: starterTriggers.getValue("en")
-        names.forEachIndexed { index, name -> db.diaryQueries.insertTrigger(userId, name, normalizeName(name), index.toLong(), false) }
+        val language = Languages.of(locale)
+        if (db.diaryQueries.selectTriggers(userId).executeAsList().isEmpty()) {
+            val names = starterTriggers[language] ?: starterTriggers.getValue("en")
+            names.forEachIndexed { index, name -> db.diaryQueries.insertTrigger(userId, name, normalizeName(name), index.toLong(), false) }
+        }
+        if (db.signsQueries.selectSymptoms(userId).executeAsList().isEmpty()) {
+            val names = starterSymptoms[language] ?: starterSymptoms.getValue("en")
+            names.forEachIndexed { index, name -> db.signsQueries.insertSymptom(userId, name, normalizeName(name), index.toLong(), false) }
+        }
     }
 }

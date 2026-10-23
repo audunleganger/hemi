@@ -12,7 +12,7 @@ import com.hemi.shared.rules.parseClock
 import java.security.SecureRandom
 import java.util.Base64
 
-/** The user's settings (S-1 … S-5) and calendar feed (X-3). */
+/** The user's settings (S-1 … S-6) and calendar feed (X-3). */
 class SettingsService(private val db: HemiDatabase, private val userId: Long) {
     fun get(): SettingsDto {
         val user = db.appUserQueries.selectById(userId).executeAsOneOrNull() ?: notFound("User")
@@ -27,6 +27,7 @@ class SettingsService(private val db: HemiDatabase, private val userId: Long) {
             workdays = UserSettings.parseWorkdays(user.workdays).sorted(),
             workStart = formatClock(user.work_start.toInt()),
             workEnd = formatClock(user.work_end.toInt()),
+            signWindowHours = user.sign_window_hours.toInt(),
             calendarFeed = user.ics_token != null,
         )
     }
@@ -42,6 +43,7 @@ class SettingsService(private val db: HemiDatabase, private val userId: Long) {
         val start = parseClock(input.workStart) ?: validation("Invalid work start '${input.workStart}'")
         val end = parseClock(input.workEnd) ?: validation("Invalid work end '${input.workEnd}'")
         if (end <= start) validation("Work must end after it starts")
+        if (input.signWindowHours !in 1..48) validation("Warning signs count for 1 to 48 hours before an attack")
         input.usualMedicationId?.let { id ->
             if (db.medicationQueries.selectMedications(userId).executeAsList().none { it.id == id }) notFound("Medication")
         }
@@ -55,6 +57,7 @@ class SettingsService(private val db: HemiDatabase, private val userId: Long) {
             workdays = workdays.joinToString(","),
             work_start = start.toLong(),
             work_end = end.toLong(),
+            sign_window_hours = input.signWindowHours.toLong(),
             id = userId,
         )
         get()
@@ -79,7 +82,7 @@ class SettingsService(private val db: HemiDatabase, private val userId: Long) {
 
     fun disableFeed() = db.appUserQueries.updateIcsToken(null, userId)
 
-    private fun SettingsDto.toInput() = SettingsInput(timeZone, theme, dimDuringAttacks, dayCutoff, followUpMinutes, usualMedicationId, workdays, workStart, workEnd)
+    private fun SettingsDto.toInput() = SettingsInput(timeZone, theme, dimDuringAttacks, dayCutoff, followUpMinutes, usualMedicationId, workdays, workStart, workEnd, signWindowHours)
 
     companion object {
         private val random = SecureRandom()

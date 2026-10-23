@@ -1,0 +1,53 @@
+-- v1 (0.1.0) -> v2: warning signs and their symptoms (WS-1 … WS-6), and how long before an attack they count (S-6).
+ALTER TABLE app_user ADD COLUMN sign_window_hours INTEGER NOT NULL DEFAULT 12;
+
+CREATE TABLE symptom_def (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL REFERENCES app_user(id) ON DELETE CASCADE,
+    name TEXT NOT NULL,
+    name_norm TEXT NOT NULL,
+    sort_order INTEGER NOT NULL,
+    archived INTEGER NOT NULL DEFAULT 0,
+    UNIQUE (user_id, name_norm)
+);
+
+CREATE TABLE warning_sign (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL REFERENCES app_user(id) ON DELETE CASCADE,
+    at INTEGER NOT NULL,
+    at_offset INTEGER NOT NULL,
+    note TEXT,
+    created_at INTEGER NOT NULL,
+    updated_at INTEGER NOT NULL
+);
+
+CREATE INDEX warning_sign_user_time ON warning_sign(user_id, at);
+
+CREATE TABLE warning_sign_symptom (
+    sign_id INTEGER NOT NULL REFERENCES warning_sign(id) ON DELETE CASCADE,
+    symptom_id INTEGER NOT NULL REFERENCES symptom_def(id) ON DELETE CASCADE,
+    PRIMARY KEY (sign_id, symptom_id)
+);
+
+CREATE INDEX warning_sign_symptom_symptom ON warning_sign_symptom(symptom_id);
+
+-- Existing users get the starter symptoms in their language (WS-2), as new users do from Seeder.
+INSERT INTO symptom_def(user_id, name, name_norm, sort_order)
+SELECT u.id, s.name, lower(s.name), s.sort_order
+FROM app_user u
+JOIN (
+    SELECT 'en' AS lang, 'Visual aura' AS name, 0 AS sort_order
+    UNION ALL SELECT 'en', 'Light sensitivity', 1
+    UNION ALL SELECT 'en', 'Stiff neck', 2
+    UNION ALL SELECT 'en', 'Yawning', 3
+    UNION ALL SELECT 'en', 'Tiredness', 4
+    UNION ALL SELECT 'en', 'Food cravings', 5
+    UNION ALL SELECT 'en', 'Mood change', 6
+    UNION ALL SELECT 'nb', 'Synsaura', 0
+    UNION ALL SELECT 'nb', 'Lysømfintlighet', 1
+    UNION ALL SELECT 'nb', 'Stiv nakke', 2
+    UNION ALL SELECT 'nb', 'Gjesping', 3
+    UNION ALL SELECT 'nb', 'Tretthet', 4
+    UNION ALL SELECT 'nb', 'Matsug', 5
+    UNION ALL SELECT 'nb', 'Humørendring', 6
+) s ON s.lang = CASE WHEN lower(substr(coalesce(u.locale, ''), 1, 2)) IN ('nb', 'no', 'nn') THEN 'nb' ELSE 'en' END;

@@ -2,7 +2,7 @@ import { useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import * as endpoints from '../api/endpoints'
 import { useApiMutation, useMedications, useTriggers } from '../api/queries'
-import type { AttackStatus, Nausea, PainSide, PastDoseInput, Rating } from '../api/types.gen'
+import type { AttackStatus, Moment, Nausea, PainSide, PastDoseInput, Rating } from '../api/types.gen'
 import { DecimalInput } from '../components/DecimalInput'
 import { PainSidePicker } from '../components/HeadIcon'
 import { ErrorText, Field, FieldGroup } from '../components/ui'
@@ -22,16 +22,16 @@ interface DoseRow {
 
 /**
  * Log an attack that is over (AT-14), e.g. "yesterday 14:00–22:00". Only the start is required; everything
- * else can be filled in now, later or never (AT-15).
+ * else can be filled in now, later or never (AT-15). [start] prefills the start, e.g. from a warning sign (WS-4).
  */
-export function AfterwardsForm({ onDone }: { onDone: () => void }) {
+export function AfterwardsForm({ start, onDone }: { start?: Moment; onDone: () => void }) {
   const { t } = useTranslation()
   const medications = useMedications()
   const triggers = useTriggers()
-  const yesterday = addDays(toInputs(nowMoment()).date, -1)
-  const [startDate, setStartDate] = useState(yesterday)
-  const [startTime, setStartTime] = useState('14:00')
-  const [endDate, setEndDate] = useState(yesterday)
+  const initial = start ? toInputs(start) : { date: addDays(toInputs(nowMoment()).date, -1), time: '14:00' }
+  const [startDate, setStartDate] = useState(initial.date)
+  const [startTime, setStartTime] = useState(initial.time)
+  const [endDate, setEndDate] = useState(initial.date)
   const [endTime, setEndTime] = useState('')
   const [peak, setPeak] = useState<number | null>(null)
   const [status, setStatus] = useState<AttackStatus>('migraine')

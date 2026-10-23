@@ -49,7 +49,7 @@ function RecordButton({ className }: { className: string }) {
 
 /**
  * The app frame (DS-1): on PCs a top bar with the navigation and + Record; on tablets the same bar with the
- * phone's items (Settings, Admin and Log out move to More); on phones a bottom navigation (Calendar · Attacks ·
+ * phone's items (Settings, Admin and Log out move to More); on phones a bottom navigation (Calendar · Diary ·
  * Medications · More) with a floating + Record button above it. During an attack, "Now" (the attack screen)
  * comes first and the calendar has its own place (DS-3).
  */
@@ -60,7 +60,7 @@ function Frame() {
   const { ongoing } = useAppearance()
   const main: { to: string; label: string; end?: boolean; only?: 'pc' | 'tablet' }[] = [
     ...(ongoing ? [{ to: '/', label: t('nav.now'), end: true }, { to: '/calendar', label: t('nav.calendar') }] : [{ to: '/', label: t('nav.calendar'), end: true }]),
-    { to: '/attacks', label: t('nav.attacks') },
+    { to: '/diary', label: t('nav.diary') },
     { to: '/medications', label: t('nav.medications') },
   ]
   // `pc` links show only on PCs, `more` only on tablets.

@@ -2,11 +2,12 @@ import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import type { DayView, DoseDto, PendingRating, WorkImpact } from '../api/types.gen'
 import * as endpoints from '../api/endpoints'
-import { useApiMutation } from '../api/queries'
+import { useApiMutation, useSymptoms } from '../api/queries'
 import { formatQuantity } from '../lib/format'
 import { clock, clockOf, dayOf } from '../lib/time'
 import { useRecord } from '../record/RecordContext'
 import { severityColor } from './HeadIcon'
+import { symptomNames } from '../lib/symptoms'
 
 const IMPACTS: WorkImpact[] = ['missed', 'home_early', 'none', 'not_workday']
 
@@ -14,20 +15,40 @@ interface Item {
   at: number
   key: string
   time: string
-  marker: 'reading' | 'dose' | 'due' | 'event'
+  marker: 'reading' | 'dose' | 'due' | 'event' | 'sign'
   severity?: number
   content: React.ReactNode
 }
 
 /**
- * The selected day as a vertical timeline (DS-2): readings, doses, due ratings, and the day's work impact
- * (WI-1 … WI-3). An attack's start links to its page (V-5).
+ * The selected day as a vertical timeline (DS-2): readings, doses, warning signs, due ratings, and the day's work
+ * impact (WI-1 … WI-3). An attack's start links to its page (V-5); a warning sign opens for editing (WS-5).
  */
 export function DayTimeline({ day, cutoffMinutes, now, pending }: { day: DayView; cutoffMinutes: number; now: number; pending: PendingRating[] }) {
   const { t } = useTranslation()
   const record = useRecord()
   const setImpact = useApiMutation((impact: WorkImpact | null) => endpoints.setWorkImpact(day.date, impact))
+  const symptoms = useSymptoms(true)
   const items: Item[] = []
+
+  for (const sign of day.signs) {
+    const names = symptomNames(sign.symptomIds, symptoms.data)
+    const details = [names.join(', '), sign.note].filter(Boolean).join(' · ')
+    items.push({
+      at: sign.at.at,
+      key: `s-${sign.id}`,
+      time: clock(sign.at),
+      marker: 'sign',
+      content: (
+        <span>
+          <button type="button" className="link-button" onClick={() => record.open({ kind: 'sign', sign })}>
+            {t('day.sign')}
+          </button>
+          {details && <small>{details}</small>}
+        </span>
+      ),
+    })
+  }
 
   for (const attack of day.attacks) {
     if (dayOf(attack.start, cutoffMinutes) === day.date) {

@@ -33,8 +33,12 @@ import com.hemi.shared.api.SettingsDto
 import com.hemi.shared.api.SetupInput
 import com.hemi.shared.api.StartAttackInput
 import com.hemi.shared.api.StartAttackResult
+import com.hemi.shared.api.SymptomDto
+import com.hemi.shared.api.SymptomInput
 import com.hemi.shared.api.TimeZoneInput
 import com.hemi.shared.api.TriggerDto
+import com.hemi.shared.api.WarningSignDto
+import com.hemi.shared.api.WarningSignInput
 import com.hemi.shared.api.WorkImpactInput
 import com.hemi.shared.rules.LimitKind
 import com.hemi.shared.rules.Moment
@@ -204,6 +208,37 @@ class DiaryApiTest {
         assertEquals(HttpStatusCode.OK, client.get("/api/v1/feed/$renewed.ics").status)
         client.delete("/api/v1/settings/feed") { bearerAuth(token) }
         assertEquals(HttpStatusCode.NotFound, client.get("/api/v1/feed/$renewed.ics").status)
+    }
+
+    @Test
+    fun `log warning signs, and they come before the attack that follows (WS-1 … WS-5)`() = testApplication {
+        val client = jsonClient()
+        val token = client.setup()
+        val symptoms: List<SymptomDto> = client.get("/api/v1/symptoms") { bearerAuth(token) }.body()
+        assertEquals(7, symptoms.size)
+        val dizzy: SymptomDto = client.post("/api/v1/symptoms") { bearerAuth(token); json(SymptomInput("Dizziness")) }.body()
+
+        val sign: WarningSignDto = client.post("/api/v1/signs") {
+            bearerAuth(token)
+            json(WarningSignInput(minutesAgo(120), listOf(symptoms.first().id, dizzy.id), "Something's off"))
+        }.body()
+        assertNull(sign.attackId)
+        assertNull(client.get("/api/v1/home") { bearerAuth(token) }.body<HomeView>().ongoing)
+
+        val attack = client.post("/api/v1/attacks/start") { bearerAuth(token); json(StartAttackInput(at = sign.at)) }.body<StartAttackResult>().attack
+        assertEquals(listOf(sign.id), attack.signs.map { it.id })
+        val listed: List<WarningSignDto> = client.get("/api/v1/signs") { bearerAuth(token) }.body()
+        assertEquals(attack.summary.id, listed.single().attackId)
+
+        val edited: WarningSignDto = client.put("/api/v1/signs/${sign.id}") { bearerAuth(token); json(WarningSignInput(sign.at, listOf(dizzy.id))) }.body()
+        assertEquals(listOf(dizzy.id), edited.symptomIds)
+        val today = client.get("/api/v1/home") { bearerAuth(token) }.body<HomeView>().today
+        val signDay = sign.at.let { java.time.Instant.ofEpochMilli(it.at).atZone(zone).minusHours(4).toLocalDate().toString() }
+        assertTrue(client.get("/api/v1/calendar?from=$signDay&to=$today") { bearerAuth(token) }.body<CalendarView>().days.any { it.signs })
+        assertEquals(1, client.get("/api/v1/days/$signDay") { bearerAuth(token) }.body<DayView>().signs.size)
+
+        assertEquals(HttpStatusCode.NoContent, client.delete("/api/v1/signs/${sign.id}") { bearerAuth(token) }.status)
+        assertEquals(HttpStatusCode.NotFound, client.get("/api/v1/signs/${sign.id}") { bearerAuth(token) }.status)
     }
 
     @Test

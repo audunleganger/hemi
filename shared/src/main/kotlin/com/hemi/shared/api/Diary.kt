@@ -78,6 +78,8 @@ data class AttackDto(
     val episodes: List<EpisodeDto>,
     val readings: List<ReadingDto>,
     val doses: List<DoseDto>,
+    /** The warning signs that came before it (WS-3), oldest first. */
+    val signs: List<WarningSignDto>,
     val createdAt: Long,
     val updatedAt: Long,
 )
@@ -291,6 +293,8 @@ data class CalendarDay(
     val unsure: Boolean,
     /** A dose that day. */
     val medication: Boolean,
+    /** A warning sign that day (WS-1, DS-9). */
+    val signs: Boolean,
     val ongoing: Boolean,
     /** The effective work impact on migraine days (WI-1); null otherwise or when nothing is known. */
     val workImpact: WorkImpact?,
@@ -301,7 +305,7 @@ data class CalendarView(
     val from: String,
     val to: String,
     val today: String,
-    /** Only days with an attack or a dose. */
+    /** Only days with an attack, a dose or a warning sign. */
     val days: List<CalendarDay>,
 )
 
@@ -332,6 +336,7 @@ data class DayView(
     val attacks: List<AttackSummary>,
     val readings: List<DayReading>,
     val doses: List<DoseDto>,
+    val signs: List<WarningSignDto>,
     /** Only on migraine days (WI-1). */
     val workImpact: WorkImpactDto?,
 )

@@ -38,7 +38,10 @@ import type {
   SetupStatus,
   StartAttackInput,
   StartAttackResult,
+  SymptomDto,
   TriggerDto,
+  WarningSignDto,
+  WarningSignInput,
   UserDto,
   WorkImpact,
 } from './types.gen'
@@ -105,6 +108,15 @@ export const archiveTrigger = (id: number, archived: boolean) =>
   api<TriggerDto>(`/triggers/${id}/${archived ? 'archive' : 'unarchive'}`, { method: 'POST' })
 export const deleteTrigger = (id: number) => api<void>(`/triggers/${id}`, { method: 'DELETE' })
 
+// Symptoms for warning signs (WS-2)
+export const listSymptoms = (includeArchived = false) => api<SymptomDto[]>('/symptoms', { query: { includeArchived } })
+export const createSymptom = (name: string) => api<SymptomDto>('/symptoms', { method: 'POST', body: { name } })
+export const renameSymptom = (id: number, name: string) => api<SymptomDto>(`/symptoms/${id}`, { method: 'PUT', body: { name } })
+export const reorderSymptoms = (ids: number[]) => api<SymptomDto[]>('/symptoms/order', { method: 'PUT', body: { ids } })
+export const archiveSymptom = (id: number, archived: boolean) =>
+  api<SymptomDto>(`/symptoms/${id}/${archived ? 'archive' : 'unarchive'}`, { method: 'POST' })
+export const deleteSymptom = (id: number) => api<void>(`/symptoms/${id}`, { method: 'DELETE' })
+
 // Home, calendar and days
 export const home = () => api<HomeView>('/home')
 export const calendar = (from: string, to: string, includeUnsure = false) => api<CalendarView>('/calendar', { query: { from, to, includeUnsure } })
@@ -137,6 +149,12 @@ export const updateEpisode = (id: number, episodeId: number, input: EpisodeInput
   api<AttackDto>(`/attacks/${id}/episodes/${episodeId}`, { method: 'PUT', body: input })
 export const deleteEpisode = (id: number, episodeId: number) => api<AttackDto>(`/attacks/${id}/episodes/${episodeId}`, { method: 'DELETE' })
 export const splitEpisode = (id: number, episodeId: number) => api<AttackDto>(`/attacks/${id}/episodes/${episodeId}/split`, { method: 'POST' })
+
+// Warning signs (WS-1 … WS-5)
+export const listSigns = (q: { from?: string; to?: string } = {}) => api<WarningSignDto[]>('/signs', { query: { ...q } })
+export const createSign = (input: WarningSignInput) => api<WarningSignDto>('/signs', { method: 'POST', body: input })
+export const updateSign = (id: number, input: WarningSignInput) => api<WarningSignDto>(`/signs/${id}`, { method: 'PUT', body: input })
+export const deleteSign = (id: number) => api<void>(`/signs/${id}`, { method: 'DELETE' })
 
 // Doses
 export interface DoseQuery {

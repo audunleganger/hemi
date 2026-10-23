@@ -11,6 +11,7 @@ import com.hemi.shared.api.LogAfterwardsInput
 import com.hemi.shared.api.RateInput
 import com.hemi.shared.api.ReadingInput
 import com.hemi.shared.api.StartAttackInput
+import com.hemi.shared.api.WarningSignInput
 import com.hemi.shared.api.WorkImpactInput
 import com.hemi.shared.api.enumOfCode
 import com.hemi.shared.domain.parseDate
@@ -20,6 +21,7 @@ import com.hemi.shared.service.AttackService
 import com.hemi.shared.service.DoseFilter
 import com.hemi.shared.service.DoseService
 import com.hemi.shared.service.HomeService
+import com.hemi.shared.service.SignService
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.request.receive
@@ -31,7 +33,7 @@ import io.ktor.server.routing.post
 import io.ktor.server.routing.put
 import io.ktor.server.routing.route
 
-/** The front page, calendar and days, attacks and doses (V-*, AT-*, DO-*, WI-*). */
+/** The front page, calendar and days, attacks, doses and warning signs (V-*, AT-*, DO-*, WS-*, WI-*). */
 fun Route.diaryRoutes(database: Database, auth: Auth) {
     get("/home") { call.respond(call.withUser(database, auth) { db, user -> HomeService(db, user).home() }) }
 
@@ -124,6 +126,32 @@ fun Route.diaryRoutes(database: Database, auth: Auth) {
             val id = call.idParam()
             val episodeId = call.idParam("episodeId")
             call.respond(call.withUser(database, auth) { db, user -> AttackService(db, user).split(id, episodeId) })
+        }
+    }
+
+    route("/signs") {
+        get {
+            val from = call.date("from")
+            val to = call.date("to")
+            call.respond(call.withUser(database, auth) { db, user -> SignService(db, user).list(from, to) })
+        }
+        post {
+            val input = call.receive<WarningSignInput>()
+            call.respond(HttpStatusCode.Created, call.withUser(database, auth) { db, user -> SignService(db, user).create(input) })
+        }
+        get("/{id}") {
+            val id = call.idParam()
+            call.respond(call.withUser(database, auth) { db, user -> SignService(db, user).get(id) })
+        }
+        put("/{id}") {
+            val id = call.idParam()
+            val input = call.receive<WarningSignInput>()
+            call.respond(call.withUser(database, auth) { db, user -> SignService(db, user).update(id, input) })
+        }
+        delete("/{id}") {
+            val id = call.idParam()
+            call.withUser(database, auth) { db, user -> SignService(db, user).delete(id) }
+            call.respond(HttpStatusCode.NoContent)
         }
     }
 

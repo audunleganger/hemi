@@ -2,7 +2,7 @@ import { createContext, useContext, useMemo, useState, type ReactNode } from 're
 import { useTranslation } from 'react-i18next'
 import * as endpoints from '../api/endpoints'
 import { useApiMutation, useHome } from '../api/queries'
-import type { AttackDto, Moment, PendingRating } from '../api/types.gen'
+import type { AttackDto, Moment, PendingRating, WarningSignDto } from '../api/types.gen'
 import { Sheet } from '../components/Sheet'
 import { SeverityButtons } from '../components/SeverityButtons'
 import { useToast } from '../components/Toast'
@@ -13,6 +13,7 @@ import { DiscardForm } from './DiscardForm'
 import { DoseForm } from './DoseForm'
 import { EndForm } from './EndForm'
 import { RatingPrompt } from './RatingPrompt'
+import { SignForm } from './SignForm'
 import { StartForm } from './StartForm'
 import { StartWithForm } from './StartWithForm'
 import { useStartAttack } from './useStartAttack'
@@ -22,7 +23,8 @@ type Open =
   | { kind: 'start' }
   | { kind: 'startWith'; medicationId?: number }
   | { kind: 'dose'; medicationId?: number }
-  | { kind: 'afterwards' }
+  | { kind: 'afterwards'; start?: Moment }
+  | { kind: 'sign'; sign?: WarningSignDto }
   | { kind: 'reading' }
   | { kind: 'rating'; pending: PendingRating }
   | { kind: 'end'; attackId: number; lastReading?: Moment }
@@ -37,7 +39,7 @@ const RecordContext = createContext<RecordApi>({ open: () => {} })
 // eslint-disable-next-line react/only-export-components
 export const useRecord = () => useContext(RecordContext)
 
-/** The + Record menu (DS-1): what can be logged right now. */
+/** The + Record menu (DS-1, WS-1): what can be logged right now. */
 function RecordMenu({ open, close }: { open: (what: Open) => void; close: () => void }) {
   const { t } = useTranslation()
   const home = useHome()
@@ -77,6 +79,10 @@ function RecordMenu({ open, close }: { open: (what: Open) => void; close: () => 
       <button type="button" className="record-option" onClick={() => open({ kind: 'dose' })}>
         {t('record.dose')}
       </button>
+      <button type="button" className="record-option" onClick={() => open({ kind: 'sign' })}>
+        {t('record.sign')}
+        <small>{t('record.signHint')}</small>
+      </button>
       <button type="button" className="record-option" onClick={() => open({ kind: 'afterwards' })}>
         {t('record.afterwards')}
         <small>{t('record.afterwardsHint')}</small>
@@ -112,6 +118,7 @@ export function RecordProvider({ children }: { children: ReactNode }) {
     startWith: t('record.startChoose'),
     dose: t('record.dose'),
     afterwards: t('record.afterwards'),
+    sign: t('signs.title'),
     reading: t('attackMode.question'),
     rating: t('rating.title'),
     end: t('end.title'),
@@ -137,10 +144,22 @@ export function RecordProvider({ children }: { children: ReactNode }) {
           )}
           {current.kind === 'afterwards' && (
             <AfterwardsForm
+              start={current.start}
               onDone={() => {
                 close()
                 toast.show(t('afterwards.saved'))
               }}
+            />
+          )}
+          {current.kind === 'sign' && (
+            <SignForm
+              key={current.sign?.id ?? 'new'}
+              sign={current.sign}
+              onDone={(message) => {
+                close()
+                if (message) toast.show(message)
+              }}
+              onAfterwards={(start) => setCurrent({ kind: 'afterwards', start })}
             />
           )}
           {current.kind === 'reading' && <ReadingForm onDone={close} />}
