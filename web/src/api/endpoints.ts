@@ -119,7 +119,7 @@ export const deleteSymptom = (id: number) => api<void>(`/symptoms/${id}`, { meth
 
 // Home, calendar and days
 export const home = () => api<HomeView>('/home')
-export const calendar = (from: string, to: string, includeUnsure = false) => api<CalendarView>('/calendar', { query: { from, to, includeUnsure } })
+export const calendar = (from: string, to: string, includeUnsure = true) => api<CalendarView>('/calendar', { query: { from, to, includeUnsure } })
 export const day = (date: string) => api<DayView>(`/days/${date}`)
 export const setWorkImpact = (date: string, impact: WorkImpact | null) =>
   api<DayView>(`/days/${date}/work-impact`, { method: 'PUT', body: { impact } })

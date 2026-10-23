@@ -847,10 +847,12 @@ details.more-details[open] > summary {
 .cal-d.filled.sev-2 { background: var(--sev-2); color: var(--sev-2-text); }
 .cal-d.filled.sev-3 { background: var(--sev-3); color: var(--sev-3-text); }
 .cal-d.filled.sev-unknown { background: var(--sev-unknown); }
-.cal-d.unsure.sev-1 { box-shadow: inset 0 0 0 2px var(--sev-1); }
-.cal-d.unsure.sev-2 { box-shadow: inset 0 0 0 2px var(--sev-2); }
-.cal-d.unsure.sev-3 { box-shadow: inset 0 0 0 2px var(--sev-3); }
-.cal-d.unsure.sev-unknown { box-shadow: inset 0 0 0 2px var(--sev-unknown); }
+/* A border, so the today and ongoing rings (box shadows) don't hide it. */
+.cal-d.unsure.sev-1 { border: 2px solid var(--sev-1); }
+.cal-d.unsure.sev-2 { border: 2px solid var(--sev-2); }
+.cal-d.unsure.sev-3 { border: 2px solid var(--sev-3); }
+.cal-d.unsure.sev-unknown { border: 2px solid var(--sev-unknown); }
+.year-d.cal-d.unsure { border-width: 1.5px; }
 .cal-d.signs { background: var(--sign); color: var(--sign-text); }
 
 /* Warning signs on a day with an attack (DS-9): a small light-blue corner mark. */

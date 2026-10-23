@@ -1,5 +1,6 @@
 package com.hemi.shared
 
+import com.hemi.shared.api.AttackStatus
 import com.hemi.shared.api.EpisodeInput
 import com.hemi.shared.api.EndInput
 import com.hemi.shared.api.LogAfterwardsInput
@@ -118,6 +119,22 @@ class SignsTest {
         assertTrue(days.getValue("2026-10-18").signs && days.getValue("2026-10-18").attack)
         assertEquals(1, t.home().day("2026-10-17").signs.size)
         assertEquals(setOf(java.time.LocalDate.parse("2026-10-18")), t.home().migraineDays(snapshotOf(t)))
+    }
+
+    @Test
+    fun `an unsure attack outlines a sign day, and a migraine's severity wins the fill (DS-9)`() {
+        val t = TestDb()
+        t.now("2026-10-19T12:00")
+        t.signs().create(WarningSignInput(at("2026-10-17T08:00")))
+        t.attacks().logAfterwards(LogAfterwardsInput(at("2026-10-17T11:00"), peakSeverity = 1, status = AttackStatus.UNSURE))
+        t.attacks().logAfterwards(LogAfterwardsInput(at("2026-10-18T09:00"), peakSeverity = 3, status = AttackStatus.UNSURE))
+        t.attacks().logAfterwards(LogAfterwardsInput(at("2026-10-18T15:00"), peakSeverity = 1))
+        val days = t.home().calendar("2026-10-17", "2026-10-18", includeUnsure = true).days.associateBy { it.date }
+        val unsure = days.getValue("2026-10-17")
+        assertTrue(unsure.unsure && unsure.signs)
+        val both = days.getValue("2026-10-18")
+        assertFalse(both.unsure)
+        assertEquals(1, both.severity)
     }
 
     private fun snapshotOf(t: TestDb) = com.hemi.shared.service.Snapshot(t.db, t.userId, t.clock)
