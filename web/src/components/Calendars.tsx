@@ -34,8 +34,8 @@ function weekdayNames(): string[] {
 function cellClass(day: CalendarDay | undefined, date: string, today: string, selected?: string) {
   const classes = ['cal-d']
   if (day?.attack) classes.push(day.unsure ? 'unsure' : 'filled', `sev-${day.severity ?? 'unknown'}`)
-  // Warning signs (DS-9): light blue, unless an attack fills the day; then only a mark.
-  if (day?.signs) classes.push(day.attack ? 'has-signs' : 'signs')
+  // Warning signs (DS-9): light blue, unless a migraine fills the day; then only a mark. Unsure ones outline the blue.
+  if (day?.signs) classes.push(day.attack && !day.unsure ? 'has-signs' : 'signs')
   if (date === today) classes.push('today')
   if (date > today) classes.push('future')
   if (date === selected) classes.push('selected')
@@ -84,7 +84,7 @@ export function MonthCalendar({
           <button key={date} type="button" className={cellClass(day, date, today, selected)} onClick={() => onSelect(date)} aria-label={label} aria-pressed={date === selected}>
             <span className="tnum">{Number(date.slice(8))}</span>
             {day?.medication && <i className="med" />}
-            {day?.signs && day.attack && <i className="sign-mark" />}
+            {day?.signs && day.attack && !day.unsure && <i className="sign-mark" />}
           </button>
         )
       })}

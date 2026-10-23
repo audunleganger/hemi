@@ -66,10 +66,12 @@ class HomeService(private val db: HemiDatabase, private val userId: Long, privat
         val signDays = snapshot.signs.mapTo(HashSet()) { cutoff.dayOf(snapshot.signMoment(it)) }
         val days = generateSequence(first) { it.plusDays(1) }.takeWhile { it <= last }.mapNotNull { day ->
             val onDay = attacks.filter { day in attackDays.getValue(it.id) }
+            // A migraine's severity wins over an unsure attack's the same day: the fill is the migraine's (DS-9).
+            val colored = onDay.filter { snapshot.status(it) == AttackStatus.MIGRAINE }.ifEmpty { onDay }
             if (onDay.isEmpty() && day !in doseDays && day !in signDays) return@mapNotNull null
             CalendarDay(
                 date = day.toString(),
-                severity = onDay.mapNotNull { snapshot.timelines.getValue(it.id).daySeverity(day, cutoff, snapshot.now, zone) }.maxOrNull(),
+                severity = colored.mapNotNull { snapshot.timelines.getValue(it.id).daySeverity(day, cutoff, snapshot.now, zone) }.maxOrNull(),
                 attack = onDay.isNotEmpty(),
                 unsure = onDay.isNotEmpty() && onDay.all { snapshot.status(it) == AttackStatus.UNSURE },
                 medication = day in doseDays,

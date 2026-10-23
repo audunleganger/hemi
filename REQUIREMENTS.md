@@ -1,6 +1,8 @@
 # Hemi — Requirement Specification
 
-Version 0.14 · 2026-10-23
+Version 0.15 · 2026-10-23
+
+*0.15: *Unsure* attacks always show in the calendar, outlined (DS-9, appendix "Unsure in the calendar").*
 
 *0.14: warning signs (3.14): symptoms without pain, logged without starting an attack; the attack list becomes the Diary (appendix, "Warning signs").*
 
@@ -246,7 +248,7 @@ Chosen in the design review (2026-10-19) from three mockups in `docs/design/dire
   Severity is **pink for 1, red for 2, dark red for 3** everywhere, attack mode included (changed in 0.9 from the plum scale and attack mode's amber scale, at the user's request); in attack mode the same hues are dimmed to fit its low-contrast look. The calendar legend shows the same three colors. Severity is always shown with its number too (NF-3). Unknown severity (AT-15) is a neutral gray.
 - **DS-7 (MUST)** **Pain-side icon**: a small head **seen from behind** (oval, ears, neck, dashed midline), so the user's left is on the left. The left, right or both halves are filled with the color of the attack's **peak severity**; outline only when no side is set, gray fill when severity is unknown. Used as the icon of every attack in lists (V-4), on the attack page, in the ongoing-attack header, and as the picker for AT-9.
 - **DS-8 (MUST)** **Limits as rings**: a small donut per limit with "4 / 6" and a short label ("Sumatriptan days"), colored accent when OK, near and over per DS-6. The PC limits column lists them vertically, the phone in a row.
-- **DS-9 (MUST)** **Calendar cells** (V-2, V-3): filled with the day's peak severity color, a small dot for days with medication use, today outlined, the ongoing attack's day ringed in the accent. Days after today are faded. *Unsure* attacks, when shown (AT-4), are outlined in the severity color instead of filled. A day with **warning signs** (WS-1) and no shown attack is filled **light blue** (the *sign* color, not a severity); with an attack too, the attack's fill wins and a small light-blue mark shows the signs. The legend lists *Warning signs* with the severities.
+- **DS-9 (MUST)** **Calendar cells** (V-2, V-3): filled with the day's peak severity color, a small dot for days with medication use, today outlined, the ongoing attack's day ringed in the accent. Days after today are faded. *Unsure* attacks always show (since 0.15), outlined in the severity color instead of filled; they still don't make a migraine day (AT-4). A day with both shows the migraine's fill and severity. A day with **warning signs** (WS-1) is filled **light blue** (the *sign* color, not a severity) unless a *Migraine* attack fills it; then a small light-blue mark shows the signs. With an *Unsure* attack, the blue fill gets the attack's outline. The legend lists *Warning signs* with the severities.
 - **DS-10 (SHOULD)** The attack timeline chart (V-5, DS-3): readings as a filled step curve on a 0–3 axis, doses as markers with the medication name, due ratings as hollow dots, recurrences as gaps between episodes.
 
 ### 3.13 Localization
@@ -491,3 +493,10 @@ Fixes the broken widths between phone and PC view (DS-1, 0.9). `web/e2e/flow.mjs
 | Calendar (DS-9) | Light blue, the user's choice of a "non-red" color: a fill when the day has no shown attack, a small mark when it does |
 | Link (WS-3, WS-4) | Automatic within 12 h (setting S-6), and by hand with "It's starting". Derived, so editing either time updates it |
 | Symptoms (WS-2) | Common preset list, editable like triggers |
+
+### Unsure in the calendar (0.15)
+
+| Topic | Decision |
+|---|---|
+| Showing (DS-9, AT-4) | A day with an *Unsure* attack and warning signs looked like signs only, since the calendar hid *Unsure* attacks by default. They now always show as an outline; migraine days and statistics still leave them out. The include filter stays for statistics |
+| Signs (DS-9) | An *Unsure* attack outlines the light-blue fill instead of replacing it |

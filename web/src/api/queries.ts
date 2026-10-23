@@ -9,7 +9,8 @@ export const useSettings = () => useQuery({ queryKey: ['settings'], queryFn: end
 // The front page changes with the clock (due ratings, limits freeing up), so it refreshes every minute.
 export const useHome = () => useQuery({ queryKey: ['home'], queryFn: endpoints.home, refetchInterval: 60_000 })
 
-export const useCalendar = (from: string, to: string, includeUnsure = false) =>
+// Unsure attacks always show, outlined (DS-9); they're still left out of migraine days.
+export const useCalendar = (from: string, to: string, includeUnsure = true) =>
   useQuery({
     queryKey: ['calendar', from, to, includeUnsure],
     queryFn: () => endpoints.calendar(from, to, includeUnsure),
