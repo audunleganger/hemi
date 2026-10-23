@@ -48,7 +48,7 @@ class HomeService(private val db: HemiDatabase, private val userId: Long, privat
     }
 
     /**
-     * Days from [from] to [to] (by cutoff) with an attack or a dose (V-2, V-3, DS-9). *Unsure* attacks only
+     * Days from [from] to [to] (by cutoff) with an attack, a dose or a warning sign (V-2, V-3, DS-9). *Unsure* attacks only
      * when [includeUnsure]; *Not migraine* never (AT-4).
      */
     fun calendar(from: String, to: String, includeUnsure: Boolean = false): CalendarView {
@@ -63,15 +63,17 @@ class HomeService(private val db: HemiDatabase, private val userId: Long, privat
         val attacks = snapshot.attacks.values.filter { snapshot.status(it) in statuses }
         val attackDays = attacks.associate { it.id to snapshot.timelines.getValue(it.id).days(cutoff, snapshot.now, zone) }
         val doseDays = snapshot.doses.mapTo(HashSet()) { cutoff.dayOf(Moment(it.taken_at, it.taken_offset.toInt())) }
+        val signDays = snapshot.signs.mapTo(HashSet()) { cutoff.dayOf(snapshot.signMoment(it)) }
         val days = generateSequence(first) { it.plusDays(1) }.takeWhile { it <= last }.mapNotNull { day ->
             val onDay = attacks.filter { day in attackDays.getValue(it.id) }
-            if (onDay.isEmpty() && day !in doseDays) return@mapNotNull null
+            if (onDay.isEmpty() && day !in doseDays && day !in signDays) return@mapNotNull null
             CalendarDay(
                 date = day.toString(),
                 severity = onDay.mapNotNull { snapshot.timelines.getValue(it.id).daySeverity(day, cutoff, snapshot.now, zone) }.maxOrNull(),
                 attack = onDay.isNotEmpty(),
                 unsure = onDay.isNotEmpty() && onDay.all { snapshot.status(it) == AttackStatus.UNSURE },
                 medication = day in doseDays,
+                signs = day in signDays,
                 ongoing = onDay.any { snapshot.timelines.getValue(it.id).ongoing } && day == snapshot.today,
                 workImpact = workImpact(snapshot, day)?.effective,
             )
@@ -79,7 +81,7 @@ class HomeService(private val db: HemiDatabase, private val userId: Long, privat
         return CalendarView(first.toString(), last.toString(), snapshot.today.toString(), days)
     }
 
-    /** One day (by cutoff): its attacks, readings, doses and work impact (DS-2). */
+    /** One day (by cutoff): its attacks, readings, doses, warning signs and work impact (DS-2). */
     fun day(date: String): DayView {
         val day = parseDate(date)
         val snapshot = snapshot()
@@ -93,6 +95,7 @@ class HomeService(private val db: HemiDatabase, private val userId: Long, privat
                 snapshot.readings[attack.id].orEmpty().filter { cutoff.dayOf(Moment(it.at, it.at_offset.toInt())) == day }.map { DayReading(attack.id, it.toDto()) }
             }.sortedBy { it.reading.at.at },
             doses = snapshot.doses.filter { cutoff.dayOf(Moment(it.taken_at, it.taken_offset.toInt())) == day }.map(snapshot::doseDto),
+            signs = snapshot.signs.filter { cutoff.dayOf(snapshot.signMoment(it)) == day }.map(snapshot::signDto),
             workImpact = workImpact(snapshot, day),
         )
     }

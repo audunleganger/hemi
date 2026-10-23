@@ -11,7 +11,7 @@ function weekdayName(day: number): string {
   return new Intl.DateTimeFormat(currentLocale(), { weekday: 'short', timeZone: 'UTC' }).format(new Date(Date.UTC(2026, 0, 4 + day)))
 }
 
-/** S-1 … S-5: day cutoff, follow-up delay, usual medication, dim during attacks, time zone, working week. */
+/** S-1 … S-6: day cutoff, follow-up delay, usual medication, dim during attacks, time zone, working week, warning sign window. */
 export function DiarySettings({ settings }: { settings: SettingsDto }) {
   const { t } = useTranslation()
   const medications = useMedications()
@@ -85,6 +85,9 @@ export function DiarySettings({ settings }: { settings: SettingsDto }) {
             <input className="input" type="time" value={form.workEnd} onChange={(e) => set({ workEnd: e.target.value })} required />
           </Field>
         </div>
+        <Field label={t('settings.signWindow')} hint={t('settings.signWindowHint')}>
+          <input className="input" type="number" min={1} max={48} value={form.signWindowHours} onChange={(e) => set({ signWindowHours: Number(e.target.value) })} required />
+        </Field>
         <ErrorText error={save.error} />
         {save.isSuccess && <p className="saved">✓ {t('common.saved')}</p>}
         <div>

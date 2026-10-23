@@ -23,7 +23,9 @@ CREATE TABLE app_user (
     work_end INTEGER NOT NULL DEFAULT 840,
     -- The calendar feed's secret (X-3); null: the feed is off. Kept as is, so the feed URL can be shown again;
     -- it only gives read access to that feed.
-    ics_token TEXT UNIQUE
+    ics_token TEXT UNIQUE,
+    -- How long before an attack warning signs count as its signs (S-6, WS-3).
+    sign_window_hours INTEGER NOT NULL DEFAULT 12
 );
 
 countUsers:
@@ -65,7 +67,7 @@ UPDATE app_user SET is_disabled = ? WHERE id = ?;
 
 updateSettings:
 UPDATE app_user SET time_zone = ?, theme = ?, dim_during_attacks = ?, day_cutoff = ?, follow_up_minutes = ?,
-    usual_medication_id = ?, workdays = ?, work_start = ?, work_end = ?
+    usual_medication_id = ?, workdays = ?, work_start = ?, work_end = ?, sign_window_hours = ?
 WHERE id = ?;
 
 updateIcsToken:

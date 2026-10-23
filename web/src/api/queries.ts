@@ -24,6 +24,11 @@ export const useAttack = (id: number) => useQuery({ queryKey: ['attacks', id], q
 
 export const useDoses = (q: endpoints.DoseQuery = {}) => useQuery({ queryKey: ['doses', q], queryFn: () => endpoints.listDoses(q), placeholderData: (previous) => previous })
 
+export const useSigns = () => useQuery({ queryKey: ['signs'], queryFn: () => endpoints.listSigns() })
+
+export const useSymptoms = (includeArchived = false) =>
+  useQuery({ queryKey: ['symptoms', { includeArchived }], queryFn: () => endpoints.listSymptoms(includeArchived) })
+
 export const useMedications = (includeArchived = false) =>
   useQuery({ queryKey: ['medications', { includeArchived }], queryFn: () => endpoints.listMedications(includeArchived) })
 

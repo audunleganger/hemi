@@ -30,6 +30,8 @@
   --sev-2-text: #ffffff;
   --sev-3-text: #ffffff;
   --sev-unknown: #b9c0bc;
+  --sign: #bfdcf3;
+  --sign-text: #12304a;
   --limit-near: #c98a1c;
   --limit-over: #c0392b;
   --danger: #c0392b;
@@ -57,6 +59,8 @@
   --sev-2-text: #ffffff;
   --sev-3-text: #fbe3e3;
   --sev-unknown: #4a524e;
+  --sign: #7fb2dc;
+  --sign-text: #0b1a26;
   --limit-near: #e0a63a;
   --limit-over: #e5645a;
   --danger: #e5645a;
@@ -84,6 +88,8 @@
   --sev-2-text: #f8e1dc;
   --sev-3-text: #efd4d2;
   --sev-unknown: #3a3a3f;
+  --sign: #3c5468;
+  --sign-text: #e3ecf3;
   --limit-near: #d9a441;
   --limit-over: #d9604f;
   --danger: #d9604f;
@@ -845,6 +851,21 @@ details.more-details[open] > summary {
 .cal-d.unsure.sev-2 { box-shadow: inset 0 0 0 2px var(--sev-2); }
 .cal-d.unsure.sev-3 { box-shadow: inset 0 0 0 2px var(--sev-3); }
 .cal-d.unsure.sev-unknown { box-shadow: inset 0 0 0 2px var(--sev-unknown); }
+.cal-d.signs { background: var(--sign); color: var(--sign-text); }
+
+/* Warning signs on a day with an attack (DS-9): a small light-blue corner mark. */
+.cal-d .sign-mark {
+  position: absolute;
+  top: 12%;
+  right: 12%;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--sign);
+  box-shadow: 0 0 0 1.5px var(--surface);
+}
+
+.year-d.cal-d .sign-mark { display: none; }
 
 .cal-d.today {
   box-shadow: inset 0 0 0 2px var(--text);
@@ -1067,6 +1088,7 @@ details.more-details[open] > summary {
 .tl-marker.reading { border: 1px solid var(--border); }
 .tl-marker.dose { border-radius: 3px; background: var(--accent); }
 .tl-marker.due { border: 2px solid var(--accent); background: var(--surface); }
+.tl-marker.sign { border-radius: 50%; background: var(--sign); border: 1px solid var(--border); }
 .tl-marker.event { height: 2px; width: 12px; margin-top: 9px; border-radius: 1px; background: var(--sub); }
 
 .tl-item.work {
@@ -1092,6 +1114,41 @@ details.more-details[open] > summary {
   text-decoration: none;
   font-size: 0.9rem;
   line-height: 1.3;
+}
+
+/* Warning signs in the diary (V-4, WS-1): a light-blue dot where attacks have their head. */
+.sign-row {
+  width: 100%;
+  border: 0;
+  background: none;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.sign-icon {
+  flex: none;
+  width: 14px;
+  height: 14px;
+  margin: 0 5px;
+  border-radius: 50%;
+  background: var(--sign);
+  border: 1px solid var(--border);
+}
+
+.sign-list {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.sign-list li {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 10px;
 }
 
 .attack-row small {

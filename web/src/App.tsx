@@ -1,16 +1,16 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
-import { BrowserRouter, Link, Route, Routes } from 'react-router'
+import { BrowserRouter, Link, Navigate, Route, Routes } from 'react-router'
 import { ApiError, NETWORK_ERROR } from './api/client'
 import { AuthProvider } from './auth/AuthProvider'
 import { useAuth } from './auth/useAuth'
 import { Layout } from './components/Layout'
 import { Loading } from './components/ui'
 import { AdminPage } from './pages/AdminPage'
+import { DiaryPage } from './pages/DiaryPage'
 import { DosesPage } from './pages/DosesPage'
 import { HomePage } from './pages/HomePage'
 import { AttackPage } from './pages/AttackPage'
-import { AttacksPage } from './pages/AttacksPage'
 import { LoginPage, SetupPage } from './pages/LoginPage'
 import { MedicationsPage } from './pages/MedicationsPage'
 import { MorePage } from './pages/MorePage'
@@ -77,7 +77,8 @@ function Gate() {
           <Route element={<Layout />}>
             <Route index element={<HomePage />} />
             <Route path="calendar" element={<HomePage calendar />} />
-            <Route path="attacks" element={<AttacksPage />} />
+            <Route path="diary" element={<DiaryPage />} />
+            <Route path="attacks" element={<Navigate to="/diary" replace />} />
             <Route path="attacks/:id" element={<AttackPage />} />
             <Route path="doses" element={<DosesPage />} />
             <Route path="medications" element={<MedicationsPage />} />

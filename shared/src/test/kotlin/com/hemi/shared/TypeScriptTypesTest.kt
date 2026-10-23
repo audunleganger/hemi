@@ -46,10 +46,15 @@ import com.hemi.shared.api.SetupStatus
 import com.hemi.shared.api.StartAttackInput
 import com.hemi.shared.api.StartAttackResult
 import com.hemi.shared.api.TimeZoneInput
+import com.hemi.shared.api.SymptomDto
+import com.hemi.shared.api.SymptomInput
+import com.hemi.shared.api.SymptomOrderInput
 import com.hemi.shared.api.TriggerDto
 import com.hemi.shared.api.TriggerInput
 import com.hemi.shared.api.TriggerOrderInput
 import com.hemi.shared.api.UserDto
+import com.hemi.shared.api.WarningSignDto
+import com.hemi.shared.api.WarningSignInput
 import com.hemi.shared.api.WorkImpactInput
 import java.io.File
 import java.lang.reflect.Modifier
@@ -76,6 +81,7 @@ class TypeScriptTypesTest {
         serializer<IngredientInput>(), serializer<IngredientDto>(), serializer<LimitInput>(), serializer<LimitDto>(), serializer<LimitStatusDto>(),
         serializer<MedicationInput>(), serializer<MedicationDto>(), serializer<MedicationImageData>(),
         serializer<TriggerInput>(), serializer<TriggerDto>(), serializer<TriggerOrderInput>(),
+        serializer<SymptomInput>(), serializer<SymptomDto>(), serializer<SymptomOrderInput>(), serializer<WarningSignInput>(), serializer<WarningSignDto>(),
         serializer<AttackSummary>(), serializer<AttackDto>(), serializer<AttackUpdate>(), serializer<StartAttackInput>(), serializer<StartAttackResult>(), serializer<DiscardInput>(), serializer<DiscardResult>(),
         serializer<ReadingInput>(), serializer<EndInput>(), serializer<EpisodeInput>(), serializer<LogAfterwardsInput>(),
         serializer<DoseInput>(), serializer<DoseDto>(), serializer<DosePreviewInput>(), serializer<DosePreview>(), serializer<RateInput>(), serializer<RatingSuggestion>(),

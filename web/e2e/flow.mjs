@@ -109,7 +109,7 @@ await step('log an attack afterwards (AT-14)', async () => {
   await sheet.getByRole('button', { name: '2 Moderate' }).click()
   await sheet.getByRole('button', { name: 'Save attack' }).click()
   await page.getByText('Attack saved.').waitFor()
-  await page.getByRole('link', { name: 'Attacks', exact: true }).first().click()
+  await page.getByRole('link', { name: 'Diary', exact: true }).first().click()
   await page.locator('.attack-row').nth(1).waitFor()
   await shot('07-attacks')
 })
@@ -248,7 +248,7 @@ await step('edit, add and delete doses on the attack page (DO-8, LI-4)', async (
 })
 
 await step('delete an attack from its page (AT-12)', async () => {
-  await page.getByRole('link', { name: 'Attacks', exact: true }).first().click()
+  await page.getByRole('link', { name: 'Diary', exact: true }).first().click()
   const rows = page.locator('.attack-row')
   await rows.nth(1).waitFor()
   const before = await rows.count()
@@ -371,7 +371,7 @@ await step('tablet layout (DS-1)', async () => {
   // Between phone and PC the top bar has the phone's items, with Settings and Log out under More.
   for (const width of [720, 900, 1099]) {
     await page.setViewportSize({ width, height: 900 })
-    for (const path of ['/', '/attacks', '/doses', '/medications']) {
+    for (const path of ['/', '/diary', '/doses', '/medications']) {
       await page.goto(BASE + path)
       await page.locator('.topbar').getByRole('link', { name: 'More' }).waitFor()
       if (await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth)) problems.push(`horizontal overflow at ${width} px on ${path}`)
@@ -382,12 +382,59 @@ await step('tablet layout (DS-1)', async () => {
   await page.goto(BASE)
 })
 
-await step('attack list keeps one status on (V-4)', async () => {
-  await page.getByRole('link', { name: 'Attacks', exact: true }).first().click()
+await step('diary keeps one status on (V-4)', async () => {
+  await page.getByRole('link', { name: 'Diary', exact: true }).first().click()
   const chips = page.getByRole('group', { name: 'Status' })
   await chips.getByRole('button', { name: 'Unsure' }).click()
   await chips.getByRole('button', { name: 'Not migraine' }).click()
   if (!(await chips.getByRole('button', { name: 'Migraine', exact: true }).isDisabled())) throw new Error('the last status can be turned off')
+})
+
+await step('log warning signs without starting an attack (WS-1, WS-5, DS-9)', async () => {
+  await page.goto(BASE)
+  await page.getByRole('button', { name: '+ Record' }).first().click()
+  await page.getByRole('button', { name: /^Warning signs/ }).click()
+  const sheet = page.locator('dialog.sheet')
+  await sheet.getByRole('button', { name: 'Yawning' }).click()
+  await sheet.getByRole('button', { name: 'Stiff neck' }).click()
+  await sheet.getByLabel('Note').fill('Feels off')
+  await shot('12-sign-form')
+  await sheet.getByRole('button', { name: 'Log warning signs' }).click()
+  await page.getByText('Warning signs logged.').waitFor()
+  // Today is marked in the month (filled light blue, or a mark when an attack fills it) and in the day's timeline.
+  await page.locator('.month-panel .cal-d.today.signs, .month-panel .cal-d.today .sign-mark').waitFor()
+  await page.locator('.day-panel').getByRole('button', { name: 'Warning signs' }).waitFor()
+  await shot('13-calendar-signs')
+
+  // The diary lists it; with attacks off, only warning signs are left, and they can't be turned off too.
+  await page.getByRole('link', { name: 'Diary', exact: true }).first().click()
+  const kinds = page.getByRole('group', { name: 'Show' })
+  await kinds.getByRole('button', { name: 'Attacks' }).click()
+  await page.locator('.sign-row').first().waitFor()
+  if (await page.locator('.attack-row:not(.sign-row)').count()) throw new Error('attacks still listed')
+  if (!(await kinds.getByRole('button', { name: 'Warning signs' }).isDisabled())) throw new Error('the last kind can be turned off')
+  await page.getByText('Stiff neck, Yawning').waitFor()
+  await shot('14-diary-signs')
+
+  // Edit it from the diary.
+  await page.locator('.sign-row').first().click()
+  await sheet.getByRole('button', { name: 'Yawning' }).click()
+  await sheet.getByRole('button', { name: 'Save', exact: true }).click()
+  await page.getByText('Warning signs updated.').waitFor()
+  // The list refreshes after the toast, so wait for the change itself.
+  await page.locator('.sign-row', { hasText: 'Yawning' }).waitFor({ state: 'detached' })
+  await page.locator('.sign-row', { hasText: 'Stiff neck' }).waitFor()
+})
+
+await step('manage symptoms in settings (WS-2, S-6)', async () => {
+  await page.getByRole('link', { name: 'Settings' }).click()
+  const card = page.locator('.card', { hasText: 'Warning sign symptoms' })
+  await card.getByLabel('New symptom').fill('Dizziness')
+  await card.getByRole('button', { name: 'Add symptom' }).click()
+  await card.getByText('Dizziness').waitFor()
+  await card.locator('li', { hasText: 'Stiff neck' }).getByText('Used on 1 warning sign').waitFor()
+  await page.getByLabel('Warning signs count for (hours)').waitFor()
+  await shot('15-symptom-settings')
 })
 
 await step('logout and login', async () => {

@@ -1,0 +1,77 @@
+import kotlin.Boolean;
+
+-- The user's symptoms for warning signs (WS-2); they work like triggers (TR-1, TR-3).
+CREATE TABLE symptom_def (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL REFERENCES app_user(id) ON DELETE CASCADE,
+    name TEXT NOT NULL,
+    name_norm TEXT NOT NULL,
+    sort_order INTEGER NOT NULL,
+    archived INTEGER AS Boolean NOT NULL DEFAULT 0,
+    UNIQUE (user_id, name_norm)
+);
+
+-- Warning signs (WS-1 … WS-6): symptoms without pain, logged without starting an attack. The attack one came
+-- before is derived (WS-3), not stored.
+CREATE TABLE warning_sign (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL REFERENCES app_user(id) ON DELETE CASCADE,
+    at INTEGER NOT NULL,
+    at_offset INTEGER NOT NULL,
+    note TEXT,
+    created_at INTEGER NOT NULL,
+    updated_at INTEGER NOT NULL
+);
+
+CREATE INDEX warning_sign_user_time ON warning_sign(user_id, at);
+
+CREATE TABLE warning_sign_symptom (
+    sign_id INTEGER NOT NULL REFERENCES warning_sign(id) ON DELETE CASCADE,
+    symptom_id INTEGER NOT NULL REFERENCES symptom_def(id) ON DELETE CASCADE,
+    PRIMARY KEY (sign_id, symptom_id)
+);
+
+CREATE INDEX warning_sign_symptom_symptom ON warning_sign_symptom(symptom_id);
+
+-- Symptoms
+
+selectSymptoms:
+SELECT * FROM symptom_def WHERE user_id = ? ORDER BY sort_order, name_norm;
+
+insertSymptom:
+INSERT INTO symptom_def(user_id, name, name_norm, sort_order, archived) VALUES (?, ?, ?, ?, ?);
+
+updateSymptom:
+UPDATE symptom_def SET name = ?, name_norm = ? WHERE id = ? AND user_id = ?;
+
+setSymptomOrder:
+UPDATE symptom_def SET sort_order = ? WHERE id = ? AND user_id = ?;
+
+setSymptomArchived:
+UPDATE symptom_def SET archived = ? WHERE id = ? AND user_id = ?;
+
+deleteSymptom:
+DELETE FROM symptom_def WHERE id = ? AND user_id = ?;
+
+-- Warning signs
+
+selectSigns:
+SELECT * FROM warning_sign WHERE user_id = ? ORDER BY at, id;
+
+insertSign:
+INSERT INTO warning_sign(user_id, at, at_offset, note, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?);
+
+updateSign:
+UPDATE warning_sign SET at = ?, at_offset = ?, note = ?, updated_at = ? WHERE id = ? AND user_id = ?;
+
+deleteSign:
+DELETE FROM warning_sign WHERE id = ? AND user_id = ?;
+
+selectSignSymptoms:
+SELECT s.* FROM warning_sign_symptom s JOIN warning_sign w ON w.id = s.sign_id WHERE w.user_id = ?;
+
+insertSignSymptom:
+INSERT OR IGNORE INTO warning_sign_symptom(sign_id, symptom_id) VALUES (?, ?);
+
+deleteSignSymptoms:
+DELETE FROM warning_sign_symptom WHERE sign_id = ?;

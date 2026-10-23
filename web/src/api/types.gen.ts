@@ -47,6 +47,7 @@ export interface AttackDto {
   episodes: EpisodeDto[]
   readings: ReadingDto[]
   doses: DoseDto[]
+  signs: WarningSignDto[]
   createdAt: number
   updatedAt: number
 }
@@ -89,6 +90,7 @@ export interface CalendarDay {
   attack: boolean
   unsure: boolean
   medication: boolean
+  signs: boolean
   ongoing: boolean
   workImpact: WorkImpact | null
 }
@@ -110,6 +112,7 @@ export interface DayView {
   attacks: AttackSummary[]
   readings: DayReading[]
   doses: DoseDto[]
+  signs: WarningSignDto[]
   workImpact: WorkImpactDto | null
 }
 
@@ -406,6 +409,7 @@ export interface SettingsDto {
   workdays: number[]
   workStart: string
   workEnd: string
+  signWindowHours: number
   calendarFeed: boolean
 }
 
@@ -419,6 +423,7 @@ export interface SettingsInput {
   workdays?: number[]
   workStart?: string
   workEnd?: string
+  signWindowHours?: number
 }
 
 export interface SetupInput {
@@ -451,6 +456,22 @@ export interface StartAttackResult {
   dose: DoseDto | null
 }
 
+export interface SymptomDto {
+  id: number
+  name: string
+  sortOrder: number
+  archived: boolean
+  signCount: number
+}
+
+export interface SymptomInput {
+  name: string
+}
+
+export interface SymptomOrderInput {
+  ids: number[]
+}
+
 export type Theme = 'dark' | 'light' | 'system'
 
 export interface TimeZoneInput {
@@ -480,6 +501,23 @@ export interface UserDto {
   isDisabled: boolean
   locale: string | null
   createdAt: number
+}
+
+export interface WarningSignDto {
+  id: number
+  at: Moment
+  symptomIds: number[]
+  note: string | null
+  attackId: number | null
+  attackStart: Moment | null
+  createdAt: number
+  updatedAt: number
+}
+
+export interface WarningSignInput {
+  at?: Moment | null
+  symptomIds?: number[]
+  note?: string | null
 }
 
 export type WorkImpact = 'missed' | 'home_early' | 'none' | 'not_workday'

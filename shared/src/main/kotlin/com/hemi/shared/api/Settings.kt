@@ -18,6 +18,8 @@ data class SettingsDto(
     val workdays: List<Int>,
     val workStart: String,
     val workEnd: String,
+    /** How long before an attack warning signs count as its signs (S-6, WS-3). */
+    val signWindowHours: Int,
     /** The calendar feed is on (X-3). */
     val calendarFeed: Boolean,
 )
@@ -33,6 +35,7 @@ data class SettingsInput(
     val workdays: List<Int> = listOf(1, 2, 3, 4, 5),
     val workStart: String = "08:00",
     val workEnd: String = "14:00",
+    val signWindowHours: Int = 12,
 )
 
 @Serializable

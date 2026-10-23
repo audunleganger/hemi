@@ -1,6 +1,8 @@
 # Hemi — Requirement Specification
 
-Version 0.13 · 2026-10-20
+Version 0.14 · 2026-10-23
+
+*0.14: warning signs (3.14): symptoms without pain, logged without starting an attack; the attack list becomes the Diary (appendix, "Warning signs").*
 
 *0.13: where the dose list lives, and what it shows (appendix, "Dose list").*
 
@@ -56,6 +58,9 @@ Same structure as Larder:
 | Limit | Grense | A user-set maximum for an active ingredient over a rolling window (LI-1). |
 | Rating | Vurdering | How well a dose worked (DO-5). |
 | Trigger | Utløser | A user-defined possible cause, toggled on an attack (e.g. sleep, alcohol). |
+| Warning sign | Varseltegn | Symptoms without pain that might mean an attack is coming, logged without starting one (WS-1). |
+| Symptom | Symptom | A user-defined toggle on a warning sign (e.g. stiff neck, yawning) (WS-2). |
+| Diary | Dagbok | The list of attacks and warning signs (V-4). |
 | Day | Dag | A calendar day shifted by the user's **day cutoff** (default 04:00): 00:00–03:59 belongs to the day before. |
 | Migraine day | Migrenedag | A day (by cutoff) on which any episode of an attack with status *Migraine* is ongoing. |
 
@@ -154,10 +159,10 @@ The Norwegian terms are a first guess and live only in the localization files.
   - pending ratings (DO-6) and open-attack questions (AT-6)
   - limit status for every limit (LI-5), with near/over ones first
   - **acute medication days** in the last 30 days (ST-7)
-  - the way to start an attack, start one with the usual medication, log a dose, or log afterwards (**+ Record**, DS-1)
-- **V-2 (MUST)** **Calendar, month view**: one cell per day (by cutoff), colored by the day's peak severity, with a marker on days with medication use. Tapping a day shows its attacks and doses. Prev/next month and "today".
+  - the way to start an attack, start one with the usual medication, log a dose, log warning signs (WS-1), or log afterwards (**+ Record**, DS-1)
+- **V-2 (MUST)** **Calendar, month view**: one cell per day (by cutoff), colored by the day's peak severity, with a marker on days with medication use and days with warning signs (DS-9). Tapping a day shows its attacks, warning signs and doses. Prev/next month and "today".
 - **V-3 (MUST)** **Calendar, year view**: one small square per day, colored the same way. Tapping a day opens it in the month view.
-- **V-4 (MUST)** **Attack list**, newest first, with filters: status, peak severity, trigger, medication, date range. The status filter always keeps **at least one** status on: turning off the last one is not possible. Tapping an attack opens its page (V-5). Each row's icon is the **head drawing from AT-9** with the attack's pain side filled in (left, right or both; outline only when not set), tinted by peak severity.
+- **V-4 (MUST)** **Diary** (was "Attack list" until 0.14): attacks and warning signs (WS-1), newest first, with filters: kind (*Attacks* / *Warning signs*), status, peak severity, trigger, medication, date range. Status, peak, trigger and medication filter attacks only. The kind and status filters always keep **at least one** option on: turning off the last one is not possible. Tapping an attack opens its page (V-5); tapping a warning sign opens it for editing (WS-5). Each row's icon is the **head drawing from AT-9** with the attack's pain side filled in (left, right or both; outline only when not set), tinted by peak severity.
 - **V-5 (MUST)** **Attack page**: timeline of episodes and readings (step curve) with doses and their ratings marked, plus all attack fields, all editable (AT-12). Opened by tapping an attack in the attack list, the calendar's day view, or the ongoing-attack header.
 - **V-6 (MUST)** **Dose list**, newest first, filterable by medication, ingredient, rated/unrated, attack/no attack.
 - **V-7 (MUST)** **Attack mode** with a dim, low-contrast look and no white areas while an attack is ongoing (DS-3, DS-4). It replaces the separate night theme from earlier versions.
@@ -202,17 +207,18 @@ All exclude *Unsure* and *Not migraine* attacks by default (AT-4).
 - **S-3 (MUST)** Usual medication for AT-1 (default: most used).
 - **S-4 (MUST)** Language, theme (dark (default) / light / system), **Dim during attacks** (default on, DS-4), time zone (default from the browser).
 - **S-5 (MUST)** Workdays (default Monday–Friday) and work window (default 08:00–14:00), for WI-2.
+- **S-6 (MUST)** How long before an attack warning signs count as its signs (WS-3): 1–48 h, default 12 h.
 
 ### 3.12 Look and layout
 
 Chosen in the design review (2026-10-19) from three mockups in `docs/design/directions.html` (also published at https://claude.ai/artifact/R8MPzA6awi9fsvhU8v8Wqg): **direction C "Diary"** for the everyday app, with **direction B "Dim"** taking over while an attack is ongoing. Direction A was not chosen.
 
 - **DS-1 (MUST)** **Mobile first**, and a real wide-screen layout for PCs (16:9 / 16:10), not a stretched phone:
-  - **Phone** (< 720 px): one column; bottom navigation (Calendar · Attacks · Medications · More); a floating **+ Record** button above it (start attack, add reading, log dose, log afterwards).
+  - **Phone** (< 720 px): one column; bottom navigation (Calendar · Diary · Medications · More); a floating **+ Record** button above it (start attack, add reading, log dose, warning signs, log afterwards).
   - **PC** (≥ 1100 px): top bar with the navigation and **+ Record**; under it a full-width strip with the **year view** (V-3) and four stat tiles (migraine days this month, acute medication days in 30 days, missed work and home early this month); under that three columns: month calendar · selected day · limits and recent attacks.
   - In between: two columns (calendar + selected day), limits below.
   - Every width from 320 px up must look deliberate, including just around the breakpoints (about 650–1150 px): no squeezed columns, overflowing rows or half-switched navigation.
-- **DS-2 (MUST)** **Home is the calendar** (direction C). On the phone: the month grid at the top, the selected day (default today) below it as a **vertical timeline** of readings, doses, due ratings ("Rate Imigran: how is it now?") and the day's work impact, followed by the limit rings (DS-8). Tapping another day selects it.
+- **DS-2 (MUST)** **Home is the calendar** (direction C). On the phone: the month grid at the top, the selected day (default today) below it as a **vertical timeline** of readings, doses, warning signs, due ratings ("Rate Imigran: how is it now?") and the day's work impact, followed by the limit rings (DS-8). Tapping another day selects it.
 - **DS-3 (MUST)** **Attack mode** (direction B): while an attack is ongoing, home becomes the attack screen. Nothing else changes; the navigation still reaches the calendar and everything else.
   - "How bad is it now?" with four large round buttons **0 1 2 3** (Pain free · Mild · Moderate · Severe). One tap records a reading at the current time. The current severity is highlighted; "Last reading: 2 at 08:10" below.
   - A large button for the **usual medication** (S-3) with its limit status ("2nd dose today is within limits"), and a smaller **Other medication**.
@@ -235,11 +241,12 @@ Chosen in the design review (2026-10-19) from three mockups in `docs/design/dire
   | severity 1 / 2 / 3 | #f4b3c5 / #cf3a3a / #8e1d26 | #e29aae / #cc3836 / #9a2530 | #805663 / #a5423b / #7b2a2e |
   | text on severity 1 / 2 / 3 | #4a1325 / #ffffff / #ffffff | #2a0c15 / #ffffff / #fbe3e3 | #f6e6ea / #f8e1dc / #efd4d2 |
   | limit near / over | #c98a1c / #c0392b | #e0a63a / #e5645a | #d9a441 / #d9604f |
+  | sign (WS-1) / text on sign | #bfdcf3 / #12304a | #7fb2dc / #0b1a26 | #3c5468 / #e3ecf3 |
 
   Severity is **pink for 1, red for 2, dark red for 3** everywhere, attack mode included (changed in 0.9 from the plum scale and attack mode's amber scale, at the user's request); in attack mode the same hues are dimmed to fit its low-contrast look. The calendar legend shows the same three colors. Severity is always shown with its number too (NF-3). Unknown severity (AT-15) is a neutral gray.
 - **DS-7 (MUST)** **Pain-side icon**: a small head **seen from behind** (oval, ears, neck, dashed midline), so the user's left is on the left. The left, right or both halves are filled with the color of the attack's **peak severity**; outline only when no side is set, gray fill when severity is unknown. Used as the icon of every attack in lists (V-4), on the attack page, in the ongoing-attack header, and as the picker for AT-9.
 - **DS-8 (MUST)** **Limits as rings**: a small donut per limit with "4 / 6" and a short label ("Sumatriptan days"), colored accent when OK, near and over per DS-6. The PC limits column lists them vertically, the phone in a row.
-- **DS-9 (MUST)** **Calendar cells** (V-2, V-3): filled with the day's peak severity color, a small dot for days with medication use, today outlined, the ongoing attack's day ringed in the accent. Days after today are faded. *Unsure* attacks, when shown (AT-4), are outlined in the severity color instead of filled.
+- **DS-9 (MUST)** **Calendar cells** (V-2, V-3): filled with the day's peak severity color, a small dot for days with medication use, today outlined, the ongoing attack's day ringed in the accent. Days after today are faded. *Unsure* attacks, when shown (AT-4), are outlined in the severity color instead of filled. A day with **warning signs** (WS-1) and no shown attack is filled **light blue** (the *sign* color, not a severity); with an attack too, the attack's fill wins and a small light-blue mark shows the signs. The legend lists *Warning signs* with the severities.
 - **DS-10 (SHOULD)** The attack timeline chart (V-5, DS-3): readings as a filled step curve on a 0–3 axis, doses as markers with the medication name, due ratings as hollow dots, recurrences as gaps between episodes.
 
 ### 3.13 Localization
@@ -247,7 +254,19 @@ Chosen in the design review (2026-10-19) from three mockups in `docs/design/dire
 - **L-1 (MUST)** UI in **English and Norwegian (bokmål)**, per user or device, defaulting to the system locale.
 - **L-2 (MUST)** Numbers and dates per locale (decimal comma in Norwegian); decimal input accepts `,` and `.`.
 - **L-3 (MUST)** All UI strings in resource files (web: i18n JSON; Android: `strings.xml`).
-- **L-4** User-entered names (ingredients, medications, triggers) have a single name; they are the user's own and not translated. The starter triggers (TR-2) are created in the user's language.
+- **L-4** User-entered names (ingredients, medications, triggers, symptoms) have a single name; they are the user's own and not translated. The starter triggers (TR-2) and symptoms (WS-2) are created in the user's language.
+
+### 3.14 Warning signs
+
+For the times something feels off without any pain yet: logged without starting an attack, so nothing switches to attack mode and nothing is counted as a migraine.
+
+- **WS-1 (MUST)** **Log warning signs** from **+ Record**: a time (default now), symptom toggles (WS-2) and a note, all optional but the time. No readings, no attack mode; doses stay doses without an attack (DO-1). A warning sign can be logged during an attack too.
+- **WS-2 (MUST)** **Symptoms** are per user and work like triggers (TR-1, TR-3): a unique name, the user's order, archive and delete (delete confirms "used on 5 warning signs"). A new user starts with: Visual aura, Light sensitivity, Stiff neck, Yawning, Tiredness, Food cravings, Mood change, in their language; existing users get the same list when they upgrade to 0.14. Managed in Settings.
+- **WS-3 (MUST)** **Signs before an attack** (derived, not stored): a warning sign belongs to the first attack with an episode starting at or after it and at most S-6 (default 12 h) later, recurrences included. The attack page lists them ("Warning signs 3 h before: Yawning, Stiff neck"), and the warning sign shows the attack it came before.
+- **WS-4 (MUST)** **Turn into an attack**: a warning sign offers "It's starting". Within the last 24 h and with no attack ongoing, it starts an attack (AT-1) at the sign's time, with AT-7's recurrence rule as usual; otherwise it opens **Log afterwards** (AT-14) with the sign's time as the start. The warning sign is kept and is then that attack's sign (WS-3).
+- **WS-5 (MUST)** Warning signs can be edited (time, symptoms, note) and deleted, from the diary (V-4) or the selected day (DS-2).
+- **WS-6 (MUST)** Warning signs don't count anywhere attacks do: not migraine days, statistics, work impact, limits or the calendar feed. Statistics on signs before attacks are FUTURE (WS-7).
+- **WS-7 (FUTURE)** Statistics: how often warning signs come before an attack, and which symptoms do.
 
 ---
 
@@ -303,7 +322,7 @@ All tables carry `user_id`. Names are stored as entered plus a normalized column
 
 | Entity | Fields |
 |---|---|
-| user | id, username, password_hash, is_admin, is_disabled, locale, time_zone, theme (default dark), dim_during_attacks (default true), day_cutoff (default 04:00), follow_up_minutes (default 120), usual_medication_id, workdays (default Mon–Fri), work_start (08:00), work_end (14:00), ics_token (nullable = feed off), created_at |
+| user | id, username, password_hash, is_admin, is_disabled, locale, time_zone, theme (default dark), dim_during_attacks (default true), day_cutoff (default 04:00), follow_up_minutes (default 120), usual_medication_id, workdays (default Mon–Fri), work_start (08:00), work_end (14:00), sign_window_hours (default 12, S-6), ics_token (nullable = feed off), created_at |
 | ingredient | id, user_id, name, name_norm, measure_unit, archived, created_at |
 | ingredient_group | *(FUTURE, IN-6)* id, user_id, name; ingredient_group_member(group_id, ingredient_id) |
 | medication | id, user_id, name, name_norm, kind (acute/preventive), dose_unit, dose_unit_plural, default_quantity, follow_up_minutes (nullable), archived, created_at |
@@ -311,6 +330,9 @@ All tables carry `user_id`. Names are stored as entered plus a normalized column
 | medication_ingredient | medication_id, ingredient_id, amount_per_unit (nullable) |
 | intake_limit | id, user_id, ingredient_id (nullable), group_id (nullable, FUTURE), kind (amount/doses/days/min_interval), max_value, window_minutes (nullable for min_interval; "month" = 30 days) |
 | trigger | id, user_id, name, name_norm, sort_order, archived |
+| symptom | id, user_id, name, name_norm, sort_order, archived (WS-2) |
+| warning_sign | id, user_id, at, at_offset, note, created_at, updated_at (WS-1) |
+| warning_sign_symptom | sign_id, symptom_id |
 | attack | id, user_id, type (migraine), logged_afterwards (AT-14), status (migraine/unsure/not_migraine), nausea (none/nauseous/vomited), pain_side (left/right/both, nullable), note, created_at, updated_at |
 | episode | id, attack_id, started_at, started_offset, start_unknown (woke up with it), ended_at (nullable = ongoing), ended_offset, is_recurrence |
 | reading | id, attack_id, at, at_offset, severity (0–3), estimated (AT-14) |
@@ -318,7 +340,7 @@ All tables carry `user_id`. Names are stored as entered plus a normalized column
 | work_day_override | user_id, day, impact (missed/home_early/none/not_workday) (WI-3) |
 | dose | id, user_id, medication_id, attack_id (nullable), quantity, taken_at, taken_offset, note, rating (nullable: pain_free/relieved/no_effect/unsure), rated_at, rating_dismissed, over_limit, created_at, updated_at |
 
-Derived, not stored: attack start/end (first/last episode), peak severity, migraine days, proposed work impact, limit usage, rating prefill, sustained (DO-7).
+Derived, not stored: attack start/end (first/last episode), the attack a warning sign came before (WS-3), peak severity, migraine days, proposed work impact, limit usage, rating prefill, sustained (DO-7).
 
 ---
 
@@ -334,7 +356,7 @@ Derived, not stored: attack start/end (first/last episode), peak severity, migra
 
 ## 8. Out of scope for v1 (tracked as FUTURE)
 
-Ingredient groups (IN-6) · medication stock (ME-9) · preventive medication (ME-7) · other headache types (AT-5) · weather (AT-13) · Web Push (DO-9) · doses in the calendar feed (X-4) · offline queue / sync · aura · menstrual tracking · Play Store / F-Droid.
+Ingredient groups (IN-6) · medication stock (ME-9) · preventive medication (ME-7) · other headache types (AT-5) · weather (AT-13) · Web Push (DO-9) · doses in the calendar feed (X-4) · statistics on warning signs (WS-7) · offline queue / sync · menstrual tracking · Play Store / F-Droid.
 
 ---
 
@@ -458,3 +480,14 @@ Fixes the broken widths between phone and PC view (DS-1, 0.9). `web/e2e/flow.mjs
 | Where (V-6, DS-1) | `/doses`. "Doses" is in the PC top bar after Medications; on phones and tablets it's under More, since the bottom navigation stays at four items |
 | Rows | Newest first: date and time, medication, quantity, "over limit" badge; below, the rating, a link to the attack (if any) and the note. **Edit** opens the same form as on the attack page (DO-8); "Part of this attack" shows only for doses in an attack |
 | Filters | Medication and active ingredient (archived ones included, marked), rated or not, with or without attack |
+
+### Warning signs (0.14)
+
+| Topic | Decision |
+|---|---|
+| Why (WS-1) | The user is sometimes unsure whether an attack is starting: no pain, only other symptoms. An *Unsure* attack was too heavy for that (attack mode, recurrence merging). A separate entry was chosen over a lightweight *Unsure* attack (no symptom data, mixes into attacks) and a plain day note (nothing to count later) |
+| Statuses (AT-4) | All three stay: warning signs are for no pain; *Unsure* is for pain that may not be a migraine, *Not migraine* for pain that wasn't |
+| Name | "Warning signs" / "Varseltegn". The attack list is now the **Diary** ("Dagbok"), at `/diary`; old `/attacks` links go there |
+| Calendar (DS-9) | Light blue, the user's choice of a "non-red" color: a fill when the day has no shown attack, a small mark when it does |
+| Link (WS-3, WS-4) | Automatic within 12 h (setting S-6), and by hand with "It's starting". Derived, so editing either time updates it |
+| Symptoms (WS-2) | Common preset list, editable like triggers |

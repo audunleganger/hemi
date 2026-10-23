@@ -14,6 +14,8 @@ import com.hemi.shared.service.LimitService
 import com.hemi.shared.service.LocalUser
 import com.hemi.shared.service.MedicationService
 import com.hemi.shared.service.SettingsService
+import com.hemi.shared.service.SignService
+import com.hemi.shared.service.SymptomService
 import com.hemi.shared.service.TriggerService
 import java.util.Properties
 
@@ -41,4 +43,6 @@ class TestDb(locale: String = "en") {
     fun medications(user: Long = userId) = MedicationService(db, user, time)
     fun triggers(user: Long = userId) = TriggerService(db, user)
     fun settings(user: Long = userId) = SettingsService(db, user)
+    fun signs(user: Long = userId) = SignService(db, user, time)
+    fun symptoms(user: Long = userId) = SymptomService(db, user)
 }

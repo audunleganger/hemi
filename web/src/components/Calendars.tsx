@@ -34,6 +34,8 @@ function weekdayNames(): string[] {
 function cellClass(day: CalendarDay | undefined, date: string, today: string, selected?: string) {
   const classes = ['cal-d']
   if (day?.attack) classes.push(day.unsure ? 'unsure' : 'filled', `sev-${day.severity ?? 'unknown'}`)
+  // Warning signs (DS-9): light blue, unless an attack fills the day; then only a mark.
+  if (day?.signs) classes.push(day.attack ? 'has-signs' : 'signs')
   if (date === today) classes.push('today')
   if (date > today) classes.push('future')
   if (date === selected) classes.push('selected')
@@ -41,7 +43,7 @@ function cellClass(day: CalendarDay | undefined, date: string, today: string, se
   return classes.join(' ')
 }
 
-/** V-2, DS-9: one cell per day, filled with the day's peak severity, a dot on days with medication. */
+/** V-2, DS-9: one cell per day, filled with the day's peak severity, a dot on days with medication, light blue for warning signs. */
 export function MonthCalendar({
   month,
   days,
@@ -74,6 +76,7 @@ export function MonthCalendar({
           day?.attack ? (day.severity ? t('calendar.severity', { severity: day.severity }) : t('calendar.unknownSeverity')) : null,
           day?.unsure ? t('status.unsure') : null,
           day?.medication ? t('calendar.medication') : null,
+          day?.signs ? t('calendar.signs') : null,
         ]
           .filter(Boolean)
           .join(', ')
@@ -81,6 +84,7 @@ export function MonthCalendar({
           <button key={date} type="button" className={cellClass(day, date, today, selected)} onClick={() => onSelect(date)} aria-label={label} aria-pressed={date === selected}>
             <span className="tnum">{Number(date.slice(8))}</span>
             {day?.medication && <i className="med" />}
+            {day?.signs && day.attack && <i className="sign-mark" />}
           </button>
         )
       })}
@@ -88,7 +92,7 @@ export function MonthCalendar({
   )
 }
 
-/** DS-6: what the calendar's fill colors mean. */
+/** DS-6, DS-9: what the calendar's fill colors mean. */
 export function SeverityLegend() {
   const { t } = useTranslation()
   return (
@@ -102,6 +106,10 @@ export function SeverityLegend() {
       <li>
         <i style={{ background: 'var(--sev-unknown)' }} />
         {t('severity.unknown')}
+      </li>
+      <li>
+        <i style={{ background: 'var(--sign)' }} />
+        {t('diary.signs')}
       </li>
     </ul>
   )

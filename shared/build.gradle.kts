@@ -26,10 +26,8 @@ sqldelight {
             packageName.set("com.hemi.db")
             // Snapshots of each released schema version (N.db); migrations live in N.sqm.
             // verifySqlDelightMigration (part of `check`) proves N.db + migrations == current .sq schema.
-            // Until the first release the schema is version 1 and changes in place: at release, write 1.db
-            // (generateMainHemiDatabaseSchema) and turn verifyMigrations on.
             schemaOutputDirectory.set(file("src/main/sqldelight/databases"))
-            verifyMigrations.set(false)
+            verifyMigrations.set(true)
         }
     }
 }

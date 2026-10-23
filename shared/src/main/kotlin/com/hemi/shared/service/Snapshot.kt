@@ -8,6 +8,7 @@ import com.hemi.db.HemiDatabase
 import com.hemi.db.Intake_limit
 import com.hemi.db.Reading
 import com.hemi.db.SelectMedications
+import com.hemi.db.Warning_sign
 import com.hemi.shared.api.AttackDto
 import com.hemi.shared.api.AttackStatus
 import com.hemi.shared.api.AttackSummary
@@ -21,10 +22,12 @@ import com.hemi.shared.api.MedicationKind
 import com.hemi.shared.api.Nausea
 import com.hemi.shared.api.PainSide
 import com.hemi.shared.api.ReadingDto
+import com.hemi.shared.api.WarningSignDto
 import com.hemi.shared.api.enumOfCode
 import com.hemi.shared.rules.AttackTimeline
 import com.hemi.shared.rules.CountedDose
 import com.hemi.shared.rules.DayCutoff
+import com.hemi.shared.rules.HOUR
 import com.hemi.shared.rules.EpisodeTimes
 import com.hemi.shared.rules.LimitKind
 import com.hemi.shared.rules.LimitRule
@@ -46,6 +49,7 @@ internal class UserSettings(user: App_user) {
     val followUpMinutes = user.follow_up_minutes.toInt()
     val workWeek = WorkWeek(parseWorkdays(user.workdays), user.work_start.toInt(), user.work_end.toInt())
     val usualMedicationId = user.usual_medication_id
+    val signWindowMillis = user.sign_window_hours * HOUR
 
     companion object {
         fun parseWorkdays(value: String): Set<Int> = value.split(',').mapNotNullTo(LinkedHashSet()) { it.trim().toIntOrNull() }
@@ -100,6 +104,10 @@ internal class Snapshot(private val db: HemiDatabase, val userId: Long, val now:
     }
     val doses: List<Dose> by lazy { db.diaryQueries.selectDoses(userId).executeAsList() }
     val dosesByAttack: Map<Long, List<Dose>> by lazy { doses.filter { it.attack_id != null }.groupBy { it.attack_id!! } }
+    val signs: List<Warning_sign> by lazy { db.signsQueries.selectSigns(userId).executeAsList() }
+    val signSymptoms: Map<Long, List<Long>> by lazy {
+        db.signsQueries.selectSignSymptoms(userId).executeAsList().groupBy({ it.sign_id }, { it.symptom_id })
+    }
     val overrides: Map<LocalDate, WorkImpact> by lazy {
         db.diaryQueries.selectOverrides(userId).executeAsList().associate { LocalDate.parse(it.day) to enumOfCode<WorkImpact>(it.impact) }
     }
@@ -154,9 +162,40 @@ internal class Snapshot(private val db: HemiDatabase, val userId: Long, val now:
         episodes = episodes[attack.id].orEmpty().map { EpisodeDto(it.id, Moment(it.started_at, it.started_offset.toInt()), it.endMoment(), it.start_unknown, it.is_recurrence) },
         readings = readings[attack.id].orEmpty().map { it.toDto() },
         doses = dosesByAttack[attack.id].orEmpty().map(::doseDto),
+        signs = signsBefore(attack.id),
         createdAt = attack.created_at,
         updatedAt = attack.updated_at,
     )
+
+    // Warning signs
+
+    fun signMoment(sign: Warning_sign) = Moment(sign.at, sign.at_offset.toInt())
+
+    /**
+     * WS-3: the attack whose first episode start at or after the sign is at most the window (S-6) later,
+     * recurrences included, with that start.
+     */
+    fun signAttack(sign: Warning_sign): Pair<Long, Moment>? = episodes.values.asSequence().flatten()
+        .filter { it.started_at >= sign.at && it.started_at - sign.at <= settings.signWindowMillis }
+        .minByOrNull { it.started_at }
+        ?.let { it.attack_id to Moment(it.started_at, it.started_offset.toInt()) }
+
+    fun signDto(sign: Warning_sign): WarningSignDto {
+        val attack = signAttack(sign)
+        return WarningSignDto(
+            id = sign.id,
+            at = signMoment(sign),
+            symptomIds = signSymptoms[sign.id].orEmpty().sorted(),
+            note = sign.note,
+            attackId = attack?.first,
+            attackStart = attack?.second,
+            createdAt = sign.created_at,
+            updatedAt = sign.updated_at,
+        )
+    }
+
+    /** The warning signs that came before [attackId] (WS-3), oldest first. */
+    fun signsBefore(attackId: Long): List<WarningSignDto> = signs.map(::signDto).filter { it.attackId == attackId }
 
     // Medications and doses
 
