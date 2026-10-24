@@ -109,6 +109,9 @@ const nb: Translation<typeof en> = {
     now: 'Det er over nå',
     atLastReading: 'Over ved siste måling ({{time}})',
     atTime: 'Det var over kl. {{time}}',
+    asleep: 'Borte da jeg våknet',
+    asleepAt: 'Sovnet kl.',
+    asleepHint: 'Slutten lagres som et anslag, på tidspunktet du sovnet.',
   },
   discard: {
     button: 'Forkast',
@@ -212,6 +215,10 @@ const nb: Translation<typeof en> = {
     edit: 'Endre måling {{severity}} kl. {{time}}',
     estimatedHint: 'Anslått da anfallet ble registrert i etterkant. Lagrer du, blir den en vanlig måling.',
     delete: 'Slett målingen',
+    onlyInEpisode: 'Dette er det eneste smertenivået i episoden, så dagene vises som ukjent.',
+    deleteOnly: 'Slett bare målingen',
+    deleteRecurrence: 'Slett hele tilbakefallet',
+    deleteEpisode: 'Slett hele episoden',
   },
   doses: {
     add: '+ Legg til inntak',
@@ -272,6 +279,7 @@ const nb: Translation<typeof en> = {
     started: 'Anfall startet',
     over: 'Over',
     wokeUp: 'Våknet med det',
+    endedAsleep: 'Borte da jeg våknet',
     reading: '{{name}} ({{severity}})',
     estimated: 'anslått',
     rateNow: 'Vurder {{medication}}: hvordan er det nå?',

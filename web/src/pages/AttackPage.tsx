@@ -58,6 +58,7 @@ function AttackView({ attack, triggers, now }: { attack: AttackDto; triggers: Tr
     span,
     duration !== null ? formatDuration(duration, units) : null,
     summary.wokeUp ? t('day.wokeUp') : null,
+    summary.endedAsleep ? t('day.endedAsleep') : null,
     summary.episodeCount > 1 ? t('attacks.recurrences', { count: summary.episodeCount - 1 }) : null,
     summary.peak !== null ? t('attacks.peak', { severity: summary.peak }) : t('attacks.peakUnknown'),
   ].filter(Boolean)

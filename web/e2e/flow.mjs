@@ -114,6 +114,21 @@ await step('log an attack afterwards (AT-14)', async () => {
   await shot('07-attacks')
 })
 
+await step('deleting an episode’s only reading asks first (AT-12)', async () => {
+  await page.locator('.attack-row', { hasText: 'peak 2' }).click()
+  const readings = page.locator('.card', { has: page.getByRole('heading', { name: 'Readings' }) })
+  await readings.getByRole('button', { name: /^Edit reading 2 at/ }).click()
+  await readings.getByRole('button', { name: 'Delete reading' }).click()
+  await readings.getByText('This is the only pain level in this episode').waitFor()
+  // One episode: it can't go on its own, so only the reading is offered.
+  if (await readings.getByRole('button', { name: /^Delete the whole/ }).count()) throw new Error('offered to delete the only episode')
+  await readings.getByRole('button', { name: 'Delete only the reading' }).waitFor()
+  await shot('07a-only-reading')
+  // Cancel goes back to the reading's form.
+  await readings.getByRole('button', { name: 'Cancel' }).click()
+  await readings.getByRole('button', { name: 'Delete reading' }).waitFor()
+})
+
 await step('start an attack with a chosen medication (AT-1, LI-4)', async () => {
   const startChoosing = async () => {
     await page.getByRole('button', { name: '+ Record' }).first().click()
@@ -131,6 +146,9 @@ await step('start an attack with a chosen medication (AT-1, LI-4)', async () => 
   const startedAt = await endTime.inputValue()
   await endTime.fill('01:00')
   await page.getByRole('button', { name: 'It’s over at 01:00' }).waitFor()
+  await page.locator('dialog.sheet').getByLabel('Gone when I woke up').check()
+  await page.locator('dialog.sheet').getByLabel('Fell asleep at').waitFor()
+  await page.locator('dialog.sheet').getByLabel('Gone when I woke up').uncheck()
   await endTime.fill(startedAt)
   await page.getByRole('button', { name: 'It’s over now' }).click()
   await page.locator('.month-panel').waitFor()
@@ -215,6 +233,12 @@ await step('edit episodes and split a recurrence (AT-7, AT-12)', async () => {
   await episodes.getByLabel('Woke up with it').check()
   await episodes.getByRole('button', { name: 'Save', exact: true }).click()
   await page.locator('.attack-page-header').getByText('Woke up with it').waitFor()
+  // Gone when I woke up (AT-6): the end is an estimate, shown with the attack.
+  await episodes.getByRole('button', { name: 'Edit Attack' }).click()
+  await episodes.getByLabel('Gone when I woke up').check()
+  await episodes.getByLabel('Fell asleep at').waitFor()
+  await episodes.getByRole('button', { name: 'Save', exact: true }).click()
+  await episodes.getByText('Gone when I woke up').waitFor()
   await episodes.getByRole('button', { name: 'Edit Recurrence' }).click()
   await shot('07g-episode-form')
   await episodes.getByRole('button', { name: 'Make it its own attack' }).click()

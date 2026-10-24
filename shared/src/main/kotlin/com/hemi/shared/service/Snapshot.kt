@@ -141,6 +141,7 @@ internal class Snapshot(private val db: HemiDatabase, val userId: Long, val now:
             start = start,
             wokeUp = episodes[attack.id].orEmpty().firstOrNull()?.start_unknown == true,
             end = end,
+            endedAsleep = end != null && episodes[attack.id].orEmpty().lastOrNull()?.end_unknown == true,
             ongoing = timeline.ongoing,
             peak = timeline.peak,
             painSide = attack.pain_side?.let { enumOfCode<PainSide>(it) },
@@ -159,7 +160,7 @@ internal class Snapshot(private val db: HemiDatabase, val userId: Long, val now:
     fun attackDto(attack: Attack) = AttackDto(
         summary = summary(attack),
         note = attack.note,
-        episodes = episodes[attack.id].orEmpty().map { EpisodeDto(it.id, Moment(it.started_at, it.started_offset.toInt()), it.endMoment(), it.start_unknown, it.is_recurrence) },
+        episodes = episodes[attack.id].orEmpty().map { EpisodeDto(it.id, Moment(it.started_at, it.started_offset.toInt()), it.endMoment(), it.start_unknown, it.is_recurrence, it.end_unknown) },
         readings = readings[attack.id].orEmpty().map { it.toDto() },
         doses = dosesByAttack[attack.id].orEmpty().map(::doseDto),
         signs = signsBefore(attack.id),

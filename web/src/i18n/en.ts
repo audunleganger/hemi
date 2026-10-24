@@ -106,6 +106,9 @@ const en = {
     now: 'It’s over now',
     atLastReading: 'Ended at the last reading ({{time}})',
     atTime: 'It’s over at {{time}}',
+    asleep: 'Gone when I woke up',
+    asleepAt: 'Fell asleep at',
+    asleepHint: 'The end is saved as an estimate, at the time you fell asleep.',
   },
   discard: {
     button: 'Discard',
@@ -209,6 +212,10 @@ const en = {
     edit: 'Edit reading {{severity}} at {{time}}',
     estimatedHint: 'Estimated when logged afterwards. Saving makes it a regular reading.',
     delete: 'Delete reading',
+    onlyInEpisode: 'This is the only pain level in this episode, so its days will show as unknown.',
+    deleteOnly: 'Delete only the reading',
+    deleteRecurrence: 'Delete the whole recurrence',
+    deleteEpisode: 'Delete the whole episode',
   },
   doses: {
     add: '+ Add dose',
@@ -269,6 +276,7 @@ const en = {
     started: 'Attack started',
     over: 'Over',
     wokeUp: 'Woke up with it',
+    endedAsleep: 'Gone when I woke up',
     reading: '{{name}} ({{severity}})',
     estimated: 'estimated',
     rateNow: 'Rate {{medication}}: how is it now?',

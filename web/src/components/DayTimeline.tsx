@@ -56,7 +56,7 @@ export function DayTimeline({ day, cutoffMinutes, now, pending }: { day: DayView
       items.push({ at: attack.start.at - 1, key: `start-${attack.id}`, time: clock(attack.start), marker: 'event', content: <span><Link to={`/attacks/${attack.id}`}>{t('day.started')}</Link>{note && <small>{note}</small>}</span> })
     }
     if (attack.end && dayOf(attack.end, cutoffMinutes) === day.date) {
-      items.push({ at: attack.end.at + 1, key: `end-${attack.id}`, time: clock(attack.end), marker: 'event', content: <span>{t('day.over')}</span> })
+      items.push({ at: attack.end.at + 1, key: `end-${attack.id}`, time: clock(attack.end), marker: 'event', content: <span>{t('day.over')}{attack.endedAsleep && <small>{t('day.endedAsleep')}</small>}</span> })
     }
   }
   for (const { attackId, reading } of day.readings) {

@@ -61,6 +61,7 @@ export interface AttackSummary {
   start: Moment
   wokeUp: boolean
   end: Moment | null
+  endedAsleep: boolean
   ongoing: boolean
   peak: number | null
   painSide: PainSide | null
@@ -167,6 +168,7 @@ export interface DosePreviewInput {
 
 export interface EndInput {
   at?: Moment | null
+  asleep?: boolean
 }
 
 export interface EpisodeDto {
@@ -175,12 +177,14 @@ export interface EpisodeDto {
   end: Moment | null
   startUnknown: boolean
   isRecurrence: boolean
+  endUnknown: boolean
 }
 
 export interface EpisodeInput {
   start: Moment
   startUnknown?: boolean
   end?: Moment | null
+  endUnknown?: boolean
 }
 
 export interface ErrorResponse {

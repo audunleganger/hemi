@@ -117,20 +117,20 @@ class AttackService(private val db: HemiDatabase, private val userId: Long, priv
         val open = snapshot.episodes[attack.id].orEmpty().firstOrNull { it.ended_at == null }
         if (severity == 0 && timeline.ongoing && open != null) {
             if (at.at < open.started_at) validation("The reading is before the attack started")
-            queries.endEpisode(at.at, at.offset.toLong(), open.id)
+            queries.endEpisode(at.at, at.offset.toLong(), false, open.id)
         }
         queries.insertReading(attack.id, at.at, at.offset.toLong(), severity.toLong(), false)
         touch(attack.id)
     }
 
-    /** "It's over" (AT-6): ends the current episode now or at the given time. */
+    /** "It's over" (AT-6): ends the current episode now or at the given time; asleep, that time is an estimate. */
     fun end(attackId: Long, input: EndInput): AttackDto = db.transactionWithResult {
         val snapshot = snapshot()
         snapshot.attacks[attackId] ?: notFound("Attack")
         val open = snapshot.episodes[attackId].orEmpty().firstOrNull { it.ended_at == null } ?: validation("The attack is already over")
         val at = input.at?.let { checkMoment(it, "The end") } ?: snapshot.nowMoment
         if (at.at < open.started_at) validation("The end must be after the start")
-        queries.endEpisode(at.at, at.offset.toLong(), open.id)
+        queries.endEpisode(at.at, at.offset.toLong(), input.asleep, open.id)
         touch(attackId)
         get(attackId)
     }
@@ -208,7 +208,7 @@ class AttackService(private val db: HemiDatabase, private val userId: Long, priv
             validation("Episodes can't overlap")
         }
         if (end == null && !attack.logged_afterwards && others.any { it.started_at > start.at }) validation("Only the last episode can be ongoing")
-        queries.updateEpisode(start.at, start.offset.toLong(), input.startUnknown, end?.at, end?.offset?.toLong(), episode.id)
+        queries.updateEpisode(start.at, start.offset.toLong(), input.startUnknown, end?.at, end?.offset?.toLong(), end != null && input.endUnknown, episode.id)
         touch(attackId)
         get(attackId)
     }
