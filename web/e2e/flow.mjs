@@ -126,6 +126,12 @@ await step('start an attack with a chosen medication (AT-1, LI-4)', async () => 
   await page.getByRole('heading', { name: 'How bad is it now?' }).waitFor()
   await page.getByText('Sumatriptan: 2 of 2 doses in 24 hours').waitFor()
   await page.getByRole('button', { name: 'It’s over' }).click()
+  // The one end button follows the picked time, so a changed time can't be skipped (AT-6).
+  const endTime = page.locator('dialog.sheet').getByLabel('Time')
+  const startedAt = await endTime.inputValue()
+  await endTime.fill('01:00')
+  await page.getByRole('button', { name: 'It’s over at 01:00' }).waitFor()
+  await endTime.fill(startedAt)
   await page.getByRole('button', { name: 'It’s over now' }).click()
   await page.locator('.month-panel').waitFor()
   // A third would go over it: the picker shows what it does and asks first.

@@ -108,7 +108,7 @@ const nb: Translation<typeof en> = {
     title: 'Det er over',
     now: 'Det er over nå',
     atLastReading: 'Over ved siste måling ({{time}})',
-    atTime: 'Over på dette tidspunktet',
+    atTime: 'Det var over kl. {{time}}',
   },
   discard: {
     button: 'Forkast',
