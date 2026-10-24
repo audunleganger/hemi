@@ -105,7 +105,7 @@ const en = {
     title: 'It’s over',
     now: 'It’s over now',
     atLastReading: 'Ended at the last reading ({{time}})',
-    atTime: 'Ended at this time',
+    atTime: 'It’s over at {{time}}',
   },
   discard: {
     button: 'Discard',
