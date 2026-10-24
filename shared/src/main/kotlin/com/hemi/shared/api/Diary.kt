@@ -15,6 +15,8 @@ data class EpisodeDto(
     /** Woke up with it (AT-2). */
     val startUnknown: Boolean,
     val isRecurrence: Boolean,
+    /** Gone when the user woke up: [end] is an estimate (AT-6). */
+    val endUnknown: Boolean,
 )
 
 @Serializable
@@ -59,6 +61,8 @@ data class AttackSummary(
     /** Woke up with it: the real start is unknown (AT-2). */
     val wokeUp: Boolean,
     val end: Moment?,
+    /** Gone when the user woke up: [end] is an estimate (AT-6). */
+    val endedAsleep: Boolean,
     val ongoing: Boolean,
     /** Null: no readings (AT-15). */
     val peak: Int?,
@@ -135,6 +139,8 @@ data class DiscardResult(
 data class EndInput(
     /** Null: now. */
     val at: Moment? = null,
+    /** Gone when the user woke up: [at] is when they fell asleep, an estimate. */
+    val asleep: Boolean = false,
 )
 
 @Serializable
@@ -151,6 +157,8 @@ data class EpisodeInput(
     val start: Moment,
     val startUnknown: Boolean = false,
     val end: Moment? = null,
+    /** Gone when the user woke up (AT-6); ignored without [end]. */
+    val endUnknown: Boolean = false,
 )
 
 /** AT-14: an attack that is over. Only [start] is required. */

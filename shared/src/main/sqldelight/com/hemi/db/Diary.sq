@@ -42,7 +42,9 @@ CREATE TABLE episode (
     -- Null: ongoing, or not recorded for an attack logged afterwards (AT-15).
     ended_at INTEGER,
     ended_offset INTEGER,
-    is_recurrence INTEGER AS Boolean NOT NULL DEFAULT 0
+    is_recurrence INTEGER AS Boolean NOT NULL DEFAULT 0,
+    -- Gone when the user woke up: the end is their estimate of when they fell asleep (AT-6).
+    end_unknown INTEGER AS Boolean NOT NULL DEFAULT 0
 );
 
 CREATE INDEX episode_attack ON episode(attack_id);
@@ -151,10 +153,10 @@ INSERT INTO episode(attack_id, started_at, started_offset, start_unknown, ended_
 VALUES (?, ?, ?, ?, ?, ?, ?);
 
 updateEpisode:
-UPDATE episode SET started_at = ?, started_offset = ?, start_unknown = ?, ended_at = ?, ended_offset = ? WHERE id = ?;
+UPDATE episode SET started_at = ?, started_offset = ?, start_unknown = ?, ended_at = ?, ended_offset = ?, end_unknown = ? WHERE id = ?;
 
 endEpisode:
-UPDATE episode SET ended_at = ?, ended_offset = ? WHERE id = ?;
+UPDATE episode SET ended_at = ?, ended_offset = ?, end_unknown = ? WHERE id = ?;
 
 moveEpisode:
 UPDATE episode SET attack_id = ?, is_recurrence = 0 WHERE id = ?;

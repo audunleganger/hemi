@@ -6,6 +6,7 @@ import com.hemi.shared.api.DiscardInput
 import com.hemi.shared.api.DoseInput
 import com.hemi.shared.api.DosePreviewInput
 import com.hemi.shared.api.EndInput
+import com.hemi.shared.api.EpisodeInput
 import com.hemi.shared.api.ErrorCodes
 import com.hemi.shared.api.IngredientInput
 import com.hemi.shared.api.LimitInput
@@ -75,6 +76,25 @@ class DiaryTest {
         val attack = s.t.attacks().start(StartAttackInput(at = at("2026-10-19T07:00"), wokeUp = true, severity = 2)).attack
         assertTrue(attack.episodes.single().startUnknown)
         assertEquals(at("2026-10-19T07:00"), attack.summary.start)
+    }
+
+    @Test
+    fun `gone when I woke up ends at the estimated time, on the day before the cutoff (AT-6)`() {
+        val s = Setup()
+        s.t.now("2026-10-19T23:00")
+        val id = s.t.attacks().start(StartAttackInput(severity = 1)).attack.summary.id
+        s.t.now("2026-10-20T08:45")
+        val ended = s.t.attacks().end(id, EndInput(at("2026-10-20T01:00"), asleep = true))
+        assertEquals(at("2026-10-20T01:00"), ended.summary.end)
+        assertTrue(ended.summary.endedAsleep)
+        assertTrue(ended.episodes.single().endUnknown)
+        assertEquals(listOf("2026-10-19"), s.t.home().calendar("2026-10-01", "2026-10-31").days.map { it.date })
+
+        // Editing keeps the flag only with an end.
+        val episode = ended.episodes.single()
+        assertFalse(s.t.attacks().updateEpisode(id, episode.id, EpisodeInput(episode.start, end = at("2026-10-20T02:00"))).summary.endedAsleep)
+        assertTrue(s.t.attacks().updateEpisode(id, episode.id, EpisodeInput(episode.start, end = at("2026-10-20T02:00"), endUnknown = true)).summary.endedAsleep)
+        assertFalse(s.t.attacks().updateEpisode(id, episode.id, EpisodeInput(episode.start, endUnknown = true)).episodes.single().endUnknown)
     }
 
     @Test

@@ -69,6 +69,7 @@ export function EpisodesEditor({ attack }: { attack: AttackDto }) {
                   {[
                     `${when(episode.start)}–${episode.end ? when(episode.end, episode.start) : attack.summary.ongoing && i === episodes.length - 1 ? t('chart.now') : '?'}`,
                     episode.startUnknown ? t('day.wokeUp') : null,
+                    episode.end && episode.endUnknown ? t('day.endedAsleep') : null,
                   ]
                     .filter(Boolean)
                     .join(' · ')}
@@ -93,7 +94,10 @@ function EpisodeForm({ attack, episode, index, onDone }: { attack: AttackDto; ep
   const start = useMomentInputs(episode.start)
   const end = useMomentInputs(episode.end)
   const [wokeUp, setWokeUp] = useState(episode.startUnknown)
-  const save = useApiMutation(() => endpoints.updateEpisode(id, episode.id, { start: start.moment()!, startUnknown: wokeUp, end: end.moment() }))
+  const [asleep, setAsleep] = useState(episode.endUnknown)
+  const save = useApiMutation(() =>
+    endpoints.updateEpisode(id, episode.id, { start: start.moment()!, startUnknown: wokeUp, end: end.moment(), endUnknown: asleep }),
+  )
   const remove = useApiMutation(() => endpoints.deleteEpisode(id, episode.id))
   const split = useApiMutation(() => endpoints.splitEpisode(id, episode.id))
   const last = index === attack.episodes.length - 1
@@ -111,7 +115,10 @@ function EpisodeForm({ attack, episode, index, onDone }: { attack: AttackDto; ep
       <label className="checkbox">
         <input type="checkbox" checked={wokeUp} onChange={(e) => setWokeUp(e.target.checked)} /> {t('start.wokeUp')}
       </label>
-      <MomentFields labels={[t('episodes.endDate'), t('episodes.endTime')]} inputs={end} hint={endHint} />
+      <MomentFields labels={[t('episodes.endDate'), asleep ? t('end.asleepAt') : t('episodes.endTime')]} inputs={end} hint={endHint} />
+      <label className="checkbox">
+        <input type="checkbox" checked={asleep} onChange={(e) => setAsleep(e.target.checked)} /> {t('end.asleep')}
+      </label>
       <ErrorText error={save.error ?? remove.error ?? split.error} />
       <div className="row-actions">
         <button type="submit" className="btn btn-primary" disabled={save.isPending}>
@@ -208,10 +215,41 @@ function ReadingForm({ attack, reading, onDone }: { attack: AttackDto; reading: 
     reading ? endpoints.updateReading(id, reading.id, { at: at.moment(), severity: severity! }) : endpoints.addReading(id, { at: at.moment(), severity: severity! }),
   )
   const remove = useApiMutation(() => endpoints.deleteReading(id, reading!.id))
+  // The episode loses its only pain level: ask, and offer to delete the episode instead.
+  const episodeIndex = reading ? attack.episodes.findIndex((e) => inEpisode(e, reading.at)) : -1
+  const episode = attack.episodes[episodeIndex]
+  const onlyOne = !!episode && !attack.readings.some((r) => r.id !== reading!.id && inEpisode(episode, r.at))
+  const removeEpisode = useApiMutation(async () => {
+    await endpoints.deleteReading(id, reading!.id)
+    return endpoints.deleteEpisode(id, episode.id)
+  })
+  const [asking, setAsking] = useState(false)
 
   function submit(event: FormEvent) {
     event.preventDefault()
     save.mutate(undefined, { onSuccess: onDone })
+  }
+
+  if (asking) {
+    return (
+      <div className="stack edit-form">
+        <p>{t('readings.onlyInEpisode')}</p>
+        <ErrorText error={remove.error ?? removeEpisode.error} />
+        <div className="row-actions">
+          {attack.episodes.length > 1 && (
+            <button type="button" className="btn btn-danger" disabled={removeEpisode.isPending} onClick={() => removeEpisode.mutate(undefined, { onSuccess: onDone })}>
+              {episodeIndex > 0 ? t('readings.deleteRecurrence') : t('readings.deleteEpisode')}
+            </button>
+          )}
+          <button type="button" className="btn" disabled={remove.isPending} onClick={() => remove.mutate(undefined, { onSuccess: onDone })}>
+            {t('readings.deleteOnly')}
+          </button>
+          <button type="button" className="btn btn-ghost" onClick={() => setAsking(false)}>
+            {t('common.cancel')}
+          </button>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -227,7 +265,12 @@ function ReadingForm({ attack, reading, onDone }: { attack: AttackDto; reading: 
         <button type="button" className="btn btn-ghost" onClick={onDone}>
           {t('common.cancel')}
         </button>
-        {reading && (
+        {reading && onlyOne && (
+          <button type="button" className="btn btn-ghost" onClick={() => setAsking(true)}>
+            {t('readings.delete')}
+          </button>
+        )}
+        {reading && !onlyOne && (
           <ConfirmButton className="btn btn-ghost" disabled={remove.isPending} onConfirm={() => remove.mutate(undefined, { onSuccess: onDone })}>
             {t('readings.delete')}
           </ConfirmButton>
@@ -235,4 +278,9 @@ function ReadingForm({ attack, reading, onDone }: { attack: AttackDto; reading: 
       </div>
     </form>
   )
+}
+
+/** Whether [at] falls in [episode]; an ongoing or end-less episode runs on. */
+function inEpisode(episode: EpisodeDto, at: Moment): boolean {
+  return at.at >= episode.start.at && (episode.end === null || at.at <= episode.end.at)
 }

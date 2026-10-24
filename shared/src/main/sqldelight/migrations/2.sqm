@@ -1,0 +1,2 @@
+-- v2 -> v3: an episode can end while asleep, with an estimated end (AT-6).
+ALTER TABLE episode ADD COLUMN end_unknown INTEGER NOT NULL DEFAULT 0;

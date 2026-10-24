@@ -1,6 +1,8 @@
 # Hemi — Requirement Specification
 
-Version 0.15 · 2026-10-23
+Version 0.16 · 2026-10-24
+
+*0.16: "It's over" follows the picked time; "Gone when I woke up" ends with an estimated time (AT-6); deleting an episode's only reading asks first (AT-12) (appendix, "Ending in sleep").*
 
 *0.15: *Unsure* attacks always show in the calendar, outlined (DS-9, appendix "Unsure in the calendar").*
 
@@ -115,14 +117,15 @@ The Norwegian terms are a first guess and live only in the localization files.
 - **AT-5 (MUST)** **Type**: always `migraine` in v1. Other headache types are FUTURE; the field exists so they can be added.
 - **AT-6 (MUST)** **Ending**:
   - A **reading of 0 ends the current episode** at the time of that reading.
-  - **"It's over"** ends it now or at a chosen time.
+  - **"It's over"** ends it now or at a chosen time. One button follows the picker: "It's over now" until the time is changed, then "It's over at 01:00".
+  - **"Gone when I woke up"** ends it at the time the user fell asleep, marked as an estimate (shown with the attack, like "Woke up with it"). Editable on the episode. The day cutoff (glossary, "Day") keeps an end before it on the day before.
   - Nothing else ends an attack. If an attack started live (not logged afterwards, AT-14) has been open for more than 24 h without a new reading, the app asks on the next visit: "Is the attack from ⟨day⟩ still going? Last reading: 2 at 21:30", offering to end it at the last reading or a chosen time.
 - **AT-7 (MUST)** **Recurrence**: starting an attack within **48 h** of the previous one ending adds a new **episode** to that attack instead, marked as a recurrence, and says so ("Added to Monday's attack as a recurrence · Undo"). Undo splits it into its own attack. The timeline shows the pain-free gap between episodes.
 - **AT-8 (MUST)** **Nausea**: none / nauseous / vomited (per attack).
 - **AT-9 (MUST)** **Pain side**: left / right / both, picked on a small drawing of a head **seen from behind**, so the user's left is on the left. Optional.
 - **AT-10 (MUST)** **Triggers**: toggles for the user's own triggers (3.6), any number per attack.
 - **AT-11 (MUST)** **Note**: free text.
-- **AT-12 (MUST)** Attacks, episodes, readings can be edited and deleted. Deleting an attack keeps its doses (they become doses without an attack). **Every** part of an attack stays editable after it's logged: times, episodes, readings (estimated or not), doses, status, nausea, pain side, triggers, note. Nothing is locked.
+- **AT-12 (MUST)** Attacks, episodes, readings can be edited and deleted. Deleting an attack keeps its doses (they become doses without an attack). Deleting an episode's **only reading** asks first, since its days would show as unknown, and offers to delete the whole episode instead when the attack has others. **Every** part of an attack stays editable after it's logged: times, episodes, readings (estimated or not), doses, status, nausea, pain side, triggers, note. Nothing is locked.
 - **AT-16 (MUST)** **Discard the ongoing attack**: undoes the start, for an attack started by mistake. It removes the ongoing episode with its readings. If that episode was a recurrence (AT-7), the earlier attack goes back to how it was, ended; otherwise the attack is deleted. Doses logged in the episode are listed in the confirmation, with a choice to delete them too (default) or keep them as doses without an attack. A small text button next to **It's over**, always behind a confirmation.
 - **AT-14 (MUST)** **Log afterwards**: one form for an attack that is over, e.g. "yesterday 14:00–22:00". Only the **start** is required; everything else is optional and can be filled in now, later or never: end, peak severity, doses taken (medication, quantity, time), status, nausea, pain side, triggers, note. A peak severity given here is stored as one reading at the start time, marked **estimated**. Doses added here are never put in the pending ratings (DO-6); they can be rated on the form or later, or stay unrated.
 - **AT-15 (MUST)** **Missing data is normal**, not an error. An attack may have no readings, no end, no doses and no details, and everything derived must handle it:
@@ -336,7 +339,7 @@ All tables carry `user_id`. Names are stored as entered plus a normalized column
 | warning_sign | id, user_id, at, at_offset, note, created_at, updated_at (WS-1) |
 | warning_sign_symptom | sign_id, symptom_id |
 | attack | id, user_id, type (migraine), logged_afterwards (AT-14), status (migraine/unsure/not_migraine), nausea (none/nauseous/vomited), pain_side (left/right/both, nullable), note, created_at, updated_at |
-| episode | id, attack_id, started_at, started_offset, start_unknown (woke up with it), ended_at (nullable = ongoing), ended_offset, is_recurrence |
+| episode | id, attack_id, started_at, started_offset, start_unknown (woke up with it), ended_at (nullable = ongoing), ended_offset, is_recurrence, end_unknown (gone when I woke up; since schema v3) |
 | reading | id, attack_id, at, at_offset, severity (0–3), estimated (AT-14) |
 | attack_trigger | attack_id, trigger_id |
 | work_day_override | user_id, day, impact (missed/home_early/none/not_workday) (WI-3) |
@@ -500,3 +503,11 @@ Fixes the broken widths between phone and PC view (DS-1, 0.9). `web/e2e/flow.mjs
 |---|---|
 | Showing (DS-9, AT-4) | A day with an *Unsure* attack and warning signs looked like signs only, since the calendar hid *Unsure* attacks by default. They now always show as an outline; migraine days and statistics still leave them out. The include filter stays for statistics |
 | Signs (DS-9) | An *Unsure* attack outlines the light-blue fill instead of replacing it |
+
+### Ending in sleep (0.16)
+
+| Topic | Decision |
+|---|---|
+| Why (AT-6) | An end picked as 01:00 was saved as the moment of tapping "It's over now", so the attack ran into the next day. The big button now follows the picker |
+| Gone when I woke up (AT-6) | A checkbox on "It's over" and on the episode: the time is when the user fell asleep, stored as an estimate (`end_unknown`), mirroring "Woke up with it". Chosen over a fixed "ended overnight" time, which couldn't tell a guess from a real end |
+| Only reading (AT-12) | Deleting it asks, and offers deleting the episode instead. Chosen over blocking it, which attacks logged afterwards (peak optional) would have had to be exempt from |

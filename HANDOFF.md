@@ -15,7 +15,7 @@
 - Severity colours on the severity buttons and chart: offered, not asked for.
 
 ## Traps
-- **Schema is released and migrated.** `databases/1.db` is the 0.1.0 schema and `migrations/1.sqm` adds warning signs (schema v2); `verifyMigrations` is on, so `./gradlew check` fails if a `.sq` table changes without a matching new `migrations/N.sqm`. New queries alone need none of this.
+- **Schema is released and migrated.** `databases/1.db` is the 0.1.0 schema, `migrations/1.sqm` adds warning signs (v2) and `2.sqm` the episode's `end_unknown` (v3; `databases/2.db` is v2); `verifyMigrations` is on, so `./gradlew check` fails if a `.sq` table changes without a matching new `migrations/N.sqm`. New queries alone need none of this.
 - Check the server before saying an endpoint is missing: `server/.../DiaryRoutes.kt` already had dose update, episode update/delete/split and reading update/delete before the UI used them.
 - `PUT /attacks/{id}` replaces all fields; omitted ones become null/empty. `updateReading` clears `estimated`.
 - `useApiMutation` refreshes without awaiting, so e2e must wait for the new state (row counts etc.), not assert right after a click.
